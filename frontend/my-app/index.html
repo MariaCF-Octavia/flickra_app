@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" /> <!-- Changed from %PUBLIC_URL% -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="AI-powered content generation with Stable Diffusion XL" />
+    
+    <!-- SharedArrayBuffer headers for FFmpeg support -->
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="credentialless">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    
+    <!-- Cloudinary Scripts -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <script src="https://media-editor.cloudinary.com/all.js"></script>
+    
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://api.stability.ai">
+    
+    <!-- FFmpeg and SharedArrayBuffer detection -->
+    <script>
+      // Check and log SharedArrayBuffer support
+      console.log('SharedArrayBuffer support:', typeof SharedArrayBuffer !== 'undefined');
+      
+      // For development only - enable headers
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        console.log('Development mode - attempting to enable SharedArrayBuffer');
+      }
+    </script>
+    
+    <title>Content Factory</title>
+  </head>
+  <body>
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+        <h1 style="color: #dc3545;">JavaScript is required</h1>
+        <p>This application uses modern web technologies that require JavaScript.</p>
+      </div>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script> <!-- Keep Vite's entry point -->
+  </body>
+</html>
