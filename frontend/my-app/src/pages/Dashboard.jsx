@@ -12,7 +12,7 @@ import adForCf4 from "../assets/AdForCf4.mp4";
 import skincare from "../assets/Skincare.jpeg";
 import phone from "../assets/phonead.jpg";
 import CFDemoUse from "../assets/CFDemoUse.mp4";
-
+import fendiad from "../assets/fendiadCf.mp4";
 import DemoVideo from "../components/DemoVideo.jsx";
 
 const HomeDashboard = () => {
