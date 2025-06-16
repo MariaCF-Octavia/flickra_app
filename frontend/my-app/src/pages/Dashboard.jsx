@@ -5,13 +5,11 @@ import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, A
 
 // Imported assets
 import waterad from "../assets/water ad.webp";
-import fendiad from "../assets/fendiadCf.mp4";
-import perfume from "../assets/perfume.jpg";
 import curology from "../assets/cfcurologyad.mp4";
 import givenchy from "../assets/givenchyadCF.mp4";
 import adForCf1 from "../assets/AdForCf1.mp4";
 import adForCf4 from "../assets/AdForCf4.mp4";
-import skincare from "../assets/skincare.jpeg";
+import skincare from "../assets/Skincare.jpeg";
 import phone from "../assets/phonead.jpg";
 import CFDemoUse from "../assets/CFDemoUse.mp4";
 
