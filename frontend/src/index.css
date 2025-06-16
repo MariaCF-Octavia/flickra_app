@@ -1,0 +1,75 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Animations */
+@keyframes fade-in-slow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-slow {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left-slow {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right-slow {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-slow {
+  animation: fade-in-slow 2s ease-in-out;
+}
+
+.animate-slide-up-slow {
+  animation: slide-up-slow 2s ease-in-out;
+}
+
+.animate-slide-in-left-slow {
+  animation: slide-in-left-slow 2s ease-in-out;
+}
+
+.animate-slide-in-right-slow {
+  animation: slide-in-right-slow 2s ease-in-out;
+}
+
+/* Metallic Text Gradient */
+.text-silver-gradient {
+  background: linear-gradient(45deg, #bdc3c7, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Styles */
+body {
+  font-family: 'Inter', sans-serif;
+}

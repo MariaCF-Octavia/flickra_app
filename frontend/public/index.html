@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="AI-powered content generation with Stable Diffusion XL" />
+    
+    <!-- Cloudinary Scripts -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <script src="https://media-editor.cloudinary.com/all.js"></script>
+    
+    <!-- Stripe.js must be loaded first -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://api.stability.ai">
+    
+    <title>Content Factory</title>
+  </head>
+  <body>
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+        <h1 style="color: #dc3545;">JavaScript is required</h1>
+        <p>This application uses modern web technologies that require JavaScript.</p>
+      </div>
+    </noscript>
+    <div id="root"></div>
+  </body>
+</html>
