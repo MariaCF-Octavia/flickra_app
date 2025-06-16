@@ -9,23 +9,23 @@ export default defineConfig({
   assetsInclude: ['**/*.mov', '**/*.mp4'],
   build: {
     rollupOptions: {
-      external: ['@supabase/supabase-js']
+      external: ['@supabase/supabase-js', 'uuid']
     }
   },
   server: {
-    host: true, // This allows access from your phone
-    port: 5173, // You can change this port if needed
+    host: true,
+    port: 5173,
     allowedHosts: [
       'localhost',
       '127.0.0.1',
-      '*.ngrok-free.app',  // This allows all ngrok domains
-      '.ngrok-free.app'    // Alternative format
+      '*.ngrok-free.app',
+      '.ngrok-free.app'
     ],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: false, // Add this if you're having HTTPS issues
+        secure: false,
       },
       '/create-checkout': {
         target: 'http://localhost:8000',
