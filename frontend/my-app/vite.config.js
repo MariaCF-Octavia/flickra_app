@@ -7,6 +7,11 @@ export default defineConfig({
     postcss: './postcss.config.js'
   },
   assetsInclude: ['**/*.mov', '**/*.mp4'],
+  build: {
+    rollupOptions: {
+      external: ['@supabase/supabase-js', 'uuid']
+    }
+  },
   server: {
     host: true, // This allows access from your phone
     port: 5173, // You can change this port if needed
@@ -29,4 +34,4 @@ export default defineConfig({
       },
     },
   },
-}); 
+});
