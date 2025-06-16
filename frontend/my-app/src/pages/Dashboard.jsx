@@ -516,7 +516,7 @@ const HomeDashboard = () => {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-              Revolutionary <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">AI Technology</span>
+              Advanced <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">AI Technology</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-violet-600 mx-auto mb-6 rounded-full"></div>
             <p className={`text-lg ${themeStyles.textSecondary} leading-relaxed animate-fade-in-up animation-delay-200`}>
@@ -539,7 +539,7 @@ const HomeDashboard = () => {
                   </div>
                   {feature.highlight && (
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      feature.highlight === 'REVOLUTIONARY' 
+                      feature.highlight === 'ADVANCED' 
                         ? 'bg-red-500/20 text-red-400' 
                         : feature.highlight === 'UNIQUE' 
                         ? 'bg-amber-500/20 text-amber-400'
@@ -567,7 +567,7 @@ const HomeDashboard = () => {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-violet-600 mx-auto mb-6 rounded-full"></div>
             <p className={`text-lg ${themeStyles.textSecondary} leading-relaxed animate-fade-in-up animation-delay-200`}>
-              Every ad below was created in minutes using CF Studio. No expensive shoots, no weeks of editing.
+              Every ad below was created in minutes using CF Studio. We used real life products from home and fashion inspiration found online to showcase what`s possible - no brand deals, no studio, just AI and your imagination
             </p>
           </div>
           

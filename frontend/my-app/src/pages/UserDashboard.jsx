@@ -20,7 +20,7 @@ import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkle
 import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://https://contentfactory-4.onrender.com';
 
 const UserDashboard = ({ debug = false }) => {
   const [userPlan, setUserPlan] = useState("basic");
