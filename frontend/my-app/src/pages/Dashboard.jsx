@@ -64,8 +64,8 @@ const HomeDashboard = () => {
     {
       icon: <Film className="w-6 h-6" />,
       title: "End-to-End AI Workflow",
-      description: "First platform to offer complete ad creation from concept to final output with revolutionary keyframes technology",
-      highlight: "REVOLUTIONARY"
+      description: "First platform to offer complete ad creation from concept to final output with references and keyframes technology.",
+      highlight: "References"
     },
     {
       icon: <Sparkles className="w-6 h-6" />,
@@ -88,7 +88,7 @@ const HomeDashboard = () => {
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Phone to Professional",
-      description: "Start with any product photo and transform it into studio-quality ad creative instantly",
+      description: "Start with any product photo and transform it into an professional commercial instantly.",
       highlight: null
     },
     {
@@ -393,7 +393,7 @@ const HomeDashboard = () => {
                 <span className="inline-block px-3 py-1 text-sm rounded-full bg-gradient-to-r from-indigo-500/20 to-violet-600/20 text-indigo-300 mb-4 animate-fade-in-up">
                   <span className="flex items-center">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2 animate-pulse"></span>
-                    Revolutionary AI Platform
+                    Advanced AI technology
                   </span>
                 </span>
               </div>
@@ -401,7 +401,7 @@ const HomeDashboard = () => {
                 From Photo to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">Professional Ad</span> in Minutes
               </h1>
               <p className="text-lg mb-8 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400">
-                Upload any product photo and create studio-quality ads with AI. video,images, voice - all in one platform.
+                Upload any product photo and create professional ads with AI. Video, images, voice, and editing - all in one platform
               </p>
               <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
                 <Link to="/signup" className={`px-6 py-3.5 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all`}>
@@ -754,7 +754,7 @@ const HomeDashboard = () => {
                 <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-indigo-500/20 to-violet-600/20 text-indigo-300 border border-indigo-500/30">BETA</div>
               </div>
               <p className="text-gray-400 mb-4">
-                The revolutionary AI platform for creating professional ads from any product photo.
+                The complete AI platform for turning product photos into professional ads.
               </p>
               <div className="flex space-x-4">
                 {['twitter', 'facebook', 'instagram', 'linkedin'].map((social, i) => (

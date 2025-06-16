@@ -16,6 +16,7 @@
     "@ffmpeg/core": "^0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.0",
     "@stripe/stripe-js": "^5.10.0",
+    "@supabase/supabase-js": "^2.50.0",
     "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "cloudinary-react": "^1.8.1",

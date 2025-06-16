@@ -2350,7 +2350,7 @@ return (
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30">Studio Quality</div>
+                        <div className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30">Professional Results</div>
                         <a
                           href={previews.audio}
                           download={`audio_${Date.now()}.mp3`}
