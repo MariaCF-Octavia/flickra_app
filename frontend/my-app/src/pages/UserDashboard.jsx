@@ -20,7 +20,7 @@ import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkle
 import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://https://contentfactory-4.onrender.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
 
 const UserDashboard = ({ debug = false }) => {
   const [userPlan, setUserPlan] = useState("basic");
@@ -274,7 +274,7 @@ const UserDashboard = ({ debug = false }) => {
     
 // Define API_BASE once at the top level of your component
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
 
 // Enhanced rate limiting helper
 const withRateLimit = async (apiCall, maxRetries = 3, baseDelay = 8000) => {
@@ -399,6 +399,9 @@ const pollSDXLResult = useCallback(async (generationId, accessToken) => {
   throw new Error('Image generation timed out');
 }, []);
 
+// First, fix your API_BASE constant - remove the extra "http://"
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
+
 const handleGeneration = async (content) => {
   const debug = {
     stage: 'init',
@@ -494,7 +497,7 @@ const handleGeneration = async (content) => {
     let body;
     try {
       if (type === 'video') {
-        endpoint = `/api/generate-video-json`;
+        endpoint = `${API_BASE}/api/generate-video-json`;
         requestOptions.headers['Content-Type'] = 'application/json';
         
         // Handle keyframes mode (2 images)
@@ -508,7 +511,7 @@ const handleGeneration = async (content) => {
             const imageFormData = new FormData();
             imageFormData.append('image', content.image);
             
-            const imageUploadResponse = await fetch(`/api/upload-image`, {
+            const imageUploadResponse = await fetch(`${API_BASE}/api/upload-image`, {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${session.access_token}`,
@@ -535,7 +538,7 @@ const handleGeneration = async (content) => {
             const lastImageFormData = new FormData();
             lastImageFormData.append('image', content.lastFrameImage);
             
-            const lastImageUploadResponse = await fetch(`/api/upload-image`, {
+            const lastImageUploadResponse = await fetch(`${API_BASE}/api/upload-image`, {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${session.access_token}`,
@@ -591,7 +594,7 @@ const handleGeneration = async (content) => {
             const imageFormData = new FormData();
             imageFormData.append('image', content.image);
             
-            const imageUploadResponse = await fetch(`/api/upload-image`, {
+            const imageUploadResponse = await fetch(`${API_BASE}/api/upload-image`, {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${session.access_token}`,
@@ -637,7 +640,7 @@ const handleGeneration = async (content) => {
         }
       } 
       else if (type === 'tts') {
-        endpoint = `/api/elevenlabs/text-to-speech/${encodeURIComponent(content.voice_id)}`;
+        endpoint = `${API_BASE}/api/elevenlabs/text-to-speech/${encodeURIComponent(content.voice_id)}`;
         requestOptions.headers['Content-Type'] = 'application/json';
         requestOptions.headers['Accept'] = 'audio/mpeg';
         const ttsPayload = {
@@ -659,7 +662,7 @@ const handleGeneration = async (content) => {
         let referenceImage = content.referenceImage || content.reference_image || content.refImage || content.referenceFile;
         
         // NEW: Use the fixed product consistency endpoint
-        endpoint = `/api/generate-branded-ad`;
+        endpoint = `${API_BASE}/api/generate-branded-ad`;
         
         if (referenceImage) {
             console.log("🎯 Using NEW PRODUCT CONSISTENCY mode with guaranteed preservation");
@@ -740,7 +743,7 @@ const handleGeneration = async (content) => {
         expectedResponseFormat = 'branded-ad';
       }
       else {
-        endpoint = `/api/generate-text`;
+        endpoint = `${API_BASE}/api/generate-text`;
         requestOptions.headers['Content-Type'] = 'application/json';
         
         const promptText = content.prompt?.trim() || '';

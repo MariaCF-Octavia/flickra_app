@@ -169,3 +169,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+ 
+# Node.js 
+node_modules/ 
+frontend/node_modules/ 
+npm-debug.log* 
+.npm 
+.node_repl_history 
