@@ -274,7 +274,7 @@ const UserDashboard = ({ debug = false }) => {
     
 // Define API_BASE once at the top level of your component
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
+
 
 // Enhanced rate limiting helper
 const withRateLimit = async (apiCall, maxRetries = 3, baseDelay = 8000) => {
@@ -400,7 +400,7 @@ const pollSDXLResult = useCallback(async (generationId, accessToken) => {
 }, []);
 
 // First, fix your API_BASE constant - remove the extra "http://"
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
+
 
 const handleGeneration = async (content) => {
   const debug = {
