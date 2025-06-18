@@ -2,98 +2,111 @@
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
+// Add this line at the top to get the backend URL
+const backendUrl = import.meta.env.VITE_API_BASE_URL;
+
 const Success = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [status, setStatus] = useState("Initializing...");
   const [verificationComplete, setVerificationComplete] = useState(false);
 
- 
-      // Force full page refresh to ensure latest auth state
-      useEffect(() => {
-        const verifyPayment = async () => {
-          try {
-            // Get fresh session with token
-            const { data: { user }, error: authError } = await supabase.auth.getSession();
-            
-            if (authError || !user) {
-              setStatus("Session expired - redirecting to login...");
-              await supabase.auth.signOut();
-              window.location.href = '/login';
-              return;
-            }
-        
-            // Get fresh access token
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session?.access_token) {
-              setStatus("No valid session found");
-              return;
-            }
-      
-            setStatus(`Authenticated as: ${user.email}`);
-            
-            // Verify payment with backend - FIXED: Using Vite proxy instead of environment variable
-            setStatus("Verifying payment...");
-            const response = await fetch("/api/verify-payment", {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${session.access_token}`
-              },
-              body: JSON.stringify({ session_id: sessionId })
-            });
-      
-            if (!response.ok) {
-              const errorData = await response.json();
-              setStatus(`Payment verification failed: ${errorData.detail || 'Unknown error'}`);
-              return;
-            }
-            
-            const data = await response.json();
-            setStatus(`Payment verified. Plan: ${data.plan || "unknown"}`);
-            
-            // Refresh auth session to get updated claims
-            const { error: refreshError } = await supabase.auth.refreshSession();
-            
-            if (refreshError) {
-              throw refreshError;
-            }
-      
-            // Redirect to user dashboard for all paid plans
-            window.location.href = `/userdashboard?plan=${data.plan.toLowerCase()}`;
-      
-          } catch (error) {
-            console.error("Verification error:", error);
-            setStatus(`Error: ${error.message || 'Unknown error occurred'}`);
-          }
-        };
-      
-        if (sessionId) verifyPayment();
-        else setStatus("Missing session ID - cannot verify payment");
-      }, [sessionId]);
-      
-      // Remove the verificationComplete state and associated useEffect
-      
-      useEffect(() => {
-        if (verificationComplete) {
-          // Verify session exists before redirect
-          const confirmRedirect = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session?.user) {
-              // Use window.location.assign instead of href for better tracking
-              window.location.assign(`/dashboard?refresh=${Date.now()}`);
-            } else {
-              setStatus("Session verification failed - redirecting to login");
-              await supabase.auth.signOut();
-              window.location.href = '/login';
-            }
-          };
-          
-          confirmRedirect();
+  // Force full page refresh to ensure latest auth state
+  useEffect(() => {
+    const verifyPayment = async () => {
+      try {
+        // Check if backend URL is configured
+        if (!backendUrl) {
+          setStatus("Backend configuration missing. Please contact support.");
+          console.error("VITE_API_BASE_URL environment variable not set");
+          return;
         }
-      }, [verificationComplete]);
+
+        console.log("Using backend URL:", backendUrl);
+
+        // Get fresh session with token
+        const { data: { user }, error: authError } = await supabase.auth.getSession();
+        
+        if (authError || !user) {
+          setStatus("Session expired - redirecting to login...");
+          await supabase.auth.signOut();
+          window.location.href = '/login';
+          return;
+        }
+    
+        // Get fresh access token
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.access_token) {
+          setStatus("No valid session found");
+          return;
+        }
+  
+        setStatus(`Authenticated as: ${user.email}`);
+        
+        // Verify payment with backend - FIXED: Using backend URL
+        setStatus("Verifying payment...");
+        console.log("Calling verify-payment endpoint:", `${backendUrl}/api/verify-payment`);
+        
+        const response = await fetch(`${backendUrl}/api/verify-payment`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ session_id: sessionId })
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          setStatus(`Payment verification failed: ${errorData.detail || 'Unknown error'}`);
+          return;
+        }
+        
+        const data = await response.json();
+        setStatus(`Payment verified. Plan: ${data.plan || "unknown"}`);
+        
+        // Refresh auth session to get updated claims
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          throw refreshError;
+        }
+  
+        // Redirect to user dashboard for all paid plans
+        window.location.href = `/userdashboard?plan=${data.plan.toLowerCase()}`;
+  
+      } catch (error) {
+        console.error("Verification error:", error);
+        setStatus(`Error: ${error.message || 'Unknown error occurred'}`);
+      }
+    };
+  
+    if (sessionId) verifyPayment();
+    else setStatus("Missing session ID - cannot verify payment");
+  }, [sessionId]);
+  
+  // Remove the verificationComplete state and associated useEffect
+  
+  useEffect(() => {
+    if (verificationComplete) {
+      // Verify session exists before redirect
+      const confirmRedirect = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Use window.location.assign instead of href for better tracking
+          window.location.assign(`/dashboard?refresh=${Date.now()}`);
+        } else {
+          setStatus("Session verification failed - redirecting to login");
+          await supabase.auth.signOut();
+          window.location.href = '/login';
+        }
+      };
+      
+      confirmRedirect();
+    }
+  }, [verificationComplete]);
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
