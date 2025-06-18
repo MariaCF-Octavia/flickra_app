@@ -40,8 +40,8 @@ const ChatBubble = () => {
       // Auto-detect the API URL based on current host
       const currentHost = window.location.hostname;
       const apiUrl = currentHost === 'localhost' 
-        ? 'http://localhost:8000/api/chat-public'
-        : `http://${currentHost}:8000/api/chat-public`;
+  ? 'http://localhost:8000/api/chat-public'
+  : 'https://contentfactory-4.onrender.com/api/chat-public';  // Use your actual backend!
       
       const response = await fetch(apiUrl, {
         method: 'POST',
