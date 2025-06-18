@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import { supabase } from "../supabaseClient";
 import { loadStripe } from "@stripe/stripe-js";
@@ -14,13 +14,33 @@ console.log("Stripe Public Key:", stripePublicKey);
 const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 const Signup = () => {
-  const navigate = useNavigate(); // Added this line
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle email confirmation when user returns from email
+  useEffect(() => {
+    const handleEmailConfirmation = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const confirmed = urlParams.get('confirmed');
+      const plan = urlParams.get('plan');
+      
+      if (confirmed === 'true') {
+        // User confirmed email, pre-select their plan and proceed
+        if (plan) {
+          setSelectedPlan(plan);
+        }
+        // Show success message
+        setError("✅ Email confirmed! You can now proceed with payment.");
+      }
+    };
+    
+    handleEmailConfirmation();
+  }, []);
 
   const validateForm = () => {
     const validPlans = ["basic", "premium", "enterprise"];
@@ -68,7 +88,7 @@ const Signup = () => {
   setIsLoading(true);
 
   try {
-    // 1. Supabase Signup (removed health check)
+    // 1. Supabase Signup with custom redirect
     console.log("Step 1: Starting Supabase signup...");
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email.trim(),
@@ -77,7 +97,8 @@ const Signup = () => {
         data: {
           username: username.trim(),
           plan: selectedPlan.toLowerCase()
-        }
+        },
+        emailRedirectTo: `https://contentfactory.ai/signup?confirmed=true&plan=${selectedPlan.toLowerCase()}`
       }
     });
 
@@ -91,10 +112,10 @@ const Signup = () => {
     console.log("Has session:", !!authData.session);
     console.log("Has access token:", !!authData.session?.access_token);
 
-    // 2. Check for session token
+    // 2. Check for session token (email confirmation)
     if (!authData.session?.access_token) {
-      console.warn("No session token - email confirmation likely required");
-      setError("Please check your email to confirm your account before continuing.");
+      console.warn("No session token - email confirmation required");
+      setError("🎉 Account created! Please check your email and click the confirmation link before proceeding to payment.");
       setIsLoading(false);
       return;
     }
@@ -386,7 +407,7 @@ const Signup = () => {
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {error && <p className={`text-sm mb-4 ${error.includes('✅') ? 'text-green-500' : 'text-red-500'}`}>{error}</p>}
           
           <button
             type="submit"
