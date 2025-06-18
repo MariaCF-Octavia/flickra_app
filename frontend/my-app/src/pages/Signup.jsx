@@ -47,12 +47,20 @@ const Signup = () => {
   e.preventDefault();
   
   console.log("=== SIGNUP DEBUG START ===");
+  console.log("Backend URL:", backendUrl);
   console.log("Selected plan:", selectedPlan);
   console.log("Email:", email);
   console.log("Username:", username);
   
   if (!validateForm()) {
     setError("Please fill all fields correctly. Password must be at least 6 characters.");
+    return;
+  }
+
+  // Check if backend URL is configured
+  if (!backendUrl) {
+    setError("Backend configuration missing. Please contact support.");
+    console.error("VITE_API_BASE_URL environment variable not set");
     return;
   }
 
@@ -63,7 +71,7 @@ const Signup = () => {
     // 1. Test backend connection first
     console.log("Step 1: Testing backend connection...");
     try {
-      const healthCheck = await fetch('/api/health');
+      const healthCheck = await fetch(`${backendUrl}/api/health`);
       console.log("Backend health check:", healthCheck.status);
     } catch (backendError) {
       console.error("Backend connection failed:", backendError);
@@ -104,7 +112,7 @@ const Signup = () => {
 
     // 4. Prepare checkout request
     console.log("Step 3: Preparing checkout request...");
-    const checkoutUrl = '/create-checkout';
+    const checkoutUrl = `${backendUrl}/create-checkout`;
     console.log("Checkout URL:", checkoutUrl);
     
     const requestBody = {
