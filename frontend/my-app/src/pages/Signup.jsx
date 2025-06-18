@@ -68,17 +68,8 @@ const Signup = () => {
   setIsLoading(true);
 
   try {
-    // 1. Test backend connection first
-    console.log("Step 1: Testing backend connection...");
-    try {
-      const healthCheck = await fetch(`${backendUrl}/api/health`);
-      console.log("Backend health check:", healthCheck.status);
-    } catch (backendError) {
-      console.error("Backend connection failed:", backendError);
-    }
-
-    // 2. Supabase Signup
-    console.log("Step 2: Starting Supabase signup...");
+    // 1. Supabase Signup (removed health check)
+    console.log("Step 1: Starting Supabase signup...");
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email.trim(),
       password: password,
@@ -100,7 +91,7 @@ const Signup = () => {
     console.log("Has session:", !!authData.session);
     console.log("Has access token:", !!authData.session?.access_token);
 
-    // 3. Check for session token
+    // 2. Check for session token
     if (!authData.session?.access_token) {
       console.warn("No session token - email confirmation likely required");
       setError("Please check your email to confirm your account before continuing.");
@@ -110,8 +101,8 @@ const Signup = () => {
 
     console.log("Access token (first 20 chars):", authData.session.access_token.substring(0, 20) + "...");
 
-    // 4. Prepare checkout request
-    console.log("Step 3: Preparing checkout request...");
+    // 3. Prepare checkout request
+    console.log("Step 2: Preparing checkout request...");
     const checkoutUrl = `${backendUrl}/create-checkout`;
     console.log("Checkout URL:", checkoutUrl);
     
@@ -122,7 +113,12 @@ const Signup = () => {
     };
     console.log("Request body:", requestBody);
 
-    console.log("Step 4: Making checkout request...");
+    console.log("Step 3: Making checkout request (this may take 30-60 seconds on first request)...");
+    
+    // Add longer timeout for the checkout request since backend might be cold
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+    
     const response = await fetch(checkoutUrl, {
       method: 'POST',
       headers: {
@@ -130,16 +126,29 @@ const Signup = () => {
         'Authorization': `Bearer ${authData.session.access_token}`
       },
       body: JSON.stringify(requestBody),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     console.log("Checkout response status:", response.status);
     console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
-    // 5. Handle response
+    // 4. Handle response
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Checkout error response (${response.status}):`, errorText);
-      throw new Error(`Checkout failed: ${response.status} - ${errorText}`);
+      
+      // Better error messages for common issues
+      if (response.status === 401) {
+        throw new Error("Authentication failed. Please try signing up again.");
+      } else if (response.status === 400) {
+        throw new Error("Invalid request. Please check your information and try again.");
+      } else if (response.status === 500) {
+        throw new Error("Server error. Please try again in a few minutes.");
+      } else {
+        throw new Error(`Checkout failed: ${response.status} - ${errorText}`);
+      }
     }
 
     const responseText = await response.text();
@@ -162,8 +171,8 @@ const Signup = () => {
 
     console.log("✅ Got session ID:", session.sessionId);
 
-    // 6. Initialize Stripe
-    console.log("Step 5: Initializing Stripe...");
+    // 5. Initialize Stripe
+    console.log("Step 4: Initializing Stripe...");
     if (!stripePromise) {
       console.error("Stripe promise is null - check VITE_STRIPE_PUBLIC_KEY");
       throw new Error("Stripe not initialized - check your VITE_STRIPE_PUBLIC_KEY");
@@ -177,8 +186,8 @@ const Signup = () => {
       throw new Error("Failed to load Stripe instance");
     }
 
-    // 7. Redirect to Stripe
-    console.log("Step 6: Redirecting to Stripe checkout...");
+    // 6. Redirect to Stripe
+    console.log("Step 5: Redirecting to Stripe checkout...");
     console.log("Using session ID:", session.sessionId);
     
     const { error: stripeError } = await stripe.redirectToCheckout({
@@ -201,7 +210,13 @@ const Signup = () => {
     console.error("Error object:", err);
     console.error("Error message:", err.message);
     console.error("Error stack:", err.stack);
-    setError(err.message || "Signup process failed");
+    
+    // Better error handling for timeouts
+    if (err.name === 'AbortError') {
+      setError("Request timed out. The server may be starting up - please try again in a minute.");
+    } else {
+      setError(err.message || "Signup process failed");
+    }
   } finally {
     setIsLoading(false);
     console.log("=== SIGNUP DEBUG END ===");
