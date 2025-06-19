@@ -23,24 +23,84 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle email confirmation when user returns from email
-  useEffect(() => {
-    const handleEmailConfirmation = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const confirmed = urlParams.get('confirmed');
-      const plan = urlParams.get('plan');
-      
-      if (confirmed === 'true') {
-        // User confirmed email, pre-select their plan and proceed
-        if (plan) {
-          setSelectedPlan(plan);
-        }
-        // Show success message
-        setError("✅ Email confirmed! You can now proceed with payment.");
-      }
-    };
+ // Replace your current useEffect with this:
+useEffect(() => {
+  const handleEmailConfirmation = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const confirmed = urlParams.get('confirmed');
+    const plan = urlParams.get('plan');
     
-    handleEmailConfirmation();
-  }, []);
+    if (confirmed === 'true') {
+      // User confirmed email, now get their session and proceed to payment
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (session && plan) {
+        console.log("Email confirmed, proceeding to payment for plan:", plan);
+        
+        // Set the plan they selected
+        setSelectedPlan(plan);
+        
+        // Now create checkout session and redirect to Stripe
+        try {
+          setIsLoading(true);
+          
+          const checkoutUrl = `${backendUrl}/create-checkout`;
+          const requestBody = {
+            plan: plan.toLowerCase(),
+            email: session.user.email,
+            user_id: session.user.id
+          };
+
+          const response = await fetch(checkoutUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Checkout failed: ${response.status}`);
+          }
+
+          const checkoutSession = await response.json();
+          
+          if (!checkoutSession?.sessionId) {
+            throw new Error("Missing session ID in response");
+          }
+
+          // Redirect to Stripe
+          const stripe = await stripePromise;
+          if (!stripe) {
+            throw new Error("Failed to load Stripe");
+          }
+
+          const { error: stripeError } = await stripe.redirectToCheckout({
+            sessionId: checkoutSession.sessionId
+          });
+
+          if (stripeError) {
+            throw new Error(`Stripe redirect failed: ${stripeError.message}`);
+          }
+
+        } catch (err) {
+          console.error("Email confirmation payment error:", err);
+          setError(`Payment setup failed: ${err.message}`);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setError("❌ Email confirmation failed. Please try signing up again.");
+      }
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, "/signup");
+    }
+  };
+  
+  handleEmailConfirmation();
+}, []);
 
   const validateForm = () => {
     const validPlans = ["basic", "premium", "enterprise"];
