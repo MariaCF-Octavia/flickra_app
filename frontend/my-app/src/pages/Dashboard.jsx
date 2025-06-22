@@ -461,85 +461,88 @@ const HomeDashboard = () => {
                 </span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight tracking-tight animate-fade-in-up animation-delay-200">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 leading-tight tracking-tight animate-fade-in-up animation-delay-200">
                 Replace Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">Ad Agency</span> 
                 <br />
                 with <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">AI</span>
               </h1>
               
-              <p className="text-xl mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
-                Turn any product photo into a $5,000 commercial in 15 minutes. Complete AI platform for video, images, voice, music, and editing.
+              {/* Mobile: Shorter description */}
+              <p className="text-lg md:text-xl mb-4 md:mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
+                <span className="block md:hidden">Turn product photos into $5,000 commercials in 15 minutes.</span>
+                <span className="hidden md:block">Turn any product photo into a $5,000 commercial in 15 minutes. Complete AI platform for video, images, voice, music, and editing.</span>
               </p>
 
-              {/* Success Metrics */}
-              <div className="grid grid-cols-2 gap-4 mb-10 animate-fade-in-up animation-delay-500">
-                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-400">98%</div>
-                  <div className="text-sm text-gray-400">Cost Reduction</div>
+              {/* Success Metrics - More compact on mobile */}
+              <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-10 animate-fade-in-up animation-delay-500">
+                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-3 md:p-4">
+                  <div className="text-xl md:text-2xl font-bold text-green-400">98%</div>
+                  <div className="text-xs md:text-sm text-gray-400">Cost Reduction</div>
                 </div>
-                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-400">10x</div>
-                  <div className="text-sm text-gray-400">Faster Creation</div>
+                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-3 md:p-4">
+                  <div className="text-xl md:text-2xl font-bold text-purple-400">10x</div>
+                  <div className="text-xs md:text-sm text-gray-400">Faster Creation</div>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
-                <Link to="/signup" className={`px-8 py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-lg`}>
+              {/* CTA Buttons - Moved higher up on mobile */}
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600 mb-8 md:mb-0">
+                <Link to="/signup" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
                   Start Creating Today
                 </Link>
                 <button 
                   onClick={() => setShowDemoVideo(true)}
-                  className={`px-8 py-4 rounded-full ${themeStyles.buttonSecondary} transition-colors text-center group text-lg`}
+                  className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.buttonSecondary} transition-colors text-center group text-base md:text-lg`}
                 >
                   <span className="inline-flex items-center">
-                    <Play className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <Play className="mr-2 w-4 md:w-5 h-4 md:h-5 group-hover:scale-110 transition-transform" />
                     Watch Demo
                   </span>
                 </button>
               </div>
 
-              {/* Trust indicators */}
-              <div className="mt-8 text-sm text-gray-400 animate-fade-in-up animation-delay-700">
+              {/* Trust indicators - Hidden on mobile to reduce clutter */}
+              <div className="hidden md:block mt-8 text-sm text-gray-400 animate-fade-in-up animation-delay-700">
               </div>
             </div>
             
-            {/* Right side - Before/After Transformation Showcase */}
-            <div className="relative h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800">
+            {/* Right side - Before/After Transformation Showcase - Reduced height on mobile */}
+            <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800">
               <div className="relative w-full h-full max-w-2xl">
                 {/* Glowing background effect */}
                 <div className={`absolute -inset-8 bg-gradient-to-r from-purple-500/30 via-violet-500/30 to-indigo-500/30 rounded-3xl blur-2xl opacity-60 ${themeStyles.glow}`}></div>
                 
                 {/* Main transformation container */}
                 <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 backdrop-blur-sm bg-black/20">
-                  {/* Phase indicator - Only show for transformations with references */}
+                  {/* Phase indicator - Only show for transformations with references, smaller on mobile */}
                   {transformations[activeTransformation].hasReference && (
-                    <div className="absolute top-6 left-6 z-20 flex items-center space-x-3">
-                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                    <div className="absolute top-3 md:top-6 left-3 md:left-6 z-20 flex items-center space-x-2 md:space-x-3">
+                      <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
                         transformationPhase === 'before' 
                           ? 'bg-blue-600/80 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/50' 
                           : 'bg-gray-800/80 text-gray-300 border border-gray-600'
                       }`}>
                         Original
                       </div>
-                      <div className="w-8 h-0.5 bg-gray-600 relative overflow-hidden">
+                      <div className="w-4 md:w-8 h-0.5 bg-gray-600 relative overflow-hidden">
                         <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
                           transformationPhase === 'before' ? 'w-0' : 
                           transformationPhase === 'transition' ? 'w-1/2' : 'w-full'
                         }`}></div>
                       </div>
-                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                      <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
                         transformationPhase === 'transition' 
                           ? 'bg-yellow-600/80 text-white border-2 border-yellow-400 shadow-lg shadow-yellow-500/50' 
                           : 'bg-gray-800/80 text-gray-300 border border-gray-600'
                       }`}>
                         Reference
                       </div>
-                      <div className="w-8 h-0.5 bg-gray-600 relative overflow-hidden">
+                      <div className="w-4 md:w-8 h-0.5 bg-gray-600 relative overflow-hidden">
                         <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
                           transformationPhase === 'after' ? 'w-full' : 'w-0'
                         }`}></div>
                       </div>
-                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                      <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
                         transformationPhase === 'after' 
                           ? 'bg-green-600/80 text-white border-2 border-green-400 shadow-lg shadow-green-500/50' 
                           : 'bg-gray-800/80 text-gray-300 border border-gray-600'
@@ -575,8 +578,8 @@ const HomeDashboard = () => {
                               }}
                               onLoad={() => console.log(`Loaded: ${transformation.before.alt}`)}
                             />
-                            <div className="absolute bottom-6 left-6 right-6">
-                              <p className="text-white font-medium text-lg bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
+                            <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
+                              <p className="text-white font-medium text-sm md:text-lg bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-2">
                                 📷 Original: {transformation.before.alt}
                               </p>
                             </div>
@@ -607,12 +610,12 @@ const HomeDashboard = () => {
                               />
                             )}
                             {transformation.hasReference && (
-                              <div className="absolute bottom-6 left-6 right-6">
-                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
-                                  <p className="text-white font-medium text-lg mb-1">
+                              <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
+                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-3">
+                                  <p className="text-white font-medium text-sm md:text-lg mb-1">
                                     ✨ {transformation.title}
                                   </p>
-                                  <p className="text-purple-300 text-sm">
+                                  <p className="text-purple-300 text-xs md:text-sm">
                                     {transformation.category}
                                   </p>
                                 </div>
@@ -637,8 +640,8 @@ const HomeDashboard = () => {
                               onLoad={() => console.log(`Loaded during: ${transformation.during.alt}`)}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                            <div className="absolute bottom-6 left-6 right-6">
-                              <p className="text-white font-medium text-lg bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
+                            <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
+                              <p className="text-white font-medium text-sm md:text-lg bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-2">
                                 🎨 Reference: {transformation.during.alt}
                               </p>
                             </div>
@@ -668,12 +671,12 @@ const HomeDashboard = () => {
                               />
                             )}
                             {transformation.hasReference && (
-                              <div className="absolute bottom-6 left-6 right-6">
-                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
-                                  <p className="text-white font-medium text-lg mb-1">
+                              <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
+                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-3">
+                                  <p className="text-white font-medium text-sm md:text-lg mb-1">
                                     ✨ {transformation.title}
                                   </p>
-                                  <p className="text-purple-300 text-sm">
+                                  <p className="text-purple-300 text-xs md:text-sm">
                                     {transformation.category}
                                   </p>
                                 </div>
@@ -718,13 +721,13 @@ const HomeDashboard = () => {
                               }}
                             />
                           )}
-                          <div className="absolute bottom-6 left-6 right-6">
-                            <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
-                              <p className="text-white font-medium text-lg mb-1">
+                          <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
+                            <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-3">
+                              <p className="text-white font-medium text-sm md:text-lg mb-1">
                                 {transformation.hasReference ? '✨ Results: ' : ''}{transformation.hasReference ? transformation.title : ''}
                               </p>
                               {transformation.hasReference && (
-                                <p className="text-purple-300 text-sm">
+                                <p className="text-purple-300 text-xs md:text-sm">
                                   {transformation.category}
                                 </p>
                               )}
@@ -737,7 +740,7 @@ const HomeDashboard = () => {
                 </div>
                 
                 {/* Transformation selector dots */}
-                <div className="absolute -bottom-12 left-0 right-0 flex justify-center space-x-2">
+                <div className="absolute -bottom-8 md:-bottom-12 left-0 right-0 flex justify-center space-x-2">
                   {transformations.map((transformation, index) => (
                     <button
                       key={index}
@@ -745,10 +748,10 @@ const HomeDashboard = () => {
                         setActiveTransformation(index);
                         setTransformationPhase('before'); // Reset to beginning when manually selected
                       }}
-                      className={`h-3 rounded-full transition-all relative ${
+                      className={`h-2 md:h-3 rounded-full transition-all relative ${
                         activeTransformation === index 
-                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500 w-12' 
-                          : 'bg-gray-600 w-3 hover:bg-gray-500'
+                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500 w-8 md:w-12' 
+                          : 'bg-gray-600 w-2 md:w-3 hover:bg-gray-500'
                       }`}
                       aria-label={`View transformation ${index + 1}: ${transformation.title}`}
                     >
@@ -1129,16 +1132,40 @@ const HomeDashboard = () => {
         </div>
       </footer>
 
-      {/* VIDEO MODAL */}
+      {/* VIDEO MODAL - UPDATED WITH CLOSE BUTTON */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md transition-all">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-all"
+          onClick={(e) => {
+            // Close modal when clicking outside the video
+            if (e.target === e.currentTarget) {
+              setShowVideoModal(false);
+              setCurrentVideo(null);
+            }
+          }}
+        >
           <div className="relative w-full max-w-5xl mx-4">
+            {/* Close button */}
+            <button
+              onClick={() => {
+                setShowVideoModal(false);
+                setCurrentVideo(null);
+              }}
+              className="absolute -top-12 right-0 z-60 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all flex items-center justify-center"
+              aria-label="Close video"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            
             <div className="aspect-video bg-black rounded-lg overflow-hidden border border-gray-800/50 shadow-2xl">
               <video 
                 src={currentVideo}
                 controls
                 autoPlay
                 className="w-full h-full object-contain"
+                onError={() => {
+                  console.error('Video failed to load:', currentVideo);
+                }}
               />
             </div>
           </div>
@@ -1232,4 +1259,4 @@ const HomeDashboard = () => {
   );
 };
 
-export default HomeDashboard; 
+export default HomeDashboard;
