@@ -469,7 +469,7 @@ const HomeDashboard = () => {
               
               {/* Mobile: Shorter description */}
               <p className="text-lg md:text-xl mb-4 md:mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
-                <span className="block md:hidden">Turn product photos into $5,000 commercials in 15 minutes.</span>
+                <span className="block md:hidden">Turn product photos into $5,000 commercials in 15 minutes.  Complete AI platform for video, images, voice, music, and editing.</span>
                 <span className="hidden md:block">Turn any product photo into a $5,000 commercial in 15 minutes. Complete AI platform for video, images, voice, music, and editing.</span>
               </p>
 
@@ -850,7 +850,7 @@ const HomeDashboard = () => {
         </div>
       </section>
 
-      {/* ENHANCED SHOWCASE SECTION */}
+      {/* ENHANCED SHOWCASE SECTION - FIXED MOBILE CONSISTENCY */}
       <section id="showcase" className={`py-32 ${themeStyles.cardBg} relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
@@ -893,14 +893,9 @@ const HomeDashboard = () => {
                       muted
                       loop
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       autoPlay={false}
-                      poster={ad.src.includes('givenchy') ? givenchyperfume : 
-                             ad.src.includes('curology') ? curologyimg :
-                             ad.src.includes('fendi') ? givenchyperfume :
-                             ad.src.includes('adForCf1') ? waterad :
-                             ad.src.includes('adForCf4') ? waterad :
-                             waterad}
+                      // NO poster attribute - this was causing the product images to show
                       onMouseOver={(e) => {
                         if (window.innerWidth > 768) {
                           e.target.play().catch(() => {});
@@ -911,11 +906,16 @@ const HomeDashboard = () => {
                           e.target.pause();
                         }
                       }}
+                      onLoadedMetadata={(e) => {
+                        // Set video to show a frame from the actual video content
+                        e.target.currentTime = 0.1;
+                      }}
                       onCanPlay={(e) => {
-                        e.target.currentTime = 0.5;
+                        // Show actual video frame, not product image
+                        e.target.currentTime = 0.1;
                       }}
                       style={{
-                        // Ensure videos are visible and show first frame on mobile
+                        // Ensure videos are visible and show video content on mobile
                         visibility: 'visible',
                         opacity: 1
                       }}
