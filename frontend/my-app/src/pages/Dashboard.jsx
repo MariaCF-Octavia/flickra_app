@@ -1,26 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, ArrowRight, 
-         Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap } from 'lucide-react';
+         Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp } from 'lucide-react';
 
-// Imported assets
+// Your imported assets (keeping original imports)
 import waterad from "../assets/water ad.webp";
-import curology from "../assets/cfcurologyad.mp4";
-import givenchy from "../assets/givenchyadCF.mp4";
-import adForCf1 from "../assets/AdForCf1.mp4";
+import curologyimg from "../assets/curologyimg.jpg";
+import spacurology from "../assets/spa.jpg"; 
+import curology from "../assets/cfcurologyad (2).mp4";
+import givenchy from "../assets/givenchyaduse (2).mp4";
+import adForCf1 from "../assets/lorealad.mp4";
 import adForCf4 from "../assets/AdForCf4.mp4";
-import skincare from "../assets/Skincare.jpeg";
 import phone from "../assets/phonead.jpg";
 import CFDemoUse from "../assets/CFDemoUse.mp4";
 import fendiad from "../assets/fendiadCf.mp4";
 import DemoVideo from "../components/DemoVideo.jsx";
+import givenchyperfume from "../assets/givenchyperfume.jpg";
+import perfumestand from "../assets/perfumestand.jpg";
+import iphone16 from "../assets/iphone16.jpeg";
+import phonestand from "../assets/phonestand.jpg";
 
 const HomeDashboard = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [showDemoVideo, setShowDemoVideo] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [activeTransformation, setActiveTransformation] = useState(0);
+  const [transformationPhase, setTransformationPhase] = useState('before'); // 'before', 'transition', 'after'
   const [videoLoaded, setVideoLoaded] = useState({});
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const [activeSection, setActiveSection] = useState('hero');
@@ -30,82 +36,142 @@ const HomeDashboard = () => {
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
   
-  const heroMedia = [
-    { type: 'video', src: adForCf4, alt: 'CF Ad 4' },
-    { type: 'video', src: givenchy, alt: 'Givenchy Campaign' },
-    { type: 'video', src: adForCf1, alt: 'CF Ad 1' },
-    { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
-    { type: 'video', src: curology, alt: 'Curology Ad' },
-    { type: 'image', src: waterad, alt: 'Water Ad Campaign' },
-    { type: 'image', src: skincare, alt: 'Skincare Campaign' },
+  // PERFECT: Curology first, then Givenchy, then iPhone with references, then standalone ads (just once!)
+  const transformations = [
+    // First 3 with Original → Reference → Results flow
+    {
+      before: { type: 'image', src: curologyimg, alt: 'Curology Product' },
+      during: { type: 'image', src: spacurology, alt: 'Spa Reference Style' },
+      after: { type: 'video', src: curology, alt: 'Curology Ad Results' },
+      title: 'Curology Skincare Campaign',
+      category: 'Beauty & Wellness',
+      hasReference: true
+    },
+    {
+      before: { type: 'image', src: givenchyperfume, alt: 'Givenchy Perfume Photo' },
+      during: { type: 'image', src: perfumestand, alt: 'Reference Style' },
+      after: { type: 'video', src: givenchy, alt: 'Givenchy Ad Results' },
+      title: 'Givenchy Luxury Campaign',
+      category: 'Beauty & Fragrance',
+      hasReference: true
+    },
+    {
+      before: { type: 'image', src: iphone16, alt: 'iPhone 16 Product' },
+      during: { type: 'image', src: phonestand, alt: 'Reference Style' },
+      after: { type: 'image', src: phone, alt: 'Phone Ad Results' },
+      title: 'iPhone Professional Campaign',
+      category: 'Technology',
+      hasReference: true
+    },
+    // Standalone ads - just show once as they are
+    {
+      before: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
+      during: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
+      after: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
+      title: 'Premium Ad Campaign',
+      category: 'Video',
+      hasReference: false
+    },
+    {
+      before: { type: 'video', src: adForCf4, alt: 'Luxury Fashion Campaign' },
+      during: { type: 'video', src: adForCf4, alt: 'Luxury Fashion Campaign' },
+      after: { type: 'video', src: adForCf4, alt: 'Luxury Fashion Campaign' },
+      title: 'Luxury Fashion Campaign',
+      category: 'Video',
+      hasReference: false
+    },
+    {
+      before: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
+      during: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
+      after: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
+      title: 'Fendi Luxury Campaign',
+      category: 'Video',
+      hasReference: false
+    },
+    {
+      before: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
+      during: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
+      after: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
+      title: 'Water Brand Campaign',
+      category: 'Image',
+      hasReference: false
+    }
   ];
 
+  // Enhanced dark theme
   const themeStyles = {
-    bg: "bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950",
+    bg: "bg-gradient-to-b from-black via-gray-950 to-black",
     text: "text-white",
-    textSecondary: "text-gray-300",
-    cardBg: "bg-gray-900/70 backdrop-blur-md",
-    navBg: isScrolled ? "bg-gray-900/80 backdrop-blur-lg border-b border-gray-800/50" : "bg-transparent",
-    button: "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700",
-    buttonSecondary: "bg-gray-800/70 backdrop-blur-sm hover:bg-gray-700/70",
+    textSecondary: "text-gray-400",
+    cardBg: "bg-black/60 backdrop-blur-xl border border-gray-800/30",
+    navBg: isScrolled ? "bg-black/90 backdrop-blur-xl border-b border-gray-800/50" : "bg-transparent",
+    button: "bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 hover:from-purple-700 hover:via-violet-700 hover:to-indigo-700",
+    buttonSecondary: "bg-gray-900/80 backdrop-blur-sm hover:bg-gray-800/80 border border-gray-700/50",
     accent: "text-violet-400",
-    border: "border-gray-800/50",
-    input: "bg-gray-800/70 backdrop-blur-sm border-gray-700/50",
-    highlight: "bg-gradient-to-r from-indigo-500/10 to-violet-600/10",
-    glow: "shadow-[0_0_35px_rgba(124,58,237,0.2)]",
-    feature: "border border-gray-800/30 bg-gray-900/50 backdrop-blur-md hover:border-violet-500/50 hover:bg-gray-900/70"
+    border: "border-gray-800/30",
+    input: "bg-gray-900/80 backdrop-blur-sm border-gray-700/50",
+    highlight: "bg-gradient-to-r from-purple-500/10 via-violet-500/10 to-indigo-500/10",
+    glow: "shadow-[0_0_50px_rgba(139,92,246,0.3)]",
+    feature: "border border-gray-800/30 bg-black/40 backdrop-blur-xl hover:border-purple-500/50 hover:bg-black/60"
   };
 
   const sections = ['hero', 'features', 'showcase', 'pricing'];
 
+  // Enhanced features with platform focus
   const features = [
     {
       icon: <Film className="w-6 h-6" />,
-      title: "End-to-End AI Workflow",
-      description: "First platform to offer complete ad creation from concept to final output with references and keyframes technology.",
-      highlight: "References"
+      title: "Complete Ad Production Pipeline", 
+      description: "Image generation, video creation, voiceover, music, and editing. Everything agencies do, but automated and instant.",
+      highlight: "WORLD'S FIRST",
+      valueProposition: "End-to-end workflow"
     },
     {
       icon: <Sparkles className="w-6 h-6" />,
-      title: "Reference Style Transfer",
-      description: "Upload any ad style you love and our AI applies that exact aesthetic to your product instantly",
-      highlight: "UNIQUE"
+      title: "Reference Style Technology",
+      description: "Upload any ad style as reference and our AI applies that exact aesthetic to your product. No complex prompts needed.",
+      highlight: "REVOLUTIONARY",
+      valueProposition: "Copy any style instantly"
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Keyframes Technology",
-      description: "Define camera angles, transitions, and scenes with unprecedented control over your video narrative",
-      highlight: "PROPRIETARY"
+      title: "15-Minute Campaign Creation", 
+      description: "What takes agencies 3 weeks and $5000, CF Studio delivers in 15 minutes. Complete campaigns ready for launch.",
+      highlight: "SPEED",
+      valueProposition: "1000x faster than agencies"
     },
     {
-      icon: <Clock className="w-6 h-6" />,
-      title: "Minutes, Not Weeks",
-      description: "What used to take expensive photoshoots and weeks of editing now happens in minutes",
-      highlight: null
+      icon: <DollarSign className="w-6 h-6" />,
+      title: "Built-in ROI Tracking",
+      description: "Performance analytics, CTR tracking, and conversion monitoring. Know what works before you scale.",
+      highlight: "ENTERPRISE",
+      valueProposition: "Data-driven optimization"
     },
     {
       icon: <Globe className="w-6 h-6" />,
-      title: "Phone to Professional",
-      description: "Start with any product photo and transform it into an professional commercial instantly.",
-      highlight: null
+      title: "Direct Social Publishing", 
+      description: "Create, preview, and publish directly to TikTok, Instagram, YouTube, LinkedIn. No downloads or uploads needed.",
+      highlight: "SEAMLESS",
+      valueProposition: "One-click publishing"
     },
     {
-      icon: <Shield className="w-6 h-6" />,
-      title: "AI-Powered Iteration",
-      description: "Seamlessly refine backgrounds, lighting, and composition with intelligent editing tools",
-      highlight: "SMART"
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "Agency-Quality Output",
+      description: "Studio-grade results that rival $10,000 productions. Professional voiceover, custom music, cinematic visuals.",
+      highlight: "PROFESSIONAL",
+      valueProposition: "Agency results, AI speed"
     }
   ];
 
+  // UPDATED: Only first 7 ads, no duplicates
   const showcaseAds = [
-    { type: 'video', src: adForCf4, title: 'Premium Product Launch', category: 'Fashion' },
+    { type: 'video', src: givenchy, title: 'Givenchy Luxury Campaign', category: 'Beauty' },
+    { type: 'video', src: curology, title: 'Curology Skincare Campaign', category: 'Beauty' },
+    { type: 'video', src: adForCf4, title: 'Premium Fashion Campaign', category: 'Fashion' },
+    { type: 'video', src: adForCf1, title: 'Water Brand Campaign', category: 'Lifestyle' },
     { type: 'video', src: fendiad, title: 'Fendi Luxury Campaign', category: 'Luxury' },
-    { type: 'video', src: adForCf1, title: 'Brand Storytelling', category: 'Lifestyle' },
-    { type: 'video', src: givenchy, title: 'Givenchy Elegance', category: 'Beauty' },
-    { type: 'video', src: curology, title: 'Curology Skincare Video', category: 'Beauty' },
-    { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' },
-    { type: 'image', src: skincare, title: 'Premium Skincare Line', category: 'Beauty' },
-    { type: 'image', src: phone, title: 'Phone Advertisement', category: 'Technology' }
+    { type: 'image', src: phone, title: 'iPhone Professional Ad', category: 'Technology' },
+    { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' }
   ];
 
   const pricingTiers = [
@@ -121,7 +187,8 @@ const HomeDashboard = () => {
         "Core features access"
       ],
       cta: "Start Creating",
-      popular: false
+      popular: false,
+      savings: "Everything you need to get started"
     },
     {
       name: "Premium",
@@ -136,7 +203,8 @@ const HomeDashboard = () => {
         "All AI features"
       ],
       cta: "Go Premium",
-      popular: true
+      popular: true,
+      savings: "Perfect for growing businesses"
     },
     {
       name: "Enterprise",
@@ -151,9 +219,109 @@ const HomeDashboard = () => {
         "API access"
       ],
       cta: "Contact Sales",
-      popular: false
+      popular: false,
+      savings: "For agencies and large teams"
     }
   ];
+
+  // Success metrics to build trust
+  const successMetrics = [
+    { number: "98%", label: "Cost Reduction", description: "vs traditional video production" },
+    { number: "10x", label: "Faster Creation", description: "Minutes instead of weeks" },
+    { number: "$1000+", label: "Resale Value", description: "Per video created" },
+    { number: "50+", label: "Business Categories", description: "Fashion, beauty, tech & more" }
+  ];
+
+  // Transformation cycle effect - Faster for standalone videos  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTransformationPhase(prev => {
+        const currentTransformation = transformations[activeTransformation];
+        
+        if (currentTransformation.hasReference) {
+          // Normal 3-phase cycle for reference transformations
+          if (prev === 'before') return 'transition';
+          if (prev === 'transition') return 'after';
+          if (prev === 'after') {
+            setActiveTransformation(prev => (prev + 1) % transformations.length);
+            return 'before';
+          }
+        } else {
+          // Just show the video/image directly for standalone content
+          setActiveTransformation(prev => (prev + 1) % transformations.length);
+          return 'before';
+        }
+        return 'before';
+      });
+    }, 4000); // Same timing for consistency
+
+    return () => clearInterval(interval);
+  }, [transformations.length, activeTransformation]);
+
+  // Enhanced video handling with better loading detection
+  useEffect(() => {
+    const loadVideos = () => {
+      transformations.forEach((transformation, index) => {
+        if (transformation.after.type === 'video') {
+          const videoKey = `after-${index}`;
+          if (videoRefs.current[videoKey]) {
+            const video = videoRefs.current[videoKey];
+            
+            if (video.getAttribute('data-loaded') === 'true') return;
+            video.setAttribute('data-loaded', 'true');
+            
+            video.addEventListener('loadstart', () => {
+              console.log(`Loading ${transformation.after.alt}...`);
+            });
+            
+            video.addEventListener('error', (e) => {
+              console.error(`Error loading ${transformation.after.alt}:`, e);
+              setVideoLoaded(prev => ({ ...prev, [videoKey]: false }));
+            });
+            
+            video.load();
+            video.onloadeddata = () => {
+              setVideoLoaded(prev => ({ ...prev, [videoKey]: true }));
+              console.log(`${transformation.after.alt} loaded successfully`);
+            };
+          }
+        }
+      });
+    };
+    
+    loadVideos();
+  }, []);
+
+  // ENHANCED: Better video playback control for all phases
+  useEffect(() => {
+    transformations.forEach((transformation, index) => {
+      // Handle video playback for all phases
+      ['before', 'during', 'after'].forEach(phase => {
+        const videoKey = `${phase}-${index}`;
+        const phaseData = transformation[phase === 'during' ? 'during' : phase === 'before' ? 'before' : 'after'];
+        
+        if (phaseData?.type === 'video' && videoRefs.current[videoKey]) {
+          const video = videoRefs.current[videoKey];
+          
+          const shouldPlay = index === activeTransformation && 
+            ((phase === 'before' && transformationPhase === 'before') ||
+             (phase === 'during' && transformationPhase === 'transition') ||
+             (phase === 'after' && transformationPhase === 'after'));
+          
+          if (shouldPlay) {
+            setTimeout(() => {
+              video.play().catch((error) => {
+                console.log(`Video play failed for ${phaseData.alt}:`, error);
+              });
+            }, 100);
+          } else {
+            video.pause();
+            video.currentTime = 0;
+          }
+        }
+      });
+    });
+  }, [activeTransformation, transformationPhase, transformations]);
 
   useEffect(() => {
     sectionRefs.current = sections.reduce((acc, id) => {
@@ -183,74 +351,28 @@ const HomeDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const loadVideos = () => {
-      heroMedia.forEach((media, index) => {
-        if (media.type === 'video') {
-          if (videoRefs.current[index]) {
-            const video = videoRefs.current[index];
-            
-            if (video.getAttribute('data-loaded') === 'true') return;
-            video.setAttribute('data-loaded', 'true');
-            
-            video.addEventListener('loadstart', () => {
-              console.log(`Loading ${media.alt}...`);
-            });
-            
-            video.addEventListener('error', (e) => {
-              console.error(`Error loading ${media.alt}:`, e);
-              setVideoLoaded(prev => ({ ...prev, [index]: false }));
-            });
-            
-            video.load();
-            video.onloadeddata = () => {
-              setVideoLoaded(prev => ({ ...prev, [index]: true }));
-              console.log(`${media.alt} loaded successfully`);
-            };
-          }
-        }
-      });
-    };
-    
-    loadVideos();
-    
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroMedia.length);
-    }, 8000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    heroMedia.forEach((media, index) => {
-      if (media.type === 'video' && videoRefs.current[index]) {
-        if (index === activeSlide) {
-          videoRefs.current[index].play().catch(() => {});
-        } else {
-          videoRefs.current[index].pause();
-        }
-      }
-    });
-  }, [activeSlide]);
-
-  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (mobileMenuOpen && !event.target.closest('nav')) {
-        setMobileMenuOpen(false);
+    
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape' && showVideoModal) {
+        setShowVideoModal(false);
       }
     };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [mobileMenuOpen]);
+    
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('keydown', handleEscKey);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [showVideoModal]);
 
   const playVideo = (videoSrc) => {
+    console.log('playVideo called with:', videoSrc);
+    console.log('Setting showVideoModal to true');
     setCurrentVideo(videoSrc);
     setShowVideoModal(true);
   };
@@ -269,8 +391,15 @@ const HomeDashboard = () => {
     }
   };
 
+  const getCurrentMedia = () => {
+    const current = transformations[activeTransformation];
+    if (transformationPhase === 'before') return current.before;
+    if (transformationPhase === 'transition') return current.during;
+    return current.after;
+  };
+
   return (
-    <div className={`min-h-screen ${themeStyles.bg} ${themeStyles.text} font-sans relative`}>
+    <div className={`min-h-screen ${themeStyles.bg} ${themeStyles.text} font-sans relative overflow-x-hidden`}>
       <DemoVideo 
         isOpen={showDemoVideo}
         onClose={() => setShowDemoVideo(false)}
@@ -279,248 +408,400 @@ const HomeDashboard = () => {
         videoUrl={CFDemoUse}
       />
 
+      {/* Enhanced background effects */}
       <div className="fixed inset-0 overflow-hidden z-0">
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-indigo-700/20 rounded-full filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-1/3 -right-20 w-96 h-96 bg-violet-700/20 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-fuchsia-700/20 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-0 -left-40 w-96 h-96 bg-purple-700/20 rounded-full filter blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute top-1/3 -right-20 w-96 h-96 bg-violet-700/20 rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-indigo-700/20 rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-fuchsia-700/15 rounded-full filter blur-3xl opacity-25 animate-blob animation-delay-6000"></div>
       </div>
 
+      {/* Navigation - Fixed contact link */}
       <nav className={`fixed w-full z-50 transition-all duration-300 ${themeStyles.navBg} ${isScrolled ? 'py-3' : 'py-5'}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center">
-            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">CF Studio</div>
-            <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-indigo-500/20 to-violet-600/20 text-indigo-300 border border-indigo-500/30">BETA</div>
+            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">CF Studio</div>
+            <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/30">BETA</div>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             {['features', 'showcase', 'pricing'].map((section) => (
               <button 
                 key={section}
                 onClick={() => scrollToSection(section)}
-                className={`hover:text-indigo-400 transition-colors relative ${activeSection === section ? 'text-indigo-400' : ''}`}
+                className={`hover:text-purple-400 transition-colors relative ${activeSection === section ? 'text-purple-400' : ''}`}
               >
                 {section.charAt(0).toUpperCase() + section.slice(1)}
                 {activeSection === section && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full"></span>
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"></span>
                 )}
               </button>
             ))}
-            <Link to="/about" className="hover:text-indigo-400 transition-colors">About</Link>
-            <Link to="/contact" className="hover:text-indigo-400 transition-colors">Contact</Link>
-            <Link to="/login" className="hover:text-indigo-400 transition-colors">Login</Link>
-            <Link to="/signup" className={`px-5 py-2.5 rounded-full ${themeStyles.button} text-white font-medium shadow-lg shadow-violet-500/20 transition-all hover:shadow-xl hover:shadow-violet-500/30`}>
-              Get Started Now
-            </Link>
-          </div>
-          <button 
-            className="md:hidden p-2" 
-            aria-label="Menu"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        <div className={`md:hidden transition-all duration-300 ease-in-out ${
-          mobileMenuOpen 
-            ? 'max-h-96 opacity-100' 
-            : 'max-h-0 opacity-0 overflow-hidden'
-        } ${themeStyles.cardBg} border-t ${themeStyles.border}`}>
-          <div className="px-6 py-4 space-y-4">
-            {['features', 'showcase', 'pricing'].map((section) => (
-              <button 
-                key={section}
-                onClick={() => {
-                  scrollToSection(section);
-                  setMobileMenuOpen(false);
-                }}
-                className={`block w-full text-left hover:text-indigo-400 transition-colors py-2 ${
-                  activeSection === section ? 'text-indigo-400' : ''
-                }`}
-              >
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </button>
-            ))}
-            <Link 
-              to="/about" 
-              className="block hover:text-indigo-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              to="/contact" 
-              className="block hover:text-indigo-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
-            <Link 
-              to="/login" 
-              className="block hover:text-indigo-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
-            <Link 
-              to="/signup" 
-              className={`block px-5 py-2.5 rounded-full ${themeStyles.button} text-white font-medium text-center mt-4`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link to="/about" className="hover:text-purple-400 transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-purple-400 transition-colors">Contact</Link>
+            <Link to="/login" className="hover:text-purple-400 transition-colors">Login</Link>
+            <Link to="/signup" className={`px-5 py-2.5 rounded-full ${themeStyles.button} text-white font-medium shadow-lg shadow-purple-500/20 transition-all hover:shadow-xl hover:shadow-purple-500/30`}>
               Get Started Now
             </Link>
           </div>
         </div>
       </nav>
 
-      <section id="hero" className="relative min-h-screen flex items-center">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/80 to-gray-900/60 z-10"></div>
-        </div>
-        <div className="container mx-auto px-6 z-10 pt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="max-w-md lg:max-w-lg">
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 text-sm rounded-full bg-gradient-to-r from-indigo-500/20 to-violet-600/20 text-indigo-300 mb-4 animate-fade-in-up">
+      {/* REDESIGNED HERO SECTION WITH BUSINESS VALUE */}
+      <section id="hero" className="relative min-h-screen flex items-center pt-20">
+        <div className="container mx-auto px-6 z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left side - Business-focused Content */}
+            <div className="max-w-xl">
+              <div className="mb-8">
+                <span className="inline-block px-4 py-2 text-sm rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 mb-6 animate-fade-in-up border border-green-500/30">
                   <span className="flex items-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2 animate-pulse"></span>
-                    Advanced AI technology
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Save $4,900+ per campaign
                   </span>
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight tracking-tight animate-fade-in-up animation-delay-200">
-                From Photo to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">Professional Ad</span> in Minutes
+              
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight tracking-tight animate-fade-in-up animation-delay-200">
+                Replace Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">Ad Agency</span> 
+                <br />
+                with <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">AI</span>
               </h1>
-              <p className="text-lg mb-8 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400">
-                Upload any product photo and create professional ads with AI. Video, images, voice, and editing - all in one platform
+              
+              <p className="text-xl mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
+                Turn any product photo into a $5,000 commercial in 15 minutes. Complete AI platform for video, images, voice, music, and editing.
               </p>
+
+              {/* Success Metrics */}
+              <div className="grid grid-cols-2 gap-4 mb-10 animate-fade-in-up animation-delay-500">
+                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-400">98%</div>
+                  <div className="text-sm text-gray-400">Cost Reduction</div>
+                </div>
+                <div className="bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-400">10x</div>
+                  <div className="text-sm text-gray-400">Faster Creation</div>
+                </div>
+              </div>
+              
               <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
-                <Link to="/signup" className={`px-6 py-3.5 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all`}>
+                <Link to="/signup" className={`px-8 py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-lg`}>
                   Start Creating Today
                 </Link>
                 <button 
                   onClick={() => setShowDemoVideo(true)}
-                  className={`px-6 py-3.5 rounded-full border ${themeStyles.border} hover:bg-gray-800/30 transition-colors text-center group`}
+                  className={`px-8 py-4 rounded-full ${themeStyles.buttonSecondary} transition-colors text-center group text-lg`}
                 >
                   <span className="inline-flex items-center">
-                    <Play className="mr-2 w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <Play className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
                     Watch Demo
                   </span>
                 </button>
               </div>
+
+              {/* Trust indicators */}
+              <div className="mt-8 text-sm text-gray-400 animate-fade-in-up animation-delay-700">
+              </div>
             </div>
             
-            <div className="relative h-[75vh] flex items-center justify-center lg:justify-end animate-fade-in-up animation-delay-600">
-              <div className="relative w-full h-full max-w-3xl">
-                <div className={`absolute -inset-4 bg-gradient-to-r from-indigo-500/20 to-violet-600/20 rounded-2xl blur-xl opacity-70 ${themeStyles.glow}`}></div>
+            {/* Right side - Before/After Transformation Showcase */}
+            <div className="relative h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800">
+              <div className="relative w-full h-full max-w-2xl">
+                {/* Glowing background effect */}
+                <div className={`absolute -inset-8 bg-gradient-to-r from-purple-500/30 via-violet-500/30 to-indigo-500/30 rounded-3xl blur-2xl opacity-60 ${themeStyles.glow}`}></div>
                 
-                <div className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl border border-gray-800/50 backdrop-blur-sm">
-                  {heroMedia.map((media, index) => (
-                    <div 
-                      key={index}
-                      className={`absolute inset-0 transition-all duration-1000 ${
-                        activeSlide === index 
-                          ? 'opacity-100 z-10 scale-100' 
-                          : 'opacity-0 z-0 scale-105'
-                      }`}
-                    >
-                      {media.type === 'video' ? (
-                        <>
-                          {!videoLoaded[index] && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                              <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                            </div>
-                          )}
-                          <video
-                            ref={el => videoRefs.current[index] = el}
-                            src={media.src}
-                            loop
-                            muted
-                            playsInline
-                            preload="metadata"
-                            className={`w-full h-full ${
-                              media.src === fendiad ? 'object-contain bg-black' : 'object-cover'
-                            }`}
-                          />
-                        </>
-                      ) : (
-                        <img 
-                          src={media.src} 
-                          alt={media.alt} 
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                {/* Main transformation container */}
+                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 backdrop-blur-sm bg-black/20">
+                  {/* Phase indicator - Only show for transformations with references */}
+                  {transformations[activeTransformation].hasReference && (
+                    <div className="absolute top-6 left-6 z-20 flex items-center space-x-3">
+                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                        transformationPhase === 'before' 
+                          ? 'bg-blue-600/80 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/50' 
+                          : 'bg-gray-800/80 text-gray-300 border border-gray-600'
+                      }`}>
+                        Original
+                      </div>
+                      <div className="w-8 h-0.5 bg-gray-600 relative overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
+                          transformationPhase === 'before' ? 'w-0' : 
+                          transformationPhase === 'transition' ? 'w-1/2' : 'w-full'
+                        }`}></div>
+                      </div>
+                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                        transformationPhase === 'transition' 
+                          ? 'bg-yellow-600/80 text-white border-2 border-yellow-400 shadow-lg shadow-yellow-500/50' 
+                          : 'bg-gray-800/80 text-gray-300 border border-gray-600'
+                      }`}>
+                        Reference
+                      </div>
+                      <div className="w-8 h-0.5 bg-gray-600 relative overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
+                          transformationPhase === 'after' ? 'w-full' : 'w-0'
+                        }`}></div>
+                      </div>
+                      <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                        transformationPhase === 'after' 
+                          ? 'bg-green-600/80 text-white border-2 border-green-400 shadow-lg shadow-green-500/50' 
+                          : 'bg-gray-800/80 text-gray-300 border border-gray-600'
+                      }`}>
+                        Results
+                      </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Transformation display */}
+                  <div className="relative w-full h-full">
+                    {transformations.map((transformation, index) => (
+                      <div 
+                        key={index}
+                        className={`absolute inset-0 transition-all duration-1000 ${
+                          activeTransformation === index 
+                            ? 'opacity-100 z-10 scale-100' 
+                            : 'opacity-0 z-0 scale-105'
+                        }`}
+                      >
+                        {/* Before phase - Only show if has reference */}
+                        {transformation.hasReference ? (
+                          <div className={`absolute inset-0 transition-all duration-1000 ${
+                            transformationPhase === 'before' ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            <img 
+                              src={transformation.before.src} 
+                              alt={transformation.before.alt}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error(`Failed to load image: ${transformation.before.src}`);
+                                e.target.style.display = 'none';
+                              }}
+                              onLoad={() => console.log(`Loaded: ${transformation.before.alt}`)}
+                            />
+                            <div className="absolute bottom-6 left-6 right-6">
+                              <p className="text-white font-medium text-lg bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
+                                📷 Original: {transformation.before.alt}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // For standalone ads, show the result in all phases
+                          <div className={`absolute inset-0 transition-all duration-1000 ${
+                            transformationPhase === 'before' ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            {transformation.before.type === 'video' ? (
+                              <video
+                                ref={el => videoRefs.current[`before-${index}`] = el}
+                                src={transformation.before.src}
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                                className={`w-full h-full ${
+                                  transformation.before.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
+                                }`}
+                                onLoadedData={() => console.log(`Video loaded: ${transformation.before.alt}`)}
+                              />
+                            ) : (
+                              <img 
+                                src={transformation.before.src} 
+                                alt={transformation.before.alt}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            {transformation.hasReference && (
+                              <div className="absolute bottom-6 left-6 right-6">
+                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
+                                  <p className="text-white font-medium text-lg mb-1">
+                                    ✨ {transformation.title}
+                                  </p>
+                                  <p className="text-purple-300 text-sm">
+                                    {transformation.category}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Transition phase - Only show if has reference */}
+                        {transformation.hasReference ? (
+                          <div className={`absolute inset-0 transition-all duration-500 ${
+                            transformationPhase === 'transition' ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            <img 
+                              src={transformation.during.src} 
+                              alt={transformation.during.alt}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error(`Failed to load during image: ${transformation.during.src}`);
+                                e.target.style.display = 'none';
+                              }}
+                              onLoad={() => console.log(`Loaded during: ${transformation.during.alt}`)}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                            <div className="absolute bottom-6 left-6 right-6">
+                              <p className="text-white font-medium text-lg bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
+                                🎨 Reference: {transformation.during.alt}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // For standalone ads, show the result in all phases
+                          <div className={`absolute inset-0 transition-all duration-500 ${
+                            transformationPhase === 'transition' ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            {transformation.during.type === 'video' ? (
+                              <video
+                                ref={el => videoRefs.current[`during-${index}`] = el}
+                                src={transformation.during.src}
+                                loop
+                                muted
+                                playsInline
+                                preload="auto"
+                                className={`w-full h-full ${
+                                  transformation.during.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
+                                }`}
+                              />
+                            ) : (
+                              <img 
+                                src={transformation.during.src} 
+                                alt={transformation.during.alt}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            {transformation.hasReference && (
+                              <div className="absolute bottom-6 left-6 right-6">
+                                <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
+                                  <p className="text-white font-medium text-lg mb-1">
+                                    ✨ {transformation.title}
+                                  </p>
+                                  <p className="text-purple-300 text-sm">
+                                    {transformation.category}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* After phase - Results for all */}
+                        <div className={`absolute inset-0 transition-all duration-1000 ${
+                          transformationPhase === 'after' ? 'opacity-100' : 'opacity-0'
+                        }`}>
+                          {transformation.after.type === 'video' ? (
+                            <div className="relative w-full h-full">
+                              <video
+                                ref={el => videoRefs.current[`after-${index}`] = el}
+                                src={transformation.after.src}
+                                loop
+                                muted
+                                playsInline
+                                preload="auto"
+                                className={`w-full h-full ${
+                                  transformation.after.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
+                                }`}
+                                onLoadedData={() => {
+                                  setVideoLoaded(prev => ({ ...prev, [`after-${index}`]: true }));
+                                  console.log(`Video loaded: ${transformation.after.alt}`);
+                                }}
+                                onError={(e) => {
+                                  console.error(`Video error: ${transformation.after.src}`, e);
+                                  setVideoLoaded(prev => ({ ...prev, [`after-${index}`]: false }));
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <img 
+                              src={transformation.after.src} 
+                              alt={transformation.after.alt}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error(`Failed to load image: ${transformation.after.src}`);
+                              }}
+                            />
+                          )}
+                          <div className="absolute bottom-6 left-6 right-6">
+                            <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3">
+                              <p className="text-white font-medium text-lg mb-1">
+                                {transformation.hasReference ? '✨ Results: ' : ''}{transformation.hasReference ? transformation.title : ''}
+                              </p>
+                              {transformation.hasReference && (
+                                <p className="text-purple-300 text-sm">
+                                  {transformation.category}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
-                <div className="absolute -bottom-10 left-0 right-0 flex justify-center space-x-2">
-                  {heroMedia.map((_, index) => (
+                {/* Transformation selector dots */}
+                <div className="absolute -bottom-12 left-0 right-0 flex justify-center space-x-2">
+                  {transformations.map((transformation, index) => (
                     <button
                       key={index}
-                      onClick={() => setActiveSlide(index)}
-                      className={`h-2 rounded-full transition-all ${
-                        activeSlide === index 
-                          ? 'bg-gradient-to-r from-indigo-500 to-violet-600 w-10' 
-                          : 'bg-gray-600 w-2 hover:bg-gray-500'
+                      onClick={() => {
+                        setActiveTransformation(index);
+                        setTransformationPhase('before'); // Reset to beginning when manually selected
+                      }}
+                      className={`h-3 rounded-full transition-all relative ${
+                        activeTransformation === index 
+                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500 w-12' 
+                          : 'bg-gray-600 w-3 hover:bg-gray-500'
                       }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
+                      aria-label={`View transformation ${index + 1}: ${transformation.title}`}
+                    >
+                      {/* Show which phase we're in for active transformation */}
+                      {activeTransformation === index && (
+                        <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
+                          transformationPhase === 'before' ? 'bg-red-400/50' :
+                          transformationPhase === 'transition' ? 'bg-yellow-400/50' :
+                          'bg-green-400/50'
+                        }`}></div>
+                      )}
+                    </button>
                   ))}
-                </div>
-                
-                <button 
-                  onClick={() => setActiveSlide((prev) => (prev === 0 ? heroMedia.length - 1 : prev - 1))}
-                  className="absolute top-1/2 left-4 transform -translate-y-1/2 p-3 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-all border border-white/10"
-                  aria-label="Previous slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => setActiveSlide((prev) => (prev + 1) % heroMedia.length)}
-                  className="absolute top-1/2 right-4 transform -translate-y-1/2 p-3 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-all border border-white/10"
-                  aria-label="Next slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                
-                <div className="absolute top-4 right-4 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-medium flex items-center space-x-2 shadow-lg border border-white/10">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                  <span>Created with CF Studio</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce">
+        {/* SCROLL INDICATOR */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce z-30">
           <span className="text-sm text-gray-400 mb-2">Scroll to explore</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+          <ArrowDown className="h-5 w-5 text-gray-400" />
         </div>
       </section>
 
+      {/* SUCCESS METRICS SECTION */}
+      <section className="py-16 bg-black/30 backdrop-blur-sm border-y border-gray-800/50 relative z-10">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {successMetrics.map((metric, index) => (
+              <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                <div className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mb-2">
+                  {metric.number}
+                </div>
+                <div className="font-semibold text-white mb-1">{metric.label}</div>
+                <div className="text-sm text-gray-400">{metric.description}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ENHANCED FEATURES SECTION WITH BUSINESS VALUE */}
       <section id="features" className={`py-32 relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-              Advanced <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">AI Technology</span>
+              The World's First <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">End-to-End AI Ad Platform</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-violet-600 mx-auto mb-6 rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 mx-auto mb-6 rounded-full"></div>
             <p className={`text-lg ${themeStyles.textSecondary} leading-relaxed animate-fade-in-up animation-delay-200`}>
-              Complete ad creation workflow with proprietary keyframes technology, voice generation, and copy creation.
+              From concept to campaign launch - image generation, video creation, voiceover, music, editing, and social publishing. All in one platform.
             </p>
           </div>
           
@@ -534,14 +815,18 @@ const HomeDashboard = () => {
                 onMouseLeave={() => setHoveredFeature(null)}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-violet-600/20 text-indigo-400`}>
+                  <div className={`p-3 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-600/20 text-purple-400`}>
                     {feature.icon}
                   </div>
                   {feature.highlight && (
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      feature.highlight === 'ADVANCED' 
-                        ? 'bg-red-500/20 text-red-400' 
-                        : feature.highlight === 'UNIQUE' 
+                      feature.highlight === 'ROI' 
+                        ? 'bg-green-500/20 text-green-400' 
+                        : feature.highlight === 'SCALE' 
+                        ? 'bg-blue-500/20 text-blue-400'
+                        : feature.highlight === 'VISUAL' 
+                        ? 'bg-orange-500/20 text-orange-400'
+                        : feature.highlight === 'UNIQUE'
                         ? 'bg-amber-500/20 text-amber-400'
                         : feature.highlight === 'PROPRIETARY'
                         ? 'bg-purple-500/20 text-purple-400'
@@ -552,45 +837,42 @@ const HomeDashboard = () => {
                   )}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className={`${themeStyles.textSecondary} text-sm`}>{feature.description}</p>
+                <p className={`${themeStyles.textSecondary} text-sm mb-3`}>{feature.description}</p>
+                <div className="text-xs font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-full inline-block">
+                  {feature.valueProposition}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ENHANCED SHOWCASE SECTION */}
       <section id="showcase" className={`py-32 ${themeStyles.cardBg} relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-              Studio-Quality Results, <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">AI-Generated</span>
+              Studio-Quality Results, <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">AI-Generated</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-violet-600 mx-auto mb-6 rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 mx-auto mb-6 rounded-full"></div>
             <p className={`text-lg ${themeStyles.textSecondary} leading-relaxed animate-fade-in-up animation-delay-200`}>
-              Every ad below was created in minutes using CF Studio. We used real life products from home and fashion inspiration found online to showcase what`s possible - no brand deals, no studio, just AI and your imagination
+              Every ad below was created in minutes using CF Studio. We use real-life products from home and fashion inspiration found online to showcase what's possible. No brand deals, no agencies, just AI and your imagination.
             </p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-3 mb-12 animate-fade-in-up animation-delay-400">
-            {['All', 'Fashion', 'Beauty', 'Luxury', 'Lifestyle', 'Technology'].map((category, index) => (
-              <button 
-                key={index}
-                className={`px-4 py-2 rounded-full text-sm transition-all ${
-                  index === 0 
-                    ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white' 
-                    : 'bg-gray-800/50 backdrop-blur-sm text-gray-300 hover:bg-gray-700/50'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+          <div className="mb-12 animate-fade-in-up animation-delay-400">
+            <div className="max-w-4xl mx-auto text-center">
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Professional-grade results from simple product photos and online inspiration
+              </p>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {showcaseAds.map((ad, index) => (
               <div 
                 key={index} 
-                className={`overflow-hidden rounded-xl border ${themeStyles.border} group cursor-pointer hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-500/50 transition-all animate-fade-in-up backdrop-blur-sm ${themeStyles.glow}`}
+                className={`overflow-hidden rounded-xl border ${themeStyles.border} group cursor-pointer hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-500/50 transition-all animate-fade-in-up backdrop-blur-sm ${themeStyles.glow}`}
                 style={{ animationDelay: `${200 + index * 100}ms` }}
               >
                 {ad.type === 'video' ? (
@@ -609,16 +891,30 @@ const HomeDashboard = () => {
                       loop
                       playsInline
                       preload="auto"
-                      onMouseOver={(e) => e.target.play().catch(() => {})}
-                      onMouseOut={(e) => e.target.pause()}
+                      autoPlay={false}
+                      poster={ad.src.includes('givenchy') ? givenchyperfume : 
+                             ad.src.includes('curology') ? curologyimg :
+                             ad.src.includes('fendi') ? givenchyperfume :
+                             ad.src.includes('adForCf1') ? waterad :
+                             ad.src.includes('adForCf4') ? waterad :
+                             waterad}
+                      onMouseOver={(e) => {
+                        if (window.innerWidth > 768) {
+                          e.target.play().catch(() => {});
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (window.innerWidth > 768) {
+                          e.target.pause();
+                        }
+                      }}
                       onCanPlay={(e) => {
                         e.target.currentTime = 0.5;
                       }}
                       style={{
-                        backgroundImage: `url(${ad.src})`,
-                        backgroundSize: ad.src === fendiad ? 'contain' : 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
+                        // Ensure videos are visible and show first frame on mobile
+                        visibility: 'visible',
+                        opacity: 1
                       }}
                     />
                   </div>
@@ -633,10 +929,12 @@ const HomeDashboard = () => {
                   </div>
                 )}
                 <div className="p-6 relative">
-                  <span className="inline-block px-2 py-1 text-xs rounded-full bg-gray-800/80 text-gray-300 mb-3">{ad.category}</span>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="inline-block px-2 py-1 text-xs rounded-full bg-gray-800/80 text-gray-300">{ad.category}</span>
+                  </div>
                   <h3 className="text-xl font-medium mb-2">{ad.title}</h3>
                   <p className={`text-sm ${themeStyles.textSecondary} flex items-center`}>
-                    <span className="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 mr-2"></span>
+                    <span className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 mr-2"></span>
                     Created with CF Studio in minutes
                   </p>
                 </div>
@@ -645,7 +943,7 @@ const HomeDashboard = () => {
           </div>
           
           <div className="mt-16 text-center animate-fade-in-up animation-delay-600">
-            <Link to="/gallery" className={`inline-flex items-center px-8 py-4 rounded-full ${themeStyles.button} text-white font-medium hover:shadow-lg hover:shadow-violet-500/20 transition-all`}>
+            <Link to="/gallery" className={`inline-flex items-center px-8 py-4 rounded-full ${themeStyles.button} text-white font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all`}>
               <span>Explore full gallery</span>
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
@@ -653,15 +951,16 @@ const HomeDashboard = () => {
         </div>
       </section>
 
+      {/* ENHANCED PRICING SECTION WITH BUSINESS VALUE */}
       <section id="pricing" className={`py-32 relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-              Simple <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">Pricing Plans</span>
+              Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">Pricing</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-violet-600 mx-auto mb-6 rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 mx-auto mb-6 rounded-full"></div>
             <p className={`text-lg ${themeStyles.textSecondary} leading-relaxed animate-fade-in-up animation-delay-200`}>
-              Start creating professional ads today. Scale as you grow.
+              Choose the plan that works for you. All plans include access to our complete AI ad creation platform.
             </p>
           </div>
           
@@ -671,35 +970,38 @@ const HomeDashboard = () => {
                 key={index} 
                 className={`rounded-2xl overflow-hidden transition-all duration-300 animate-fade-in-up hover:translate-y-[-5px] relative ${
                   tier.popular 
-                    ? 'border-2 border-violet-500 ' + themeStyles.glow
+                    ? 'border-2 border-purple-500 ' + themeStyles.glow
                     : 'border border-gray-800/50'
                 } ${themeStyles.cardBg}`}
                 style={{ animationDelay: `${200 + index * 100}ms` }}
               >
                 {tier.popular && (
-                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-indigo-600 to-violet-600 text-center py-1.5 text-white text-xs font-semibold">
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-center py-1.5 text-white text-xs font-semibold">
                     MOST POPULAR
                   </div>
                 )}
                 <div className={`p-8 ${tier.popular ? 'pt-12' : ''}`}>
                   <h3 className="text-2xl font-semibold mb-2">{tier.name}</h3>
-                  <div className="mt-4 mb-6">
+                  <div className="mt-4 mb-4">
                     <span className="text-4xl font-bold">{tier.price}</span>
                     <span className="text-gray-400 ml-2">{tier.period}</span>
+                  </div>
+                  <div className="bg-blue-500/10 text-blue-400 text-sm font-semibold px-3 py-2 rounded-lg mb-6">
+                    {tier.savings}
                   </div>
                   <ul className="space-y-4 mb-8">
                     {tier.features.map((feature, i) => (
                       <li key={i} className="flex items-start">
-                        <Check className="w-5 h-5 text-indigo-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <Check className="w-5 h-5 text-purple-400 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-300">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <Link 
-                    to="/signup" 
+                    to={tier.cta === "Contact Sales" ? "/contact" : "/signup"}
                     className={`block w-full py-3 rounded-full text-center font-medium transition-all ${
                       tier.popular
-                        ? themeStyles.button + ' text-white shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30'
+                        ? themeStyles.button + ' text-white shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30'
                         : 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
                     }`}
                   >
@@ -712,22 +1014,23 @@ const HomeDashboard = () => {
         </div>
       </section>
 
+      {/* CTA SECTION */}
       <section className="py-24 relative z-10">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-700 opacity-90"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-700 opacity-90"></div>
             <div className="absolute inset-0 bg-[url('noise.png')] opacity-10"></div>
             
-            <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500 rounded-full filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-violet-500 rounded-full filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500 rounded-full filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-500 rounded-full filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
             
             <div className="relative p-12 md:p-16 text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready to Transform Your Ad Creation?</h2>
-              <p className="text-indigo-100 mb-8 max-w-2xl mx-auto">
-                Join thousands of creators already using CF Studio to generate professional ads in minutes.
+              <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
+                Start creating professional ads in minutes. No long-term contracts, cancel anytime.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/signup" className="px-8 py-4 rounded-full bg-white text-indigo-700 font-medium hover:shadow-lg hover:shadow-indigo-700/20 transition-all text-center">
+                <Link to="/signup" className="px-8 py-4 rounded-full bg-white text-purple-700 font-medium hover:shadow-lg hover:shadow-purple-700/20 transition-all text-center">
                   Start Creating Now
                 </Link>
                 <button 
@@ -743,20 +1046,21 @@ const HomeDashboard = () => {
         </div>
       </section>
 
+      {/* UPDATED FOOTER */}
       <footer className={`pt-20 pb-8 border-t ${themeStyles.border} relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
             <div>
               <div className="flex items-center mb-4">
-                <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-500">CF Studio</div>
-                <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-indigo-500/20 to-violet-600/20 text-indigo-300 border border-indigo-500/30">BETA</div>
+                <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">CF Studio</div>
+                <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/30">BETA</div>
               </div>
               <p className="text-gray-400 mb-4">
                 The complete AI platform for turning product photos into professional ads.
               </p>
               <div className="flex space-x-4">
                 {['twitter', 'facebook', 'instagram', 'linkedin'].map((social, i) => (
-                  <a href="#" key={i} className="text-gray-400 hover:text-indigo-400 transition-colors">
+                  <a href="#" key={i} className="text-gray-400 hover:text-purple-400 transition-colors">
                     <span className="sr-only">{social}</span>
                     <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -771,37 +1075,47 @@ const HomeDashboard = () => {
             <div>
               <h3 className="font-semibold text-lg mb-4">Product</h3>
               <ul className="space-y-3">
-                {['Features', 'Pricing', 'Demo'].map((item, i) => (
-                  <li key={i}>
-                    {item === 'Demo' ? (
-                      <button 
-                        onClick={() => setShowDemoVideo(true)}
-                        className="text-gray-400 hover:text-indigo-400 transition-colors"
-                      >
-                        {item}
-                      </button>
-                    ) : (
-                      <a href="#" className="text-gray-400 hover:text-indigo-400 transition-colors">{item}</a>
-                    )}
-                  </li>
-                ))}
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('features')}
+                    className="text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    Features
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('pricing')}
+                    className="text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    Pricing
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setShowDemoVideo(true)}
+                    className="text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    Demo
+                  </button>
+                </li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-semibold text-lg mb-4">Company</h3>
               <ul className="space-y-3">
-                <li><Link to="/about" className="text-gray-400 hover:text-indigo-400 transition-colors">About</Link></li>
-                <li><Link to="/contact" className="text-gray-400 hover:text-indigo-400 transition-colors">Contact</Link></li>
+                <li><Link to="/about" className="text-gray-400 hover:text-purple-400 transition-colors">About</Link></li>
+                <li><Link to="/contact" className="text-gray-400 hover:text-purple-400 transition-colors">Contact</Link></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold text-lg mb-4">Resources</h3>
+              <h3 className="font-semibold text-lg mb-4">Documentation</h3>
               <ul className="space-y-3">
-                {['Documentation', 'Help Center', 'Community'].map((item, i) => (
-                  <li key={i}><a href="#" className="text-gray-400 hover:text-indigo-400 transition-colors">{item}</a></li>
-                ))}
+                <li><Link to="/privacy-policy" className="text-gray-400 hover:text-purple-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms-of-service" className="text-gray-400 hover:text-purple-400 transition-colors">Terms of Service</Link></li>
+                <li><Link to="/cookie-policy" className="text-gray-400 hover:text-purple-400 transition-colors">Cookie Policy</Link></li>
               </ul>
             </div>
           </div>
@@ -809,24 +1123,16 @@ const HomeDashboard = () => {
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-500">© 2025 CF Studio. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-400 transition-colors">Privacy Policy</Link>
-              <Link to="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-400 transition-colors">Terms of Service</Link>
-              <Link to="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-400 transition-colors">Cookie Policy</Link>
+              <span className="text-sm text-gray-500">Transforming businesses worldwide</span>
             </div>
           </div>
         </div>
       </footer>
 
+      {/* VIDEO MODAL */}
       {showVideoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md transition-all">
           <div className="relative w-full max-w-5xl mx-4">
-            <button 
-              onClick={() => setShowVideoModal(false)}
-              className="absolute -top-16 right-0 text-white hover:text-gray-300 transition-colors p-2"
-              aria-label="Close video"
-            >
-              <XCircle className="h-8 w-8" />
-            </button>
             <div className="aspect-video bg-black rounded-lg overflow-hidden border border-gray-800/50 shadow-2xl">
               <video 
                 src={currentVideo}
@@ -839,10 +1145,12 @@ const HomeDashboard = () => {
         </div>
       )}
 
+      {/* SCROLL TO TOP BUTTON */}
       <button 
         onClick={scrollToTop}
-        className={`fixed bottom-8 right-8 p-3 rounded-full ${themeStyles.button} text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/30 z-20 animate-pulse-slow`}
+        className={`fixed bottom-8 right-8 p-3 rounded-full ${themeStyles.button} text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 z-40`}
         aria-label="Scroll to top"
+        style={{ display: isScrolled ? 'block' : 'none' }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -852,31 +1160,22 @@ const HomeDashboard = () => {
       <style>{`
         @keyframes blob {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(10px, -10px) scale(1.05); }
-          50% { transform: translate(0, 20px) scale(0.95); }
-          75% { transform: translate(-10px, -15px) scale(1.05); }
+          25% { transform: translate(15px, -15px) scale(1.1); }
+          50% { transform: translate(0, 25px) scale(0.9); }
+          75% { transform: translate(-15px, -20px) scale(1.05); }
         }
         
         @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
         
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-        
         .animate-blob {
-          animation: blob 12s infinite ease-in-out;
+          animation: blob 15s infinite ease-in-out;
         }
         
         .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse-slow 3s infinite;
+          animation: fade-in-up 0.8s ease-out forwards;
         }
         
         .animation-delay-2000 {
@@ -885,6 +1184,10 @@ const HomeDashboard = () => {
         
         .animation-delay-4000 {
           animation-delay: 4s;
+        }
+        
+        .animation-delay-6000 {
+          animation-delay: 6s;
         }
         
         .animation-delay-200 {
@@ -902,9 +1205,31 @@ const HomeDashboard = () => {
         .animation-delay-800 {
           animation-delay: 0.8s;
         }
+        
+        .duration-3000 {
+          transition-duration: 3000ms;
+        }
+
+        /* Optimized video performance */
+        video {
+          backface-visibility: hidden;
+          perspective: 1000px;
+          transform: translate3d(0, 0, 0);
+        }
+        
+        @media (max-width: 768px) {
+          video {
+            will-change: auto;
+            transform: translateZ(0);
+          }
+          
+          .animate-fade-in-up {
+            animation: none;
+          }
+        }
       `}</style>
     </div>
   );
 };
 
-export default HomeDashboard;
+export default HomeDashboard; 

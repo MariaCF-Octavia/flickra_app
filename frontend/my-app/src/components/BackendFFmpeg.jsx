@@ -4,9 +4,6 @@ import { supabase } from '../supabaseClient';
 import { toast } from 'react-toastify';
 import { Upload, Download, Video, Music, CheckCircle, AlertCircle, Loader, Trash2, Eye } from 'lucide-react';
 
-// Get the backend URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
-
 // Import the VideoPreviewModal component
 const VideoPreviewModal = ({ 
   isOpen, 
@@ -357,7 +354,7 @@ const BackendFFmpeg = ({ darkMode }) => {
   const checkFFmpegStatus = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`${API_BASE_URL}/api/ffmpeg/status`, {
+      const response = await fetch('/api/ffmpeg/status', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -373,7 +370,7 @@ const BackendFFmpeg = ({ darkMode }) => {
   const fetchUserVideos = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`${API_BASE_URL}/api/ffmpeg/user-videos`, {
+      const response = await fetch('/api/ffmpeg/user-videos', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -470,7 +467,7 @@ const BackendFFmpeg = ({ darkMode }) => {
         });
       }, 500);
 
-      const response = await fetch(`${API_BASE_URL}/api/ffmpeg/merge-video-audio`, {
+      const response = await fetch('/api/ffmpeg/merge-video-audio', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`
