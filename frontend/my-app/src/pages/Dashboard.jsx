@@ -553,6 +553,8 @@ const HomeDashboard = () => {
                     </div>
                   )}
 
+                  
+
                   {/* Transformation display */}
                   <div className="relative w-full h-full">
                     {transformations.map((transformation, index) => (
