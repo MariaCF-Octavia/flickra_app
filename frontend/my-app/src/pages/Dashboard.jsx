@@ -449,7 +449,7 @@ const HomeDashboard = () => {
       {/* REDESIGNED HERO SECTION WITH BUSINESS VALUE */}
       <section id="hero" className="relative min-h-screen flex items-center pt-20">
         <div className="container mx-auto px-6 z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
             {/* Left side - Business-focused Content */}
             <div className="max-w-xl">
               <div className="mb-8">
@@ -469,7 +469,7 @@ const HomeDashboard = () => {
               
               {/* Mobile: Shorter description */}
               <p className="text-lg md:text-xl mb-4 md:mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
-                <span className="block md:hidden">Turn product photos into $5,000 commercials in 15 minutes.  Complete AI platform for video, images, voice, music, and editing.</span>
+                <span className="block md:hidden">Turn product photos into $5,000 commercials in 15 minutes. Complete AI platform for video, images, voice, music, and editing.</span>
                 <span className="hidden md:block">Turn any product photo into a $5,000 commercial in 15 minutes. Complete AI platform for video, images, voice, music, and editing.</span>
               </p>
 
@@ -486,7 +486,7 @@ const HomeDashboard = () => {
               </div>
               
               {/* CTA Buttons - Moved higher up on mobile */}
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600 mb-8 md:mb-0">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600 mb-4 md:mb-0">
                 <Link to="/signup" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
                   Start Creating Today
                 </Link>
@@ -505,6 +505,9 @@ const HomeDashboard = () => {
               <div className="hidden md:block mt-8 text-sm text-gray-400 animate-fade-in-up animation-delay-700">
               </div>
             </div>
+            
+            {/* Right side - Before/After Transformation Showcase - Reduced height on mobile */}
+            <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800"></div>
             
             {/* Right side - Before/After Transformation Showcase - Reduced height on mobile */}
             <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800">
