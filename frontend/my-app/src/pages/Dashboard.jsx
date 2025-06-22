@@ -449,9 +449,9 @@ const HomeDashboard = () => {
       {/* REDESIGNED HERO SECTION WITH BUSINESS VALUE */}
       <section id="hero" className="relative min-h-screen flex items-center pt-20">
         <div className="container mx-auto px-6 z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-16 items-center">
             {/* Left side - Business-focused Content */}
-            <div className="max-w-xl">
+            <div className="max-w-xl mb-8 lg:mb-0">
               <div className="mb-8">
                 <span className="inline-block px-4 py-2 text-sm rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 mb-6 animate-fade-in-up border border-green-500/30">
                   <span className="flex items-center">
@@ -486,7 +486,7 @@ const HomeDashboard = () => {
               </div>
               
               {/* CTA Buttons - Moved higher up on mobile */}
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600 mb-4 md:mb-0">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600">
                 <Link to="/signup" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
                   Start Creating Today
                 </Link>
@@ -505,9 +505,7 @@ const HomeDashboard = () => {
               <div className="hidden md:block mt-8 text-sm text-gray-400 animate-fade-in-up animation-delay-700">
               </div>
             </div>
-            
-            {/* Right side - Before/After Transformation Showcase - Reduced height on mobile */}
-            <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800"></div>
+          
             
             {/* Right side - Before/After Transformation Showcase - Reduced height on mobile */}
             <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center animate-fade-in-up animation-delay-800">
