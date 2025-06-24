@@ -12,7 +12,7 @@ Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
   tracesSampleRate: 1.0,
-  debug: true,
+  debug: false,
   // Fixed integrations for Sentry v9+
   integrations: [
     Sentry.browserTracingIntegration(),

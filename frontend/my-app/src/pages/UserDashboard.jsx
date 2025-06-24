@@ -2199,70 +2199,70 @@ return (
                 )}
                 
                 {previews.image && (
-                  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
-                      <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                              <div className="flex items-center justify-between mb-3">
-                                <div>
-                                  <h3 className="text-base font-medium text-white">Product Original</h3>
-                                  <p className="text-xs text-gray-400">
-                                    Source Image
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="rounded-lg overflow-hidden border border-gray-700">
-                                <img 
-                                  src={previews.sourceImage} 
-                                  className="w-full h-auto" 
-                                  alt="Source content" 
-                                />
-                              </div>
-                          </div>
-                          <div>
-                              <div className="flex justify-between items-center mb-3">
-                                <div>
-                                  <h3 className="text-base font-medium text-white">Enhanced Marketing Asset</h3>
-                                  <p className="text-xs text-gray-400">
-                                    Professional Transformation
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <a
-                                    href={previews.image}
-                                    download={`transformed_${Date.now()}.png`}
-                                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                                    title="Download"
-                                  >
-                                    <FiDownload size={16} />
-                                  </a>
-                                  <button
-                                    onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
-                                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                                    title="Fullscreen"
-                                  >
-                                    <FiMaximize size={16} />
-                                  </button>
-                                </div>
-                              </div>
-                              <div className="rounded-lg overflow-hidden border border-gray-700">
-                                <img 
-                                  src={previews.image} 
-                                  className="w-full h-auto" 
-                                  alt="Generated content" 
-                                />
-                              </div>
-                              {previews.metadata && (
-                                <div className="mt-3 text-sm rounded-md p-3 bg-gray-700 text-gray-300">
-                                  <div className="mb-1 font-medium">Generation Details</div>
-                                  <p className="text-xs">Prompt: {previews.metadata.prompt}</p>
-                                  <p className="text-xs">Seed: {previews.metadata.seed || 'random'}</p>
-                                  <p className="text-xs">Transformation Strength: {previews.metadata.image_strength}</p>
-                                </div>
-                              )}
-                          </div>
-                      </div>
-                  </div>
-                )}
+  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
+      <div className="grid md:grid-cols-2 gap-6">
+          <div>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-base font-medium text-white">Product Original</h3>
+                  <p className="text-xs text-gray-400">
+                    Source Image
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden border border-gray-700 aspect-square">
+                <img 
+                  src={previews.sourceImage} 
+                  className="w-full h-full object-cover" 
+                  alt="Source content" 
+                />
+              </div>
+          </div>
+          <div>
+              <div className="flex justify-between items-center mb-3">
+                <div>
+                  <h3 className="text-base font-medium text-white">Enhanced Marketing Asset</h3>
+                  <p className="text-xs text-gray-400">
+                    Professional Transformation
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <a
+                    href={previews.image}
+                    download={`transformed_${Date.now()}.png`}
+                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
+                    title="Download"
+                  >
+                    <FiDownload size={16} />
+                  </a>
+                  <button
+                    onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
+                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
+                    title="Fullscreen"
+                  >
+                    <FiMaximize size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden border border-gray-700 aspect-square">
+                <img 
+                  src={previews.image} 
+                  className="w-full h-full object-cover" 
+                  alt="Generated content" 
+                />
+              </div>
+              {previews.metadata && (
+                <div className="mt-3 text-sm rounded-md p-3 bg-gray-700 text-gray-300">
+                  <div className="mb-1 font-medium">Generation Details</div>
+                  <p className="text-xs">Prompt: {previews.metadata.prompt}</p>
+                  <p className="text-xs">Seed: {previews.metadata.seed || 'random'}</p>
+                  <p className="text-xs">Transformation Strength: {previews.metadata.image_strength}</p>
+                </div>
+              )}
+          </div>
+      </div>
+  </div>
+)}
                 
                 {previews.video && (
                   <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
