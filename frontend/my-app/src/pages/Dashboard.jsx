@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, ArrowRight, 
          Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp } from 'lucide-react';
 
-// Your imported assets (keeping original imports)
+// Your imported assets (keeping original imports + adding new before/after images)
 import waterad from "../assets/water ad.webp";
 import curologyimg from "../assets/curologyimg.jpg";
 import spacurology from "../assets/spa.jpg"; 
 import curology from "../assets/cfcurologyad (2).mp4";
-import givenchy from "../assets/givenchyaduse (2).mp4";
+import givenchy from "../assets/givechy vid ad.mp4";
 import adForCf1 from "../assets/lorealad.mp4";
 import adForCf4 from "../assets/AdForCf4.mp4";
 import phone from "../assets/phonead.jpg";
@@ -19,6 +19,14 @@ import givenchyperfume from "../assets/givenchyperfume.jpg";
 import perfumestand from "../assets/perfumestand.jpg";
 import iphone16 from "../assets/iphone16.jpeg";
 import phonestand from "../assets/phonestand.jpg";
+import versaceimg from "../assets/versaceimgb4.webp"; 
+import versacead from "../assets/versacead.png";
+import yslimg from "../assets/ysl.webp"; 
+import ysladcf from "../assets/ysladcf.png";
+import ordinaryimg from "../assets/ordinary..webp";
+import ordinaryad from "../assets/ordinaryad2.png";
+
+// YSL and Versace images (already imported above)
 
 const HomeDashboard = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -36,9 +44,9 @@ const HomeDashboard = () => {
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
   
-  // PERFECT: Curology first, then Givenchy, then iPhone with references, then standalone ads (just once!)
+  // REORDERED: Curology → YSL → Givenchy → iPhone → Versace → Standalone ads
   const transformations = [
-    // First 3 with Original → Reference → Results flow
+    // 1. Curology (Original → Reference → Results)
     {
       before: { type: 'image', src: curologyimg, alt: 'Curology Product' },
       during: { type: 'image', src: spacurology, alt: 'Spa Reference Style' },
@@ -47,6 +55,16 @@ const HomeDashboard = () => {
       category: 'Beauty & Wellness',
       hasReference: true
     },
+    // 2. YSL (Original → Results)
+    {
+      before: { type: 'image', src: yslimg, alt: 'YSL Product Original' },
+      during: { type: 'image', src: yslimg, alt: 'YSL Product Original' }, // Show original during transition
+      after: { type: 'image', src: ysladcf, alt: 'YSL Campaign Results' },
+      title: 'YSL Luxury Campaign',
+      category: 'Beauty & Fashion',
+      hasReference: true // Set to true to show the Original → Results flow
+    },
+    // 3. Givenchy (Original → Reference → Results)
     {
       before: { type: 'image', src: givenchyperfume, alt: 'Givenchy Perfume Photo' },
       during: { type: 'image', src: perfumestand, alt: 'Reference Style' },
@@ -55,6 +73,7 @@ const HomeDashboard = () => {
       category: 'Beauty & Fragrance',
       hasReference: true
     },
+    // 4. iPhone (Original → Reference → Results)
     {
       before: { type: 'image', src: iphone16, alt: 'iPhone 16 Product' },
       during: { type: 'image', src: phonestand, alt: 'Reference Style' },
@@ -62,6 +81,24 @@ const HomeDashboard = () => {
       title: 'iPhone Professional Campaign',
       category: 'Technology',
       hasReference: true
+    },
+    // 5. Versace (Original → Results)
+    {
+      before: { type: 'image', src: versaceimg, alt: 'Versace Product Original' },
+      during: { type: 'image', src: versaceimg, alt: 'Versace Product Original' }, // Show original during transition
+      after: { type: 'image', src: versacead, alt: 'Versace Campaign Results' },
+      title: 'Versace Premium Campaign',
+      category: 'Luxury Fashion',
+      hasReference: true // Set to true to show the Original → Results flow
+    },
+    // 6. The Ordinary (Original → Results)
+    {
+      before: { type: 'image', src: ordinaryimg, alt: 'The Ordinary Product Original' },
+      during: { type: 'image', src: ordinaryimg, alt: 'The Ordinary Product Original' }, // Show original during transition
+      after: { type: 'image', src: ordinaryad, alt: 'The Ordinary Campaign Results' },
+      title: 'The Ordinary Skincare Campaign',
+      category: 'Beauty & Skincare',
+      hasReference: true // Set to true to show the Original → Results flow
     },
     // Standalone ads - just show once as they are
     {
@@ -163,7 +200,7 @@ const HomeDashboard = () => {
     }
   ];
 
-  // UPDATED: Only first 7 ads, no duplicates
+  // UPDATED: Added YSL and Versace results to showcase
   const showcaseAds = [
     { type: 'video', src: givenchy, title: 'Givenchy Luxury Campaign', category: 'Beauty' },
     { type: 'video', src: curology, title: 'Curology Skincare Campaign', category: 'Beauty' },
@@ -171,6 +208,9 @@ const HomeDashboard = () => {
     { type: 'video', src: adForCf1, title: 'Water Brand Campaign', category: 'Lifestyle' },
     { type: 'video', src: fendiad, title: 'Fendi Luxury Campaign', category: 'Luxury' },
     { type: 'image', src: phone, title: 'iPhone Professional Ad', category: 'Technology' },
+    { type: 'image', src: ysladcf, title: 'YSL Luxury Campaign', category: 'Beauty' }, // Added YSL result
+    { type: 'image', src: versacead, title: 'Versace Premium Campaign', category: 'Fashion' }, // Added Versace result
+    { type: 'image', src: ordinaryad, title: 'The Ordinary Skincare Campaign', category: 'Beauty' }, // Added The Ordinary result
     { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' }
   ];
 
@@ -232,19 +272,33 @@ const HomeDashboard = () => {
     { number: "50+", label: "Business Categories", description: "Fashion, beauty, tech & more" }
   ];
 
-  // Transformation cycle effect - Faster for standalone videos  
+  // Transformation cycle effect - Different timing for 2-phase vs 3-phase transformations
   useEffect(() => {
     const interval = setInterval(() => {
       setTransformationPhase(prev => {
         const currentTransformation = transformations[activeTransformation];
         
         if (currentTransformation.hasReference) {
-          // Normal 3-phase cycle for reference transformations
-          if (prev === 'before') return 'transition';
-          if (prev === 'transition') return 'after';
-          if (prev === 'after') {
-            setActiveTransformation(prev => (prev + 1) % transformations.length);
-            return 'before';
+          // Check if this is a 2-phase transformation (YSL/Versace/The Ordinary)
+          const is2Phase = currentTransformation.title.includes('YSL') || 
+                          currentTransformation.title.includes('Versace') || 
+                          currentTransformation.title.includes('The Ordinary');
+          
+          if (is2Phase) {
+            // For YSL/Versace: Original → Results (skip transition phase)
+            if (prev === 'before') return 'after';
+            if (prev === 'after') {
+              setActiveTransformation(prev => (prev + 1) % transformations.length);
+              return 'before';
+            }
+          } else {
+            // Normal 3-phase cycle for reference transformations (Curology/Givenchy/iPhone)
+            if (prev === 'before') return 'transition';
+            if (prev === 'transition') return 'after';
+            if (prev === 'after') {
+              setActiveTransformation(prev => (prev + 1) % transformations.length);
+              return 'before';
+            }
           }
         } else {
           // Just show the video/image directly for standalone content
@@ -515,7 +569,7 @@ const HomeDashboard = () => {
                 
                 {/* Main transformation container */}
                 <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 backdrop-blur-sm bg-black/20">
-                  {/* Phase indicator - Only show for transformations with references, smaller on mobile */}
+                  {/* Phase indicator - Show different indicators based on transformation type */}
                   {transformations[activeTransformation].hasReference && (
                     <div className="absolute top-3 md:top-6 left-3 md:left-6 z-20 flex items-center space-x-2 md:space-x-3">
                       <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
@@ -525,22 +579,34 @@ const HomeDashboard = () => {
                       }`}>
                         Original
                       </div>
+                      
+                      {/* Only show Reference step for transformations that actually have a reference image */}
+                      {(transformations[activeTransformation].title.includes('Curology') || 
+                        transformations[activeTransformation].title.includes('Givenchy') || 
+                        transformations[activeTransformation].title.includes('iPhone')) && (
+                        <>
+                          <div className="w-4 md:w-8 h-0.5 bg-gray-600 relative overflow-hidden">
+                            <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
+                              transformationPhase === 'before' ? 'w-0' : 
+                              transformationPhase === 'transition' ? 'w-1/2' : 'w-full'
+                            }`}></div>
+                          </div>
+                          <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
+                            transformationPhase === 'transition' 
+                              ? 'bg-yellow-600/80 text-white border-2 border-yellow-400 shadow-lg shadow-yellow-500/50' 
+                              : 'bg-gray-800/80 text-gray-300 border border-gray-600'
+                          }`}>
+                            Reference
+                          </div>
+                        </>
+                      )}
+                      
                       <div className="w-4 md:w-8 h-0.5 bg-gray-600 relative overflow-hidden">
                         <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
-                          transformationPhase === 'before' ? 'w-0' : 
-                          transformationPhase === 'transition' ? 'w-1/2' : 'w-full'
-                        }`}></div>
-                      </div>
-                      <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
-                        transformationPhase === 'transition' 
-                          ? 'bg-yellow-600/80 text-white border-2 border-yellow-400 shadow-lg shadow-yellow-500/50' 
-                          : 'bg-gray-800/80 text-gray-300 border border-gray-600'
-                      }`}>
-                        Reference
-                      </div>
-                      <div className="w-4 md:w-8 h-0.5 bg-gray-600 relative overflow-hidden">
-                        <div className={`absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-1000 ${
-                          transformationPhase === 'after' ? 'w-full' : 'w-0'
+                          transformationPhase === 'after' ? 'w-full' : 
+                          (transformations[activeTransformation].title.includes('YSL') || 
+                           transformations[activeTransformation].title.includes('Versace') ||
+                           transformations[activeTransformation].title.includes('The Ordinary')) && transformationPhase === 'transition' ? 'w-1/2' : 'w-0'
                         }`}></div>
                       </div>
                       <div className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${
@@ -727,13 +793,11 @@ const HomeDashboard = () => {
                           <div className="absolute bottom-3 md:bottom-6 left-3 md:left-6 right-3 md:right-6">
                             <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 md:px-4 py-3">
                               <p className="text-white font-medium text-sm md:text-lg mb-1">
-                                {transformation.hasReference ? '✨ Results: ' : ''}{transformation.hasReference ? transformation.title : ''}
+                                {transformation.hasReference ? '✨ Results: ' : '✨ '}{transformation.title}
                               </p>
-                              {transformation.hasReference && (
-                                <p className="text-purple-300 text-xs md:text-sm">
-                                  {transformation.category}
-                                </p>
-                              )}
+                              <p className="text-purple-300 text-xs md:text-sm">
+                                {transformation.category}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -1262,4 +1326,4 @@ const HomeDashboard = () => {
   );
 };
 
-export default HomeDashboard;
+export default HomeDashboard; 
