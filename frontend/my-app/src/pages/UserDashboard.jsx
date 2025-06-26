@@ -2008,7 +2008,7 @@ return (
               <div className="flex flex-wrap gap-6 mb-6">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-pink-400"></div>
-                  <span className="text-sm text-gray-300">10,000+ ads created</span>
+                  <span className="text-sm text-gray-300">Create commercials</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-rose-400"></div>
@@ -2025,7 +2025,7 @@ return (
                   onClick={() => setShowDemoVideo(true)}
                   className="bg-gradient-to-r from-pink-600 via-rose-600 to-pink-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:shadow-xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center group"
                 >
-                  <span>Watch 2-Minute Demo</span>
+                  <span>Watch 4-Minute Demo</span>
                   <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
