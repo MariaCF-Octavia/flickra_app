@@ -351,188 +351,140 @@ const BackendFFmpeg = ({ darkMode }) => {
     fetchUserVideos();
   }, []);
 
-  const checkFFmpegStatus = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/ffmpeg/status', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
-      const status = await response.json();
-      setFfmpegStatus(status);
-    } catch (error) {
-      console.error('Error checking FFmpeg status:', error);
-      setFfmpegStatus({ ffmpeg_available: false, error: 'Connection failed' });
-    }
-  };
+// Add this to the top of your BackendFFmpeg.jsx file
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-  const fetchUserVideos = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/ffmpeg/user-videos', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+// Then update your API calls:
+
+const checkFFmpegStatus = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch(`${API_BASE_URL}/api/ffmpeg/status`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+    const status = await response.json();
+    setFfmpegStatus(status);
+  } catch (error) {
+    console.error('Error checking FFmpeg status:', error);
+    setFfmpegStatus({ ffmpeg_available: false, error: 'Connection failed' });
+  }
+};
+
+const fetchUserVideos = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch(`${API_BASE_URL}/api/ffmpeg/user-videos`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      setUserVideos(result.videos || []);
+    }
+  } catch (error) {
+    console.error('Error fetching user videos:', error);
+  }
+};
+
+const mergeVideoAudio = async () => {
+  if (!videoFile || !audioFile) {
+    toast.error('Please select both video and audio files');
+    return;
+  }
+
+  setIsProcessing(true);
+  setProcessingProgress(0);
+  setProcessedVideo(null);
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('Please login to process videos');
+    }
+
+    const formData = new FormData();
+    formData.append('video', videoFile);
+    formData.append('audio', audioFile);
+
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setProcessingProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 10;
       });
+    }, 500);
+
+    const response = await fetch(`${API_BASE_URL}/api/ffmpeg/merge-video-audio`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: formData
+    });
+
+    clearInterval(progressInterval);
+    setProcessingProgress(100);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Processing failed');
+    }
+
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      // S3 URL response
+      const result = await response.json();
+      const videoData = {
+        url: result.video_url,
+        filename: result.filename,
+        size: result.file_size,
+        type: 'url'
+      };
+      setProcessedVideo(videoData);
       
-      if (response.ok) {
-        const result = await response.json();
-        setUserVideos(result.videos || []);
-      }
-    } catch (error) {
-      console.error('Error fetching user videos:', error);
-    }
-  };
-
-  const validateFile = (file, type) => {
-    const maxSize = 100 * 1024 * 1024; // 100MB
-    
-    if (file.size > maxSize) {
-      toast.error(`File too large. Maximum size is 100MB.`);
-      return false;
-    }
-
-    const validVideoTypes = ['video/mp4', 'video/quicktime', 'video/avi', 'video/x-msvideo'];
-    const validAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3', 'audio/m4a'];
-
-    if (type === 'video' && !validVideoTypes.includes(file.type)) {
-      toast.error('Invalid video format. Please use MP4, MOV, or AVI.');
-      return false;
-    }
-
-    if (type === 'audio' && !validAudioTypes.includes(file.type)) {
-      toast.error('Invalid audio format. Please use MP3, WAV, or OGG.');
-      return false;
+      // Auto-open preview modal
+      setPreviewVideo(videoData);
+      setShowPreview(true);
+      
+      toast.success('Video processed and uploaded successfully!');
+    } else {
+      // Direct file download
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const filename = response.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] || 'merged_video.mp4';
+      
+      const videoData = {
+        url: downloadUrl,
+        filename: filename,
+        size: blob.size,
+        type: 'blob'
+      };
+      setProcessedVideo(videoData);
+      
+      // Auto-open preview modal
+      setPreviewVideo(videoData);
+      setShowPreview(true);
+      
+      toast.success('Video processed successfully!');
     }
 
-    return true;
-  };
+    // Refresh user videos list
+    await fetchUserVideos();
 
-  const handleFileDrop = (e, type) => {
-    e.preventDefault();
-    setDragOver(prev => ({ ...prev, [type]: false }));
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (validateFile(file, type)) {
-        if (type === 'video') {
-          setVideoFile(file);
-        } else {
-          setAudioFile(file);
-        }
-      }
-    }
-  };
-
-  const handleFileSelect = (e, type) => {
-    const file = e.target.files[0];
-    if (file && validateFile(file, type)) {
-      if (type === 'video') {
-        setVideoFile(file);
-      } else {
-        setAudioFile(file);
-      }
-    }
-    e.target.value = ''; // Reset input
-  };
-
-  const mergeVideoAudio = async () => {
-    if (!videoFile || !audioFile) {
-      toast.error('Please select both video and audio files');
-      return;
-    }
-
-    setIsProcessing(true);
+  } catch (error) {
+    console.error('Video processing error:', error);
+    toast.error(error.message || 'Video processing failed');
+  } finally {
+    setIsProcessing(false);
     setProcessingProgress(0);
-    setProcessedVideo(null);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('Please login to process videos');
-      }
-
-      const formData = new FormData();
-      formData.append('video', videoFile);
-      formData.append('audio', audioFile);
-
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setProcessingProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 10;
-        });
-      }, 500);
-
-      const response = await fetch('/api/ffmpeg/merge-video-audio', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: formData
-      });
-
-      clearInterval(progressInterval);
-      setProcessingProgress(100);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Processing failed');
-      }
-
-      const contentType = response.headers.get('content-type');
-      
-      if (contentType && contentType.includes('application/json')) {
-        // S3 URL response
-        const result = await response.json();
-        const videoData = {
-          url: result.video_url,
-          filename: result.filename,
-          size: result.file_size,
-          type: 'url'
-        };
-        setProcessedVideo(videoData);
-        
-        // Auto-open preview modal
-        setPreviewVideo(videoData);
-        setShowPreview(true);
-        
-        toast.success('Video processed and uploaded successfully!');
-      } else {
-        // Direct file download
-        const blob = await response.blob();
-        const downloadUrl = URL.createObjectURL(blob);
-        const filename = response.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] || 'merged_video.mp4';
-        
-        const videoData = {
-          url: downloadUrl,
-          filename: filename,
-          size: blob.size,
-          type: 'blob'
-        };
-        setProcessedVideo(videoData);
-        
-        // Auto-open preview modal
-        setPreviewVideo(videoData);
-        setShowPreview(true);
-        
-        toast.success('Video processed successfully!');
-      }
-
-      // Refresh user videos list
-      await fetchUserVideos();
-
-    } catch (error) {
-      console.error('Video processing error:', error);
-      toast.error(error.message || 'Video processing failed');
-    } finally {
-      setIsProcessing(false);
-      setProcessingProgress(0);
-    }
-  };
+  }
+};
 
   const clearFiles = () => {
     setVideoFile(null);
