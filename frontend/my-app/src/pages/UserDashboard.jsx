@@ -1694,107 +1694,192 @@ const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   const typeConfig = {
     text: {
       icon: <FiFileText className="w-5 h-5" />,
-      title: 'Craft Compelling Ad Copy',
-      description: 'Create persuasive marketing messages that drive conversions',
+      title: 'AI Copywriter',
+      subtitle: 'Professional ad copy that converts',
+      description: 'Generate compelling headlines, product descriptions, and marketing copy that drives sales',
       examples: [
-        'Write a headline that highlights our product benefits',
-        'Create professional product descriptions for our e-commerce store',
-        'Generate brand storytelling for our company profile'
+        'Discover the secret to radiant skin - Beauty brand headline',
+        'Transform your morning routine in 30 seconds - Product description',
+        'Join 50k+ customers who love our organic formula - Social proof copy'
       ],
+      beforeAfter: {
+        before: "Basic product description",
+        after: "Compelling marketing copy with emotional triggers"
+      },
+      workflow: "1. Describe your product → 2. Get professional copy → 3. Use across all platforms",
+      tips: "Best for: Headlines, product descriptions, social media captions, email subject lines",
       available: true,
       badge: null,
-      gradient: 'from-pink-600 to-rose-600',
+      gradient: 'from-pink-500 to-rose-500',
       buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950'
+      iconBg: 'bg-pink-950',
+      color: 'pink'
     },
     image: {
       icon: <FiImage className="w-5 h-5" />,
-      title: 'Transform Product Imagery',
-      description: 'Enhance your product photos with professional-grade transformations',
+      title: 'Product Transformer',
+      subtitle: 'Turn simple photos into stunning ads',
+      description: 'Transform basic product photos into professional marketing visuals with perfect backgrounds and styling',
       examples: [
-        'Create a lifestyle scene featuring our product',
-        'Transform product photo into a high-end magazine ad',
-        'Add professional branding elements to our product image'
+        'Product on bathroom tiles → Luxury spa advertisement',
+        'Phone on desk → Premium lifestyle magazine shot',
+        'Skincare tube → High-end beauty campaign visual'
       ],
+      beforeAfter: {
+        before: "Simple product photo",
+        after: "Professional marketing visual with perfect styling"
+      },
+      workflow: "1. Upload product photo → 2. Add style reference → 3. Describe scene and @ both images with a describtion  → 4. Get professional results",
+      tips: "Pro tip: Add a 'style reference' image to match any aesthetic you want",
       available: true,
-      badge: null,
-      gradient: 'from-pink-600 to-rose-600',
+      badge: "Most Popular",
+      gradient: 'from-pink-500 to-rose-500',
       buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950'
+      iconBg: 'bg-pink-950',
+      color: 'pink'
     },
     video: {
       icon: <FiVideo className="w-5 h-5" />,
-      title: 'Create Professional Video Ads',
-      description: 'Transform static images into engaging video content for any platform',
+      title: 'Video Ad Creator',
+      subtitle: 'Static photos → Dynamic video ads',
+      description: 'Create engaging video content from your product images - perfect for social media, ads, and websites',
       examples: [
-        'Convert product photo into a dynamic Instagram story ad',
-        'Create a Facebook video carousel from our product line', 
-        'Generate a YouTube pre-roll ad showcasing benefits'
+        'Product photo → Instagram Story with smooth motion',
+        'Two images → Smooth transition showing before/after',
+        'Single image → 10-second promotional video with AI animation'
       ],
+      beforeAfter: {
+        before: "Static product image",
+        after: "Engaging video ad ready for any platform"
+      },
+      workflow: "1. Upload image(s) → 2. Choose duration (5s/10s) → 3. Describe motion → 4. Get video ad",
+      tips: "Perfect for: Instagram Stories, Facebook ads, YouTube shorts, website headers",
       available: true,
-      badge: userPlan === 'premium' ? 'Popular' : null,
-      gradient: 'from-pink-600 to-rose-600',
+      badge: userPlan === 'premium' ? 'Premium' : null,
+      gradient: 'from-pink-500 to-rose-500',
       buttonGradient: 'from-pink-600 to-rose-600', 
-      iconBg: 'bg-pink-950'
+      iconBg: 'bg-pink-950',
+      color: 'pink'
     },
     tts: {
       icon: <FiMic className="w-5 h-5" />,
-      title: 'Professional Voice Narration',
-      description: 'Add premium voiceovers to create a complete multimedia experience',
+      title: 'Voice Generator',
+      subtitle: 'Professional narration in seconds',
+      description: 'Add premium voiceovers to your videos with natural-sounding AI voices in multiple languages',
       examples: [
-        'Create a professional explainer voice for our product demo',
-        'Generate an authoritative narration for our brand story',
-        'Produce conversational dialogue for our testimonial video'
+        'Introducing our breakthrough formula... - Product explainer',
+        'Trusted by over 10,000 businesses... - Authority narrator',
+        'Here\'s what our customers are saying... - Testimonial voice'
       ],
+      beforeAfter: {
+        before: "Silent video or text script",
+        after: "Professional narration ready for your content"
+      },
+      workflow: "1. Write your script → 2. Choose voice style → 3. Generate audio → 4. Download or use",
+      tips: "Great for: Video narration, audio ads, explainer videos, podcast intros",
       available: true,
       badge: 'New',
-      gradient: 'from-pink-600 to-rose-600',
+      gradient: 'from-pink-500 to-rose-500',
       buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950'
+      iconBg: 'bg-pink-950',
+      color: 'pink'
     }
   };
 
   const config = typeConfig[type];
   
   return (
-    <div className="rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col bg-gray-800 border-gray-700">
-      {/* Top accent bar */}
-      <div className={`h-1 bg-gradient-to-r ${config.gradient}`}></div>
+    <div className="rounded-xl border overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col bg-gray-800 border-gray-700 hover:border-gray-600">
+      {/* Enhanced top accent with consistent pink gradient */}
+      <div className={`h-1.5 bg-gradient-to-r ${config.gradient} relative`}>
+        <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20"></div>
+      </div>
       
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center">
-            {/* Icon with custom background */}
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${config.iconBg} text-pink-400`}>
-              {config.icon}
+      <div className="p-6 flex-1 flex flex-col">
+        {/* Enhanced header with better layout */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center flex-1">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${config.iconBg} shadow-lg relative overflow-hidden`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-transparent"></div>
+              <div className="relative z-10 text-pink-400">{config.icon}</div>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-white">{config.title}</h3>
-              {config.badge && (
-                <span className="text-xs px-2 py-0.5 rounded-full mt-1 inline-block bg-pink-500/20 text-pink-300 border border-pink-500/30">
-                  {config.badge}
-                </span>
-              )}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg font-bold text-white">{config.title}</h3>
+                {config.badge && (
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 font-semibold">
+                    {config.badge}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-400 font-medium">{config.subtitle}</p>
             </div>
           </div>
-          <span className="text-xs px-2 py-1 rounded-full bg-gray-700 text-pink-400 border border-pink-500/30">
-            {userPlan === 'enterprise' ? '∞' : remaining} credits
-          </span>
+          
+          {/* Enhanced credits display */}
+          <div className="flex flex-col items-end">
+            <span className="text-xs px-3 py-1.5 rounded-full bg-gray-700 text-pink-400 border border-pink-500/30 font-semibold">
+              {userPlan === 'enterprise' ? '∞' : remaining} credits
+            </span>
+          </div>
         </div>
         
-        <p className="text-sm mb-4 text-gray-400">{config.description}</p>
+        {/* Enhanced description */}
+        <p className="text-sm mb-5 text-gray-300 leading-relaxed">{config.description}</p>
         
-        <div className="mb-4 flex-1">
-          <p className="text-xs font-medium mb-2 text-gray-500">USE CASES</p>
-          <div className="space-y-2">
+        {/* Before/After Section with consistent styling */}
+        <div className="mb-5 p-4 rounded-lg bg-gray-700/50 border border-gray-600/50">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400"></div>
+            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Transformation</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-red-400 font-medium">Before:</span>
+              <span className="text-gray-400">{config.beforeAfter.before}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400 font-medium">After:</span>
+              <span className="text-gray-300">{config.beforeAfter.after}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Enhanced examples with clean styling - NO EMOJIS */}
+        <div className="mb-5 flex-1">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Examples</span>
+            <div className="w-1 h-1 rounded-full bg-pink-400"></div>
+          </div>
+          <div className="space-y-2.5">
             {config.examples.map((example, i) => (
-              <div key={i} className="rounded-md p-2 text-sm cursor-pointer transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600">
-                {example}
+              <div key={i} className="rounded-lg p-3 text-sm cursor-pointer transition-all duration-200 bg-gray-700/70 text-gray-200 hover:bg-gray-600/70 border border-gray-600/50 hover:border-gray-500/50 group/example">
+                <div className="flex items-start gap-2">
+                  <span className="text-gray-400 group-hover/example:text-gray-300 transition-colors text-xs mt-0.5 flex-shrink-0">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="group-hover/example:text-white transition-colors">{example}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
         
+        {/* Workflow Section with consistent pink accents */}
+        <div className="mb-5 p-4 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-600/30">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 rounded-full bg-pink-400"></div>
+            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">How it works</span>
+          </div>
+          <p className="text-xs text-gray-400 leading-relaxed">{config.workflow}</p>
+        </div>
+        
+        {/* Tips Section with consistent pink theme */}
+        <div className="mb-6 p-3 rounded-lg bg-pink-500/10 border border-pink-500/20">
+          <p className="text-xs text-pink-300">{config.tips}</p>
+        </div>
+        
+        {/* Enhanced CTA button */}
         {config.available ? (
           <ContentGenerator
             type={type}
@@ -1804,7 +1889,7 @@ const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
             darkMode={true}
           />
         ) : (
-          <button className="w-full py-2 rounded-lg text-xs font-medium bg-gray-700 text-gray-300 hover:bg-gray-600">
+          <button className="w-full py-3 rounded-lg text-sm font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors border border-gray-600">
             Upgrade to {type === 'video' ? 'Premium' : 'Enterprise'} Plan
           </button>
         )}
@@ -1854,7 +1939,7 @@ return (
         </button>
         <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-transparent bg-clip-text font-bold text-lg mr-3">CF Studio</div>
         <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-          userPlan === 'enterprise' ? 'bg-gradient-to-r from-blue-500/20 to-teal-500/20 text-blue-300 border border-blue-500/30' :
+          userPlan === 'enterprise' ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-300 border border-pink-500/30' :
           userPlan === 'premium' ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-300 border border-pink-500/30' :
           'bg-gray-800 text-gray-300 border border-gray-700'
         }`}>
@@ -1887,88 +1972,128 @@ return (
     
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto mt-16 lg:mt-0 bg-[#151515]">
-        {/* Welcome Banner */}
-        <div className="rounded-lg mb-6 shadow-md overflow-hidden bg-gray-800/80 border border-gray-700">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-2/3 p-6">
-              <div className="flex items-center mb-2">
-                <div className="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center mr-3">
-                  <Sparkles size={20} className="text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white">
-                  Advertising Studio
-                </h2>
-              </div>
-              <p className="text-base mb-4 text-gray-300">
-                Create professional ads that convert with our powerful AI marketing tools
-              </p>
-              <button 
-                onClick={() => setShowDemoVideo(true)}
-                className="bg-gradient-to-r from-pink-600 to-rose-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:from-pink-700 hover:to-rose-700 transition-colors flex items-center shadow-lg shadow-pink-500/20"
-              >
-                Demo Video
-                <ChevronRight size={16} className="ml-1" />
-              </button>
-            </div>
-            <div className="hidden md:block md:w-1/3 bg-gradient-to-r from-pink-600 to-rose-600 p-6">
-              <div className="h-full flex flex-col justify-between text-white">
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Need Inspiration?</h3>
-                  <p className="text-sm text-pink-100">Check out our template library for proven ad formats</p>
-                </div>
-                <div className="mt-4">
-                  <button 
-                    className="px-3 py-1.5 bg-white/10 rounded-lg text-sm transition-colors flex items-center gap-1.5 opacity-80 cursor-default"
-                    disabled
-                  >
-                    <Clock size={12} />
-                    Coming Soon
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Enhanced Welcome Banner with consistent pink gradients */}
+        <div className="rounded-xl mb-8 shadow-2xl overflow-hidden bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 border border-gray-700 relative">
+          {/* Background pattern with pink theme */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-rose-500 via-pink-500 to-rose-600 rounded-full filter blur-3xl"></div>
           </div>
-        </div>
-
-        {/* Industry Templates - Updated with Coming Soon */}
-        <div className="rounded-lg border mb-6 bg-gray-800/80 border-gray-700">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-bold text-white">Industry Templates</h2>
-              <button 
-                className="text-xs font-medium px-3 py-1.5 rounded text-gray-400 bg-gray-500/10 hover:bg-gray-500/15 flex items-center gap-1.5 cursor-default transition-colors"
-                disabled
-              >
-                <Clock size={12} />
-                Coming Soon
-              </button>
+          
+          <div className="relative z-10 flex flex-col lg:flex-row">
+            <div className="lg:w-2/3 p-8">
+              <div className="flex items-center mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 flex items-center justify-center mr-4 shadow-xl">
+                  <Sparkles size={24} className="text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">
+                    Transform Ideas Into 
+                    <span className="bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 text-transparent bg-clip-text ml-2">
+                      Professional Ads
+                    </span>
+                  </h1>
+                  <p className="text-gray-400 text-sm font-medium">
+                    AI-powered marketing studio used by 1000+ businesses
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-lg mb-6 text-gray-300 leading-relaxed">
+                Upload any product photo and watch our AI create stunning advertisements, dynamic videos, 
+                and compelling copy in seconds. No design skills required.
+              </p>
+              
+              {/* Quick stats with pink accents */}
+              <div className="flex flex-wrap gap-6 mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-pink-400"></div>
+                  <span className="text-sm text-gray-300">10,000+ ads created</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-rose-400"></div>
+                  <span className="text-sm text-gray-300">Average 3x engagement</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                  <span className="text-sm text-gray-300">Ready in 30 seconds</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button 
+                  onClick={() => setShowDemoVideo(true)}
+                  className="bg-gradient-to-r from-pink-600 via-rose-600 to-pink-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:shadow-xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center group"
+                >
+                  <span>Watch 2-Minute Demo</span>
+                  <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+                
+                <button 
+                  className="px-6 py-3 rounded-lg text-sm font-semibold bg-gray-700/50 text-white border border-gray-600 hover:bg-gray-600/50 transition-colors flex items-center justify-center"
+                >
+                  <HelpCircle size={16} className="mr-2" />
+                  How It Works
+                </button>
+              </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { name: "E-commerce", icon: <FiShoppingCart size={16} />, color: "from-pink-500 to-rose-500" },
-                { name: "Brand Awareness", icon: <FiUsers size={16} />, color: "from-blue-500 to-indigo-500" },
-                { name: "Service Promotion", icon: <RiMagicLine size={16} />, color: "from-amber-500 to-orange-500" },
-                { name: "Lead Generation", icon: <FiLayers size={16} />, color: "from-emerald-500 to-teal-500" }
-              ].map((template, index) => (
-                <div 
-                  key={index}
-                  className="p-3 rounded-lg border transition-all border-gray-700 bg-gray-800/40 relative"
-                >
-                  <div className={`w-10 h-10 mb-2 rounded-lg flex items-center justify-center bg-gradient-to-br ${template.color} text-white`}>
-                    {template.icon}
-                  </div>
-                  <h3 className="text-xs font-medium text-white">{template.name}</h3>
-                  {/* Coming Soon overlay */}
-                  <div className="absolute top-1 right-1">
-                    <Clock size={10} className="text-gray-400" />
+            {/* Before/After Preview with consistent pink theme */}
+            <div className="lg:w-1/3 bg-gradient-to-br from-pink-600/20 via-rose-600/20 to-pink-700/20 p-8 backdrop-blur-sm">
+              <div className="h-full flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-3 text-white flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400"></div>
+                    See The Magic
+                  </h3>
+                  <p className="text-sm text-gray-300 mb-4">
+                    Real transformations from basic product photos to professional ads
+                  </p>
+                  
+                  {/* Mini before/after preview */}
+                  <div className="space-y-3">
+                    <div className="bg-black/20 rounded-lg p-3 border border-gray-600/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                        <span className="text-xs text-gray-400 font-medium">BEFORE</span>
+                      </div>
+                      <p className="text-xs text-gray-300">Basic product on bathroom tiles</p>
+                    </div>
+                    
+                    <div className="flex justify-center">
+                      <div className="w-6 h-0.5 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full"></div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-3 border border-green-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                        <span className="text-xs text-green-300 font-medium">AFTER</span>
+                      </div>
+                      <p className="text-xs text-green-100">Luxury spa advertisement</p>
+                    </div>
                   </div>
                 </div>
-              ))}
+                
+                <div className="mt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-4 h-4 text-pink-400" />
+                    <span className="text-sm font-semibold text-white">
+                      {userPlan === 'enterprise' ? 'Unlimited Access' : 
+                       userPlan === 'premium' ? 'Premium User' : 'Getting Started'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    {userPlan === 'enterprise' ? 'Create unlimited professional ads' :
+                     userPlan === 'premium' ? '40 generations per month' :
+                     '10 generations to start your journey'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Rest of the component remains exactly the same from here down */}
         {activeTab === 'generators' && (
           <div className="space-y-6">
             {/* Generators Grid - Now immediately visible */}
@@ -2070,27 +2195,6 @@ return (
         )}
 
         {activeTab === 'analytics' && (
-          <div className="rounded-lg border bg-gray-800/80 border-gray-700">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-700/50">
-                <Clock className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-white">
-                Campaign Insights Coming Soon
-              </h3>
-              <p className="text-sm mb-5 max-w-md mx-auto text-gray-400">
-                We're building powerful analytics to help you track your ad performance and optimize campaigns
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs font-medium rounded-full border border-pink-500/30">
-                  Premium Feature
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'performance' && (
           <div className="rounded-lg border bg-gray-800/80 border-gray-700">
             <div className="p-8 text-center">
               <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-700/50">
@@ -2420,3 +2524,4 @@ return (
 );
 }
 export default UserDashboard;
+             

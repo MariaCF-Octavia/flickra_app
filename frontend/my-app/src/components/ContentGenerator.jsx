@@ -1,5 +1,5 @@
- import React, { useState, useCallback, useEffect } from 'react';
-import { FiUploadCloud, FiImage, FiLayers, FiClock } from 'react-icons/fi';
+import React, { useState, useCallback, useEffect } from 'react';
+import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap } from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceSelector from './VoiceSelector.jsx';
@@ -25,7 +25,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const [lastFrameFile, setLastFrameFile] = useState(null);
     const [lastFramePreviewUrl, setLastFramePreviewUrl] = useState(null);
 
-    // NEW: Duration state for video generation
+    // Duration state for video generation
     const [duration, setDuration] = useState(10);
 
     const getPlaceholder = useCallback(() => {
@@ -280,7 +280,6 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             else if (type === 'video' && file) {
                 console.log("Video generation with mode:", videoMode, "duration:", duration);
                 
-                // NEW: Add duration to content object
                 contentObject.duration = duration;
                 
                 if (videoMode === 'keyframes' && lastFrameFile) {
@@ -486,7 +485,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         if (type === 'video') {
             if (videoUrl) {
                 return (
-                    <div className={`mt-4 border rounded-lg overflow-hidden ${
+                    <div className={`mt-3 border rounded-lg overflow-hidden ${
                         darkMode ? 'border-gray-600' : 'border-gray-200'
                     }`}>
                         <video 
@@ -500,13 +499,13 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         <div className={`p-2 flex justify-between items-center ${
                             darkMode ? 'bg-gray-700' : 'bg-gray-50'
                         }`}>
-                            <span className={`text-sm ${
+                            <span className={`text-xs ${
                                 darkMode ? 'text-gray-200' : 'text-gray-600'
                             }`}>Your generated video ({duration}s)</span>
                             <a 
                                 href={videoUrl} 
                                 download={`generated-video-${Date.now()}.mp4`}
-                                className="text-pink-400 hover:text-pink-300 text-sm"
+                                className="text-pink-400 hover:text-pink-300 text-xs"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -519,7 +518,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
             if (videoMode === 'keyframes' && (previewUrl || lastFramePreviewUrl)) {
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="grid grid-cols-2 gap-2 mt-3">
                         {previewUrl && (
                             <div className={`border rounded-lg overflow-hidden ${
                                 darkMode ? 'border-gray-600' : 'border-gray-200'
@@ -527,9 +526,9 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <img 
                                     src={previewUrl} 
                                     alt="First frame" 
-                                    className="w-full h-40 object-cover"
+                                    className="w-full h-20 object-cover"
                                 />
-                                <div className={`p-2 text-sm text-center ${
+                                <div className={`p-1 text-xs text-center ${
                                     darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
                                 }`}>
                                     First Frame
@@ -543,9 +542,9 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <img 
                                     src={lastFramePreviewUrl} 
                                     alt="Last frame" 
-                                    className="w-full h-40 object-cover"
+                                    className="w-full h-20 object-cover"
                                 />
-                                <div className={`p-2 text-sm text-center ${
+                                <div className={`p-1 text-xs text-center ${
                                     darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
                                 }`}>
                                     Last Frame
@@ -558,19 +557,19 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
             if (previewUrl) {
                 return (
-                    <div className={`mt-4 border rounded-lg overflow-hidden ${
+                    <div className={`mt-3 border rounded-lg overflow-hidden ${
                         darkMode ? 'border-gray-600' : 'border-gray-200'
                     }`}>
                         <img 
                             src={previewUrl} 
                             alt="Upload preview" 
-                            className="w-full h-40 object-cover"
+                            className="w-full h-24 object-cover"
                             onError={() => setError('Failed to load image preview')}
                         />
-                        <div className={`p-2 text-sm ${
+                        <div className={`p-1 text-xs ${
                             darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
                         }`}>
-                            Image ready for video generation
+                            Ready for video generation
                         </div>
                     </div>
                 );
@@ -580,7 +579,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         if (type === 'image') {
             if (generatedImageUrl) {
                 return (
-                    <div className={`mt-4 border rounded-lg overflow-hidden ${
+                    <div className={`mt-3 border rounded-lg overflow-hidden ${
                         darkMode ? 'border-gray-600' : 'border-gray-200'
                     }`}>
                         <img 
@@ -592,7 +591,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         <div className={`p-2 flex justify-between items-center ${
                             darkMode ? 'bg-gray-700' : 'bg-gray-50'
                         }`}>
-                            <div className={`text-sm ${
+                            <div className={`text-xs ${
                                 darkMode ? 'text-gray-200' : 'text-gray-600'
                             }`}>
                                 {generationMetadata && (
@@ -617,7 +616,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             <a 
                                 href={generatedImageUrl} 
                                 download={`generated-image-${Date.now()}.png`}
-                                className="text-pink-400 hover:text-pink-300 text-sm"
+                                className="text-pink-400 hover:text-pink-300 text-xs"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -630,7 +629,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
             if (previewUrl || referencePreviewUrl) {
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="grid grid-cols-2 gap-2 mt-3">
                         {previewUrl && (
                             <div className={`border rounded-lg overflow-hidden ${
                                 darkMode ? 'border-gray-600' : 'border-gray-200'
@@ -638,9 +637,9 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <img 
                                     src={previewUrl} 
                                     alt="Product preview" 
-                                    className="w-full h-40 object-cover"
+                                    className="w-full h-20 object-cover"
                                 />
-                                <div className={`p-2 text-sm text-center ${
+                                <div className={`p-1 text-xs text-center ${
                                     darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
                                 }`}>
                                     Your Product
@@ -654,9 +653,9 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <img 
                                     src={referencePreviewUrl} 
                                     alt="Style reference" 
-                                    className="w-full h-40 object-cover"
+                                    className="w-full h-20 object-cover"
                                 />
-                                <div className={`p-2 text-sm text-center ${
+                                <div className={`p-1 text-xs text-center ${
                                     darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
                                 }`}>
                                     Style Reference
@@ -673,16 +672,16 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
     return (
         <div className={className}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Video Mode Selector */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+                {/* Video Mode Selector - More Compact */}
                 {type === 'video' && (
-                    <div className="space-y-3">
-                        <div className={`text-sm font-medium ${
+                    <div className="space-y-2">
+                        <div className={`text-xs font-medium ${
                             darkMode ? 'text-gray-200' : 'text-gray-700'
                         }`}>
-                            Video Creation Mode
+                            Mode
                         </div>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -690,7 +689,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                     setLastFrameFile(null);
                                     setLastFramePreviewUrl(null);
                                 }}
-                                className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                                     videoMode === 'single_image'
                                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white' 
                                         : (darkMode 
@@ -698,13 +697,13 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                             : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
                                 }`}
                             >
-                                <FiImage className="w-4 h-4 mx-auto mb-1" />
-                                Single Image
+                                <FiImage className="w-3 h-3" />
+                                Single
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setVideoMode('keyframes')}
-                                className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                                     videoMode === 'keyframes'
                                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
                                         : (darkMode 
@@ -712,33 +711,26 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                             : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
                                 }`}
                             >
-                                <FiLayers className="w-4 h-4 mx-auto mb-1" />
+                                <FiLayers className="w-3 h-3" />
                                 Keyframes
                             </button>
-                        </div>
-                        <div className={`text-xs ${
-                            darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                            {videoMode === 'single_image' 
-                                ? 'Generate video from one image with AI motion' 
-                                : 'Create smooth transition between two specific images'}
                         </div>
                     </div>
                 )}
 
-                {/* Duration Selector for Video */}
+                {/* Duration Selector for Video - More Compact */}
                 {type === 'video' && (
-                    <div className="space-y-3">
-                        <div className={`text-sm font-medium ${
+                    <div className="space-y-2">
+                        <div className={`text-xs font-medium ${
                             darkMode ? 'text-gray-200' : 'text-gray-700'
                         }`}>
-                            Video Duration
+                            Duration
                         </div>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <button
                                 type="button"
                                 onClick={() => setDuration(5)}
-                                className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                                     duration === 5
                                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
                                         : (darkMode 
@@ -746,13 +738,13 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                             : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
                                 }`}
                             >
-                                <FiClock className="w-4 h-4 mx-auto mb-1" />
-                                5 Seconds
+                                <FiClock className="w-3 h-3" />
+                                5s
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setDuration(10)}
-                                className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                                     duration === 10
                                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
                                         : (darkMode 
@@ -760,26 +752,20 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                             : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
                                 }`}
                             >
-                                <FiClock className="w-4 h-4 mx-auto mb-1" />
-                                10 Seconds
+                                <FiZap className="w-3 h-3" />
+                                10s
                             </button>
-                        </div>
-                        <div className={`text-xs ${
-                            darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                            {duration === 5 
-                                ? 'Shorter video, faster generation, lower cost' 
-                                : 'Longer video, more complex scenes, higher quality'}
                         </div>
                     </div>
                 )}
 
+                {/* Compact Textarea */}
                 <textarea
                     id="prompt-input"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={getPlaceholder()}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-pink-300 transition-colors ${
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-pink-300 transition-colors resize-none ${
                         darkMode 
                             ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:bg-gray-600' 
                             : 'bg-white border-gray-300 text-gray-900 focus:bg-gray-50'
@@ -789,6 +775,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     required
                 />
 
+                {/* Voice Selector for TTS */}
                 {type === 'tts' && (
                     <div className="mt-2">
                         <VoiceSelector 
@@ -799,14 +786,16 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     </div>
                 )}
 
+                {/* File Upload Section - Compact Design */}
                 {(type === 'video' || type === 'image') && (
                     <div className="space-y-2">
-                        <div className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
+                        {/* Main File Upload */}
+                        <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${
                             darkMode 
-                                ? 'border-gray-600 hover:border-gray-500 bg-gray-700/50' 
+                                ? 'border-gray-600 hover:border-gray-500 bg-gray-700/30' 
                                 : 'border-gray-300 hover:border-gray-400 bg-gray-50'
                         }`}>
-                            <label className="cursor-pointer">
+                            <label className="cursor-pointer block">
                                 <input
                                     key={`product-${fileKey}`}
                                     type="file"
@@ -815,40 +804,42 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                     className="hidden"
                                     disabled={isGenerating}
                                 />
-                                <div className="space-y-1">
-                                    <FiUploadCloud className={`w-5 h-5 mx-auto ${
+                                <div className="flex items-center justify-center gap-2 py-1">
+                                    <FiUploadCloud className={`w-4 h-4 ${
                                         darkMode ? 'text-gray-400' : 'text-gray-400'
                                     }`} />
-                                    <p className={`text-xs ${
-                                        darkMode ? 'text-gray-200' : 'text-gray-600'
-                                    }`}>
-                                        {file ? file.name : 
-                                            type === 'video' && videoMode === 'keyframes' 
-                                                ? 'Upload first frame image'
-                                                : `Upload ${type === 'image' ? 'product' : 'base'} image`
-                                        }
-                                    </p>
-                                    {file && (
-                                        <p className={`text-xs ${
-                                            file.size > 10 * 1024 * 1024 
-                                                ? 'text-red-400' 
-                                                : (darkMode ? 'text-gray-400' : 'text-gray-500')
+                                    <div>
+                                        <p className={`text-xs font-medium ${
+                                            darkMode ? 'text-gray-200' : 'text-gray-600'
                                         }`}>
-                                            {(file.size / 1024 / 1024).toFixed(1)} MB
+                                            {file ? file.name.length > 25 ? file.name.substring(0, 22) + '...' : file.name : 
+                                                type === 'video' && videoMode === 'keyframes' 
+                                                    ? 'First frame'
+                                                    : `${type === 'image' ? 'Product' : 'Base'} image`
+                                            }
                                         </p>
-                                    )}
+                                        {file && (
+                                            <p className={`text-xs ${
+                                                file.size > 10 * 1024 * 1024 
+                                                    ? 'text-red-400' 
+                                                    : (darkMode ? 'text-gray-400' : 'text-gray-500')
+                                            }`}>
+                                                {(file.size / 1024 / 1024).toFixed(1)} MB
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </label>
                         </div>
 
                         {/* Last frame upload for keyframes mode */}
                         {type === 'video' && videoMode === 'keyframes' && (
-                            <div className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${
                                 darkMode 
-                                    ? 'border-blue-500/30 hover:border-blue-500/50 bg-blue-500/10' 
+                                    ? 'border-blue-500/30 hover:border-blue-500/50 bg-blue-500/5' 
                                     : 'border-blue-300 hover:border-blue-400 bg-blue-50'
                             }`}>
-                                <label className="cursor-pointer">
+                                <label className="cursor-pointer block">
                                     <input
                                         key={`lastframe-${fileKey}`}
                                         type="file"
@@ -857,41 +848,39 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                         className="hidden"
                                         disabled={isGenerating}
                                     />
-                                    <div className="space-y-1">
-                                        <FiLayers className={`w-5 h-5 mx-auto ${
+                                    <div className="flex items-center justify-center gap-2 py-1">
+                                        <FiLayers className={`w-4 h-4 ${
                                             darkMode ? 'text-blue-400' : 'text-blue-400'
                                         }`} />
-                                        <p className={`text-xs ${
-                                            darkMode ? 'text-blue-300' : 'text-blue-600'
-                                        }`}>
-                                            {lastFrameFile ? lastFrameFile.name : 'Upload last frame image'}
-                                        </p>
-                                        {lastFrameFile && (
-                                            <p className={`text-xs ${
-                                                lastFrameFile.size > 10 * 1024 * 1024 
-                                                    ? 'text-red-400' 
-                                                    : (darkMode ? 'text-blue-400' : 'text-blue-500')
+                                        <div>
+                                            <p className={`text-xs font-medium ${
+                                                darkMode ? 'text-blue-300' : 'text-blue-600'
                                             }`}>
-                                                {(lastFrameFile.size / 1024 / 1024).toFixed(1)} MB
+                                                {lastFrameFile ? (lastFrameFile.name.length > 25 ? lastFrameFile.name.substring(0, 22) + '...' : lastFrameFile.name) : 'Last frame'}
                                             </p>
-                                        )}
+                                            {lastFrameFile && (
+                                                <p className={`text-xs ${
+                                                    lastFrameFile.size > 10 * 1024 * 1024 
+                                                        ? 'text-red-400' 
+                                                        : (darkMode ? 'text-blue-400' : 'text-blue-500')
+                                                }`}>
+                                                    {(lastFrameFile.size / 1024 / 1024).toFixed(1)} MB
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </label>
-                                <p className={`text-xs mt-1 ${
-                                    darkMode ? 'text-blue-400/70' : 'text-blue-400'
-                                }`}>
-                                    Final state of your video
-                                </p>
                             </div>
                         )}
 
+                        {/* Style Reference for Image */}
                         {type === 'image' && (
-                            <div className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
+                            <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${
                                 darkMode 
-                                    ? 'border-pink-500/30 hover:border-pink-500/50 bg-pink-500/10' 
+                                    ? 'border-pink-500/30 hover:border-pink-500/50 bg-pink-500/5' 
                                     : 'border-purple-300 hover:border-purple-400 bg-purple-50'
                             }`}>
-                                <label className="cursor-pointer">
+                                <label className="cursor-pointer block">
                                     <input
                                         key={`reference-${fileKey}`}
                                         type="file"
@@ -900,44 +889,44 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                         className="hidden"
                                         disabled={isGenerating}
                                     />
-                                    <div className="space-y-1">
-                                        <FiImage className={`w-5 h-5 mx-auto ${
+                                    <div className="flex items-center justify-center gap-2 py-1">
+                                        <FiImage className={`w-4 h-4 ${
                                             darkMode ? 'text-pink-400' : 'text-purple-400'
                                         }`} />
-                                        <p className={`text-xs ${
-                                            darkMode ? 'text-pink-300' : 'text-purple-600'
-                                        }`}>
-                                            {referenceFile ? referenceFile.name : 'Style reference (optional)'}
-                                        </p>
-                                        {referenceFile && (
-                                            <p className={`text-xs ${
-                                                referenceFile.size > 5 * 1024 * 1024 
-                                                    ? 'text-red-400' 
-                                                    : (darkMode ? 'text-pink-400' : 'text-purple-500')
+                                        <div>
+                                            <p className={`text-xs font-medium ${
+                                                darkMode ? 'text-pink-300' : 'text-purple-600'
                                             }`}>
-                                                {(referenceFile.size / 1024 / 1024).toFixed(1)} MB
+                                                {referenceFile ? (referenceFile.name.length > 25 ? referenceFile.name.substring(0, 22) + '...' : referenceFile.name) : 'Style reference'}
                                             </p>
-                                        )}
+                                            {referenceFile && (
+                                                <p className={`text-xs ${
+                                                    referenceFile.size > 5 * 1024 * 1024 
+                                                        ? 'text-red-400' 
+                                                        : (darkMode ? 'text-pink-400' : 'text-purple-500')
+                                                }`}>
+                                                    {(referenceFile.size / 1024 / 1024).toFixed(1)} MB
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </label>
-                                <p className={`text-xs mt-1 ${
-                                    darkMode ? 'text-pink-400/70' : 'text-purple-400'
-                                }`}>
-                                    Upload an ad with the style you want
-                                </p>
                             </div>
                         )}
                     </div>
                 )}
 
+                {/* File Preview */}
                 {renderFilePreview()}
 
+                {/* Error Message */}
                 {error && (
-                    <p className="text-red-400 text-sm animate-pulse">
+                    <div className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg p-2">
                         {error}
-                    </p>
+                    </div>
                 )}
 
+                {/* Submit Button */}
                 <button
                     type="submit"
                     disabled={isGenerating || (typeof remaining === 'number' && remaining <= 0)}
@@ -951,31 +940,52 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             isDisabled: isGenerating || (typeof remaining === 'number' && remaining <= 0)
                         });
                     }}
-                    className={`w-full py-3 rounded-lg font-medium transition-all ${
+                    className={`w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
                         isGenerating || remaining <= 0
                             ? (darkMode ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed')
-                            : 'bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:shadow-lg hover:shadow-pink-500/20 hover:from-pink-700 hover:to-rose-700'
+                            : 'bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:shadow-lg hover:shadow-pink-500/20 hover:from-pink-700 hover:to-rose-700 transform hover:scale-[1.02] active:scale-[0.98]'
                     }`}
                 >
                     {isGenerating ? (
-                        <span className="flex items-center justify-center gap-2">
+                        <>
                             <span className="animate-spin inline-block w-4 h-4 border-2 border-current rounded-full border-t-transparent" />
-                            {type === 'video' ? `Generating ${duration}s video...` : 
-                             type === 'image' ? 'Generating image...' :
-                             type === 'tts' ? 'Generating speech...' :
-                             'Generating content...'}
-                        </span>
+                            <span className="text-sm">
+                                {type === 'video' ? `Generating ${duration}s video...` : 
+                                 type === 'image' ? 'Creating image...' :
+                                 type === 'tts' ? 'Generating speech...' :
+                                 'Processing...'}
+                            </span>
+                        </>
                     ) : (
-                        remaining <= 0 ? 'No Credits Remaining' :
-                        (type === 'image' || type === 'video') && !file ? 
-                            'Select Image First' :
-                            type === 'video' && videoMode === 'keyframes' && !lastFrameFile ?
-                                'Select Last Frame' :
-                                type === 'tts' ? 'Generate Speech' : 
-                                type === 'video' ? `Create ${duration}s Video` :
-                                type === 'image' ? 'Create Image' :
-                                type === 'text' ? 'Create Copy' :
-                                `Create ${type.charAt(0).toUpperCase() + type.slice(1)}`
+                        <>
+                            {remaining <= 0 ? (
+                                <span className="text-sm">No Credits Remaining</span>
+                            ) : (type === 'image' || type === 'video') && !file ? (
+                                <>
+                                    <FiUploadCloud className="w-4 h-4" />
+                                    <span className="text-sm">Select Image First</span>
+                                </>
+                            ) : type === 'video' && videoMode === 'keyframes' && !lastFrameFile ? (
+                                <>
+                                    <FiLayers className="w-4 h-4" />
+                                    <span className="text-sm">Select Last Frame</span>
+                                </>
+                            ) : (
+                                <>
+                                    {type === 'tts' ? <FiPlay className="w-4 h-4" /> : 
+                                     type === 'video' ? <FiVideo className="w-4 h-4" /> :
+                                     type === 'image' ? <FiImage className="w-4 h-4" /> :
+                                     <FiZap className="w-4 h-4" />}
+                                    <span className="text-sm">
+                                        {type === 'tts' ? 'Generate Speech' : 
+                                         type === 'video' ? `Create ${duration}s Video` :
+                                         type === 'image' ? 'Create Image' :
+                                         type === 'text' ? 'Create Copy' :
+                                         `Create ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+                                    </span>
+                                </>
+                            )}
+                        </>
                     )}
                 </button>
             </form>
@@ -1000,4 +1010,4 @@ ContentGenerator.defaultProps = {
     buttonGradient: 'from-pink-600 to-rose-600'
 };
 
-export default ContentGenerator;
+export default ContentGenerator; 
