@@ -6,6 +6,9 @@
 // Define predefined voices as fallback
 import { supabase } from '../supabaseClient';
 
+// Add this at the top - same pattern as BackendFFmpeg
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
+
 export const predefinedVoices = {
   male: [
     {
@@ -50,8 +53,6 @@ export const predefinedVoices = {
 
 /**
  * Fetches voices through backend proxy using Supabase session
- * /**
- * Fetches voices through backend proxy using Supabase session
  * @returns {Promise<{male: Array, female: Array, other: Array, _fallback?: boolean, _error?: string}>}
  */
 export const fetchAvailableVoices = async () => {
@@ -67,8 +68,8 @@ export const fetchAvailableVoices = async () => {
       };
     }
 
-    // Updated endpoint with /api prefix
-    const endpoint = '/api/voices'; // Make sure this matches your API route
+    // FIXED: Use API_BASE_URL instead of relative path
+    const endpoint = `${API_BASE_URL}/api/voices`;
     console.log(`Fetching voices from: ${endpoint}`);
     
     const response = await fetch(endpoint, {
