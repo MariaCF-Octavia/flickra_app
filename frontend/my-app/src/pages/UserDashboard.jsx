@@ -412,6 +412,32 @@ const handleGeneration = async (content) => {
   
   let expectedResponseFormat = 'standard';
   
+  // Helper function to safely extract error details
+  const getErrorDetails = (errorData) => {
+    let errorType = '';
+    let errorMessage = '';
+    let detailString = '';
+    
+    if (typeof errorData.detail === 'string') {
+      // Detail is a string (old format)
+      errorType = errorData.detail;
+      errorMessage = errorData.detail;
+      detailString = errorData.detail;
+    } else if (typeof errorData.detail === 'object' && errorData.detail !== null) {
+      // Detail is an object (new format)
+      errorType = errorData.detail.error || '';
+      errorMessage = errorData.detail.message || errorData.detail.error || 'Unknown error';
+      detailString = errorMessage; // Use message for string operations
+    } else {
+      // Fallback
+      errorType = 'unknown_error';
+      errorMessage = errorData.message || 'An unexpected error occurred';
+      detailString = errorMessage;
+    }
+    
+    return { errorType, errorMessage, detailString };
+  };
+  
   try {
     debug.stage = 'auth';
     let sessionResponse, userResponse;
@@ -916,34 +942,70 @@ const handleGeneration = async (content) => {
                         `Request failed with status ${response.status}`;
         }
         
-        if (type === 'image') {
-          if (errorData.detail?.includes('image processing')) {
+        // FIXED ERROR HANDLING: Use the helper function to safely extract error details
+        const { errorType, errorMessage: extractedMessage, detailString } = getErrorDetails(errorData);
+
+        // Handle specific error types first (from structured responses)
+        if (errorType === 'trial_expired') {
+          errorMessage = 'Your trial has expired. Upgrade to continue creating!';
+        } else if (errorType === 'no_credits' || errorType === 'generation_limit_reached') {
+          errorMessage = extractedMessage || 'You\'ve reached your generation limit. Upgrade to continue!';
+        } else if (errorType === 'feature_locked') {
+          errorMessage = extractedMessage || 'This feature is not available in trial. Upgrade to access all features.';
+        } else if (errorType === 'video_generation_failed') {
+          errorMessage = extractedMessage || 'Video generation failed. Please try again.';
+        }
+        // Handle by content type and string matching (for backward compatibility)
+        else if (type === 'image') {
+          if (detailString.includes('image processing')) {
             errorMessage = 'Failed to process source image. Try a different image.';
-          } else if (errorData.detail?.includes('nsfw')) {
+          } else if (detailString.includes('nsfw')) {
             errorMessage = 'Content filtered - Please modify your prompt or image.';
-          } else if (errorData.detail?.includes('invalid image') || errorData.detail?.includes('unsupported format')) {
+          } else if (detailString.includes('invalid image') || detailString.includes('unsupported format')) {
             errorMessage = 'Invalid image format. Please use JPEG, PNG or WebP.';
-          } else if (errorData.detail?.includes('file size')) {
+          } else if (detailString.includes('file size')) {
             errorMessage = 'Image file is too large. Maximum size is 10MB.';
-          } else if (errorData.detail?.includes('missing image')) {
+          } else if (detailString.includes('missing image')) {
             errorMessage = 'No image was provided. Please select an image.';
+          } else {
+            errorMessage = extractedMessage || 'Image generation failed. Please try again.';
           }
         }
         else if (type === 'tts') {
-          if (errorData.detail?.includes('voice_id')) {
+          if (detailString.includes('voice_id')) {
             errorMessage = 'Invalid voice selected. Please try a different voice.';
-          } else if (errorData.detail?.includes('text too long')) {
+          } else if (detailString.includes('text too long')) {
             errorMessage = 'Text is too long. Please shorten your input.';
+          } else {
+            errorMessage = extractedMessage || 'Text-to-speech generation failed. Please try again.';
           }
         }
         else if (type === 'video') {
-          if (errorData.detail?.includes('processing queue')) {
+          if (detailString.includes('processing queue')) {
             errorMessage = 'Video processing queue full. Please try again later.';
-          } else if (errorData.detail?.includes('Duration must be')) {
-            errorMessage = 'Invalid duration selected. Please choose 5 or 10 seconds.';  // NEW: Duration error
-          } else if (errorData.detail?.includes('duration')) {
-            errorMessage = 'Duration parameter error. Please try again.';  // NEW: General duration error
+          } else if (detailString.includes('Duration must be')) {
+            errorMessage = 'Invalid duration selected. Please choose 5 or 10 seconds.';
+          } else if (detailString.includes('duration')) {
+            errorMessage = 'Duration parameter error. Please try again.';
+          } else if (detailString.includes('Last frame image required')) {
+            errorMessage = 'Please upload the last frame image for keyframes mode.';
+          } else if (detailString.includes('Invalid last frame image URL')) {
+            errorMessage = 'Invalid last frame image. Please try uploading again.';
+          } else if (detailString.includes('rate limit') || detailString.includes('Rate limited')) {
+            errorMessage = 'Rate limited by video service. Please wait 5-10 minutes before trying again.';
+          } else if (detailString.includes('content') || detailString.includes('moderation')) {
+            errorMessage = 'Content moderation issue. Try different images or prompt.';
+          } else if (detailString.includes('credit') || detailString.includes('billing')) {
+            errorMessage = 'Video service billing issue. Please try again later.';
+          } else if (detailString.includes('format') || detailString.includes('size')) {
+            errorMessage = 'Image format or size issue. Try smaller images (under 1MB).';
+          } else {
+            errorMessage = extractedMessage || 'Video generation failed. Please try again.';
           }
+        }
+        else {
+          // Default case for any content type
+          errorMessage = extractedMessage || 'Generation failed. Please try again.';
         }
         
         throw new Error(errorMessage);
