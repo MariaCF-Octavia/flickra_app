@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap } from 'react-icons/fi';
+import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceSelector from './VoiceSelector.jsx';

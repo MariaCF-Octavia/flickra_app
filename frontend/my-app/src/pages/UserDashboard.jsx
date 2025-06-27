@@ -13,7 +13,7 @@ import {
     FiHome, FiFileText, FiImage, FiVideo, FiMic, FiEdit, 
     FiBarChart2, FiUsers, FiShoppingCart, FiMoon, FiSun, 
     FiUser, FiLogOut, FiDownload, FiMaximize, FiLayers, 
-    FiFolder, FiTrendingUp, FiX, FiMenu 
+    FiFolder, FiTrendingUp, FiX, FiMenu, 
 } from 'react-icons/fi';
 import { RiMagicLine } from 'react-icons/ri'
 import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkles, Clock, Star, Zap } from 'lucide-react';
