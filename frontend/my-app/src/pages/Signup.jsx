@@ -1,14 +1,12 @@
- import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { loadStripe } from "@stripe/stripe-js";
+import { Sparkles, Zap, Clock } from "lucide-react";
 
 // Vite environment variables
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const backendUrl = import.meta.env.VITE_API_BASE_URL;
-
-// Log the Stripe public key for debugging
-console.log("Stripe Public Key:", stripePublicKey);
 
 // Initialize Stripe
 const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
@@ -21,93 +19,99 @@ const Signup = () => {
   const [selectedPlan, setSelectedPlan] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [signupMode, setSignupMode] = useState("paid"); // "paid" or "trial"
+
+  // Check URL parameters for mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    if (mode === 'trial') {
+      setSignupMode('trial');
+    }
+  }, []);
 
   // Handle email confirmation when user returns from email
- // Replace your current useEffect with this:
-useEffect(() => {
-  const handleEmailConfirmation = async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const confirmed = urlParams.get('confirmed');
-    const plan = urlParams.get('plan');
-    
-    if (confirmed === 'true') {
-      // User confirmed email, now get their session and proceed to payment
-      const { data: { session }, error } = await supabase.auth.getSession();
+  useEffect(() => {
+    const handleEmailConfirmation = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const confirmed = urlParams.get('confirmed');
+      const plan = urlParams.get('plan');
       
-      if (session && plan) {
-        console.log("Email confirmed, proceeding to payment for plan:", plan);
+      if (confirmed === 'true') {
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        // Set the plan they selected
-        setSelectedPlan(plan);
-        
-        // Now create checkout session and redirect to Stripe
-        try {
-          setIsLoading(true);
+        if (session && plan) {
+          console.log("Email confirmed, proceeding to payment for plan:", plan);
+          setSelectedPlan(plan);
           
-          const checkoutUrl = `${backendUrl}/create-checkout`;
-          const requestBody = {
-            plan: plan.toLowerCase(),
-            email: session.user.email,
-            user_id: session.user.id
-          };
+          try {
+            setIsLoading(true);
+            
+            const checkoutUrl = `${backendUrl}/create-checkout`;
+            const requestBody = {
+              plan: plan.toLowerCase(),
+              email: session.user.email,
+              user_id: session.user.id
+            };
 
-          const response = await fetch(checkoutUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`
-            },
-            body: JSON.stringify(requestBody)
-          });
+            const response = await fetch(checkoutUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+              },
+              body: JSON.stringify(requestBody)
+            });
 
-          if (!response.ok) {
-            throw new Error(`Checkout failed: ${response.status}`);
+            if (!response.ok) {
+              throw new Error(`Checkout failed: ${response.status}`);
+            }
+
+            const checkoutSession = await response.json();
+            
+            if (!checkoutSession?.sessionId) {
+              throw new Error("Missing session ID in response");
+            }
+
+            const stripe = await stripePromise;
+            if (!stripe) {
+              throw new Error("Failed to load Stripe");
+            }
+
+            const { error: stripeError } = await stripe.redirectToCheckout({
+              sessionId: checkoutSession.sessionId
+            });
+
+            if (stripeError) {
+              throw new Error(`Stripe redirect failed: ${stripeError.message}`);
+            }
+
+          } catch (err) {
+            console.error("Email confirmation payment error:", err);
+            setError(`Payment setup failed: ${err.message}`);
+          } finally {
+            setIsLoading(false);
           }
-
-          const checkoutSession = await response.json();
-          
-          if (!checkoutSession?.sessionId) {
-            throw new Error("Missing session ID in response");
-          }
-
-          // Redirect to Stripe
-          const stripe = await stripePromise;
-          if (!stripe) {
-            throw new Error("Failed to load Stripe");
-          }
-
-          const { error: stripeError } = await stripe.redirectToCheckout({
-            sessionId: checkoutSession.sessionId
-          });
-
-          if (stripeError) {
-            throw new Error(`Stripe redirect failed: ${stripeError.message}`);
-          }
-
-        } catch (err) {
-          console.error("Email confirmation payment error:", err);
-          setError(`Payment setup failed: ${err.message}`);
-        } finally {
-          setIsLoading(false);
+        } else {
+          setError("❌ Email confirmation failed. Please try signing up again.");
         }
-      } else {
-        setError("❌ Email confirmation failed. Please try signing up again.");
+        
+        window.history.replaceState({}, document.title, "/signup");
       }
-      
-      // Clean up URL
-      window.history.replaceState({}, document.title, "/signup");
-    }
-  };
-  
-  handleEmailConfirmation();
-}, []);
+    };
+    
+    handleEmailConfirmation();
+  }, []);
 
   const validateForm = () => {
-    const validPlans = ["basic", "premium", "enterprise"];
-    if (!validPlans.includes(selectedPlan.toLowerCase())) {
-      setError("Please select a valid plan.");
-      return false;
+    if (signupMode === "paid") {
+      const validPlans = ["basic", "premium", "enterprise"];
+      if (!validPlans.includes(selectedPlan.toLowerCase())) {
+        setError("Please select a valid plan.");
+        return false;
+      }
     }
+    
     if (username.length < 3) {
       setError("Username must be at least 3 characters.");
       return false;
@@ -122,189 +126,184 @@ useEffect(() => {
     }
     return true;
   };
-  
-  const handleSignup = async (e) => {
-  e.preventDefault();
-  
-  console.log("=== SIGNUP DEBUG START ===");
-  console.log("Backend URL:", backendUrl);
-  console.log("Selected plan:", selectedPlan);
-  console.log("Email:", email);
-  console.log("Username:", username);
-  
-  if (!validateForm()) {
-    setError("Please fill all fields correctly. Password must be at least 6 characters.");
-    return;
-  }
 
-  // Check if backend URL is configured
-  if (!backendUrl) {
-    setError("Backend configuration missing. Please contact support.");
-    console.error("VITE_API_BASE_URL environment variable not set");
-    return;
-  }
-
-  setError("");
-  setIsLoading(true);
-
-  try {
-    // 1. Supabase Signup with custom redirect
-    console.log("Step 1: Starting Supabase signup...");
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: password,
-      options: {
-        data: {
-          username: username.trim(),
-          plan: selectedPlan.toLowerCase()
-        },
-        emailRedirectTo: `https://contentfactory.ai/signup?confirmed=true&plan=${selectedPlan.toLowerCase()}`
-      }
-    });
-
-    if (authError) {
-      console.error("Supabase Auth Error:", authError);
-      throw new Error(authError.message || "Registration failed");
+  // NEW: Trial signup handler
+  const handleTrialSignup = async (e) => {
+    e.preventDefault();
+    
+    // Simplified validation for trial (no username needed)
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      setError("Please enter a valid email address.");
+      return;
     }
-
-    console.log("Supabase signup successful!");
-    console.log("User ID:", authData.user?.id);
-    console.log("Has session:", !!authData.session);
-    console.log("Has access token:", !!authData.session?.access_token);
-
-    // 2. Check for session token (email confirmation)
-    if (!authData.session?.access_token) {
-      console.warn("No session token - email confirmation required");
-      setError("🎉 Account created! Please check your email and click the confirmation link before proceeding to payment.");
-      setIsLoading(false);
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
 
-    console.log("Access token (first 20 chars):", authData.session.access_token.substring(0, 20) + "...");
-
-    // 3. Prepare checkout request
-    console.log("Step 2: Preparing checkout request...");
-    const checkoutUrl = `${backendUrl}/create-checkout`;
-    console.log("Checkout URL:", checkoutUrl);
-    
-    const requestBody = {
-      plan: selectedPlan.toLowerCase(),
-      email: email.trim(),
-      user_id: authData.user?.id
-    };
-    console.log("Request body:", requestBody);
-
-    console.log("Step 3: Making checkout request (this may take 30-60 seconds on first request)...");
-    
-    // Add longer timeout for the checkout request since backend might be cold
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
-    
-    const response = await fetch(checkoutUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authData.session.access_token}`
-      },
-      body: JSON.stringify(requestBody),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-
-    console.log("Checkout response status:", response.status);
-    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-
-    // 4. Handle response
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Checkout error response (${response.status}):`, errorText);
-      
-      // Better error messages for common issues
-      if (response.status === 401) {
-        throw new Error("Authentication failed. Please try signing up again.");
-      } else if (response.status === 400) {
-        throw new Error("Invalid request. Please check your information and try again.");
-      } else if (response.status === 500) {
-        throw new Error("Server error. Please try again in a few minutes.");
-      } else {
-        throw new Error(`Checkout failed: ${response.status} - ${errorText}`);
-      }
+    if (!backendUrl) {
+      setError("Backend configuration missing. Please contact support.");
+      return;
     }
 
-    const responseText = await response.text();
-    console.log("Raw checkout response:", responseText);
+    setError("");
+    setIsLoading(true);
 
-    let session;
     try {
-      session = JSON.parse(responseText);
-      console.log("Parsed session object:", session);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Response that failed to parse:", responseText);
-      throw new Error("Invalid server response - not valid JSON");
+      const response = await fetch(`${backendUrl}/trial-signup/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Trial signup failed");
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Trial signup successful - redirect to login or dashboard
+        navigate("/login", { 
+          state: { 
+            message: "🎉 Trial account created! Please log in to start creating.",
+            email: email.trim() 
+          } 
+        });
+      } else {
+        throw new Error(result.message || "Trial signup failed");
+      }
+
+    } catch (err) {
+      console.error("Trial signup error:", err);
+      setError(err.message || "Trial signup failed");
+    } finally {
+      setIsLoading(false);
     }
-
-    if (!session?.sessionId) {
-      console.error("Missing sessionId in response:", session);
-      throw new Error("Missing session ID in response");
-    }
-
-    console.log("✅ Got session ID:", session.sessionId);
-
-    // 5. Initialize Stripe
-    console.log("Step 4: Initializing Stripe...");
-    if (!stripePromise) {
-      console.error("Stripe promise is null - check VITE_STRIPE_PUBLIC_KEY");
-      throw new Error("Stripe not initialized - check your VITE_STRIPE_PUBLIC_KEY");
-    }
-
-    console.log("Loading Stripe instance...");
-    const stripe = await stripePromise;
-    console.log("Stripe instance loaded:", !!stripe);
+  };
+  
+  // EXISTING: Paid signup handler
+  const handleSignup = async (e) => {
+    e.preventDefault();
     
-    if (!stripe) {
-      throw new Error("Failed to load Stripe instance");
+    if (!validateForm()) {
+      setError("Please fill all fields correctly. Password must be at least 6 characters.");
+      return;
     }
 
-    // 6. Redirect to Stripe
-    console.log("Step 5: Redirecting to Stripe checkout...");
-    console.log("Using session ID:", session.sessionId);
-    
-    const { error: stripeError } = await stripe.redirectToCheckout({
-      sessionId: session.sessionId
-    });
-
-    // This should never execute if redirect is successful
-    console.log("❌ Redirect did not happen - checking for errors...");
-    
-    if (stripeError) {
-      console.error("Stripe redirect error:", stripeError);
-      throw new Error(`Stripe redirect failed: ${stripeError.message}`);
-    } else {
-      console.error("Redirect returned without error but user is still here");
-      throw new Error("Stripe redirect failed for unknown reason");
+    if (!backendUrl) {
+      setError("Backend configuration missing. Please contact support.");
+      return;
     }
 
-  } catch (err) {
-    console.error("=== SIGNUP ERROR ===");
-    console.error("Error object:", err);
-    console.error("Error message:", err.message);
-    console.error("Error stack:", err.stack);
-    
-    // Better error handling for timeouts
-    if (err.name === 'AbortError') {
-      setError("Request timed out. The server may be starting up - please try again in a minute.");
-    } else {
-      setError(err.message || "Signup process failed");
-    }
-  } finally {
-    setIsLoading(false);
-    console.log("=== SIGNUP DEBUG END ===");
-  }
-};
+    setError("");
+    setIsLoading(true);
 
-  // Social login handlers remain unchanged
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+        options: {
+          data: {
+            username: username.trim(),
+            plan: selectedPlan.toLowerCase()
+          },
+          emailRedirectTo: `https://contentfactory.ai/signup?confirmed=true&plan=${selectedPlan.toLowerCase()}`
+        }
+      });
+
+      if (authError) {
+        throw new Error(authError.message || "Registration failed");
+      }
+
+      if (!authData.session?.access_token) {
+        setError("🎉 Account created! Please check your email and click the confirmation link before proceeding to payment.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Continue with Stripe checkout...
+      const checkoutUrl = `${backendUrl}/create-checkout`;
+      const requestBody = {
+        plan: selectedPlan.toLowerCase(),
+        email: email.trim(),
+        user_id: authData.user?.id
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
+      
+      const response = await fetch(checkoutUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authData.session.access_token}`
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        if (response.status === 401) {
+          throw new Error("Authentication failed. Please try signing up again.");
+        } else if (response.status === 400) {
+          throw new Error("Invalid request. Please check your information and try again.");
+        } else if (response.status === 500) {
+          throw new Error("Server error. Please try again in a few minutes.");
+        } else {
+          throw new Error(`Checkout failed: ${response.status} - ${errorText}`);
+        }
+      }
+
+      const responseText = await response.text();
+      let session;
+      try {
+        session = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error("Invalid server response - not valid JSON");
+      }
+
+      if (!session?.sessionId) {
+        throw new Error("Missing session ID in response");
+      }
+
+      if (!stripePromise) {
+        throw new Error("Stripe not initialized - check your VITE_STRIPE_PUBLIC_KEY");
+      }
+
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error("Failed to load Stripe instance");
+      }
+
+      const { error: stripeError } = await stripe.redirectToCheckout({
+        sessionId: session.sessionId
+      });
+
+      if (stripeError) {
+        throw new Error(`Stripe redirect failed: ${stripeError.message}`);
+      }
+
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        setError("Request timed out. The server may be starting up - please try again in a minute.");
+      } else {
+        setError(err.message || "Signup process failed");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -325,160 +324,262 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 text-white flex items-center justify-center p-6">
-      <div className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-4xl w-full">
+      <div className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-5xl w-full">
         <h2 className="text-3xl font-bold mb-6 text-center">Sign Up for Content Factory</h2>
 
-        {/* Plan Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {/* Basic Plan Card */}
-          <div
-            className={`bg-gray-800 p-6 rounded-lg border-2 ${
-              selectedPlan === "basic" ? "border-purple-500" : "border-gray-700"
-            } h-[460px] flex flex-col justify-between relative cursor-pointer`}
-            onClick={() => setSelectedPlan("basic")}
-          >
-            <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-purple-500 border-r-[40px] border-r-transparent"></div>
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Basic</h3>
-              <p className="text-4xl font-bold mb-4">$99<span className="text-lg">/month</span></p>
-              <ul className="mb-6">
-                <li className="mb-2">Generate up to 10 pieces of content/month</li>
-                <li className="mb-2">Access to basic templates</li>
-                <li className="mb-2">Limited editing tools</li>
-                <li className="mb-2">Basic analytics (views, clicks)</li>
-              </ul>
-            </div>
+        {/* TRIAL VS PAID TOGGLE */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-gray-800 p-1 rounded-lg flex">
             <button
-              type="button"
-              className={`w-full py-3 ${
-                selectedPlan === "basic" ? "bg-purple-600" : "bg-gray-700"
-              } text-white rounded-lg hover:bg-purple-700`}
+              onClick={() => setSignupMode("trial")}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                signupMode === "trial"
+                  ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+                  : "text-gray-400 hover:text-white"
+              }`}
             >
-              {selectedPlan === "basic" ? "Selected" : "Choose Basic"}
+              <Sparkles className="w-4 h-4 inline mr-2" />
+              Try for Free
             </button>
-          </div>
-
-          {/* Premium Plan Card */}
-          <div
-            className={`bg-gray-800 p-6 rounded-lg border-2 ${
-              selectedPlan === "premium" ? "border-blue-500" : "border-gray-700"
-            } relative h-[500px] flex flex-col justify-between cursor-pointer`}
-            onClick={() => setSelectedPlan("premium")}
-          >
-            <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-blue-500 border-r-[40px] border-r-transparent"></div>
-            <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg text-sm">
-              Most Popular
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Premium</h3>
-              <p className="text-4xl font-bold mb-4">$179<span className="text-lg">/month</span></p>
-              <ul className="mb-6">
-                <li className="mb-2">Generate up to 40 pieces of content/month</li>
-                <li className="mb-2">Access to premium templates</li>
-                <li className="mb-2">Advanced editing tools</li>
-                <li className="mb-2">Advanced analytics (views, clicks, conversions)</li>
-                <li className="mb-2">Connect 1 social media account</li>
-                <li className="mb-2">Voiceover functionality</li>
-              </ul>
-            </div>
             <button
-              type="button"
-              className={`w-full py-3 ${
-                selectedPlan === "premium" ? "bg-blue-600" : "bg-gray-700"
-              } text-white rounded-lg hover:bg-blue-700`}
+              onClick={() => setSignupMode("paid")}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                signupMode === "paid"
+                  ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg"
+                  : "text-gray-400 hover:text-white"
+              }`}
             >
-              {selectedPlan === "premium" ? "Selected" : "Choose Premium"}
-            </button>
-          </div>
-
-          {/* Enterprise Plan Card */}
-          <div
-            className={`bg-gray-800 p-6 rounded-lg border-2 ${
-              selectedPlan === "enterprise" ? "border-yellow-500" : "border-gray-700"
-            } h-[540px] flex flex-col justify-between relative cursor-pointer`}
-            onClick={() => setSelectedPlan("enterprise")}
-          >
-            <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-yellow-500 border-r-[40px] border-r-transparent"></div>
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Enterprise</h3>
-              <p className="text-4xl font-bold mb-4">$299<span className="text-lg">/month</span></p>
-              <ul className="mb-6">
-                <li className="mb-2">Unlimited content generation</li>
-                <li className="mb-2">Access to all templates</li>
-                <li className="mb-2">Advanced editing tools</li>
-                <li className="mb-2">Advanced analytics (views, clicks, conversions, engagement)</li>
-                <li className="mb-2">Connect up to 3 social media accounts</li>
-                <li className="mb-2">Priority support</li>
-                <li className="mb-2">Voiceover functionality</li>
-                <li className="mb-2">Marketplace access</li>
-              </ul>
-            </div>
-            <button
-              type="button"
-              className={`w-full py-3 ${
-                selectedPlan === "enterprise"
-                  ? "bg-gradient-to-r from-yellow-500 to-yellow-600"
-                  : "bg-gray-700"
-              } text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700`}
-            >
-              {selectedPlan === "enterprise" ? "Selected" : "Choose Enterprise"}
+              <Zap className="w-4 h-4 inline mr-2" />
+              Full Access
             </button>
           </div>
         </div>
 
-        {/* Single Signup Form */}
-        <form onSubmit={handleSignup} className="mb-8">
-          {/* Username Field */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+        {/* TRIAL MODE */}
+        {signupMode === "trial" && (
+          <div className="mb-8">
+            {/* Trial Benefits Card */}
+            <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6 mb-8">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-green-400 mb-3">
+                  <Sparkles className="w-6 h-6 inline mr-2" />
+                  Free Trial Access
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-400">3</div>
+                    <div className="text-sm text-gray-300">Free Credits</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-400">3</div>
+                    <div className="text-sm text-gray-300">Days Access</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-green-400">$0</div>
+                    <div className="text-sm text-gray-300">No Credit Card</div>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-300">
+                  ✅ Image-to-Image Styling &nbsp;&nbsp; ✅ Image-to-Video &nbsp;&nbsp; ✅ Keyframes
+                </div>
+              </div>
+            </div>
 
-          {/* Email Field */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+            {/* Trial Signup Form */}
+            <form onSubmit={handleTrialSignup}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+              </div>
 
-          {/* Password Field */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your password"
-              required
-            />
+              {error && <p className={`text-sm mb-4 ${error.includes('✅') || error.includes('🎉') ? 'text-green-500' : 'text-red-500'}`}>{error}</p>}
+              
+              <button
+                type="submit"
+                className={`w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium text-lg hover:from-green-600 hover:to-emerald-600 transition-all ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Trial Account..." : "Start Creating for Free"}
+              </button>
+            </form>
           </div>
+        )}
 
-          {error && <p className={`text-sm mb-4 ${error.includes('✅') ? 'text-green-500' : 'text-red-500'}`}>{error}</p>}
-          
-          <button
-            type="submit"
-            className={`w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading || !selectedPlan}
-          >
-            {isLoading ? "Processing..." : "Proceed to Payment"}
-          </button>
-        </form>
+        {/* PAID MODE */}
+        {signupMode === "paid" && (
+          <div>
+            {/* Plan Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+              {/* Basic Plan Card */}
+              <div
+                className={`bg-gray-800 p-6 rounded-lg border-2 ${
+                  selectedPlan === "basic" ? "border-purple-500" : "border-gray-700"
+                } h-[460px] flex flex-col justify-between relative cursor-pointer`}
+                onClick={() => setSelectedPlan("basic")}
+              >
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-purple-500 border-r-[40px] border-r-transparent"></div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Basic</h3>
+                  <p className="text-4xl font-bold mb-4">$99<span className="text-lg">/month</span></p>
+                  <ul className="mb-6">
+                    <li className="mb-2">Generate up to 10 pieces of content/month</li>
+                    <li className="mb-2">Access to basic templates</li>
+                    <li className="mb-2">Limited editing tools</li>
+                    <li className="mb-2">Basic analytics (views, clicks)</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  className={`w-full py-3 ${
+                    selectedPlan === "basic" ? "bg-purple-600" : "bg-gray-700"
+                  } text-white rounded-lg hover:bg-purple-700`}
+                >
+                  {selectedPlan === "basic" ? "Selected" : "Choose Basic"}
+                </button>
+              </div>
+
+              {/* Premium Plan Card */}
+              <div
+                className={`bg-gray-800 p-6 rounded-lg border-2 ${
+                  selectedPlan === "premium" ? "border-blue-500" : "border-gray-700"
+                } relative h-[500px] flex flex-col justify-between cursor-pointer`}
+                onClick={() => setSelectedPlan("premium")}
+              >
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-blue-500 border-r-[40px] border-r-transparent"></div>
+                <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg text-sm">
+                  Most Popular
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Premium</h3>
+                  <p className="text-4xl font-bold mb-4">$179<span className="text-lg">/month</span></p>
+                  <ul className="mb-6">
+                    <li className="mb-2">Generate up to 40 pieces of content/month</li>
+                    <li className="mb-2">Access to premium templates</li>
+                    <li className="mb-2">Advanced editing tools</li>
+                    <li className="mb-2">Advanced analytics (views, clicks, conversions)</li>
+                    <li className="mb-2">Connect 1 social media account</li>
+                    <li className="mb-2">Voiceover functionality</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  className={`w-full py-3 ${
+                    selectedPlan === "premium" ? "bg-blue-600" : "bg-gray-700"
+                  } text-white rounded-lg hover:bg-blue-700`}
+                >
+                  {selectedPlan === "premium" ? "Selected" : "Choose Premium"}
+                </button>
+              </div>
+
+              {/* Enterprise Plan Card */}
+              <div
+                className={`bg-gray-800 p-6 rounded-lg border-2 ${
+                  selectedPlan === "enterprise" ? "border-yellow-500" : "border-gray-700"
+                } h-[540px] flex flex-col justify-between relative cursor-pointer`}
+                onClick={() => setSelectedPlan("enterprise")}
+              >
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[40px] border-t-yellow-500 border-r-[40px] border-r-transparent"></div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Enterprise</h3>
+                  <p className="text-4xl font-bold mb-4">$299<span className="text-lg">/month</span></p>
+                  <ul className="mb-6">
+                    <li className="mb-2">Unlimited content generation</li>
+                    <li className="mb-2">Access to all templates</li>
+                    <li className="mb-2">Advanced editing tools</li>
+                    <li className="mb-2">Advanced analytics (views, clicks, conversions, engagement)</li>
+                    <li className="mb-2">Connect up to 3 social media accounts</li>
+                    <li className="mb-2">Priority support</li>
+                    <li className="mb-2">Voiceover functionality</li>
+                    <li className="mb-2">Marketplace access</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  className={`w-full py-3 ${
+                    selectedPlan === "enterprise"
+                      ? "bg-gradient-to-r from-yellow-500 to-yellow-600"
+                      : "bg-gray-700"
+                  } text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700`}
+                >
+                  {selectedPlan === "enterprise" ? "Selected" : "Choose Enterprise"}
+                </button>
+              </div>
+            </div>
+
+            {/* Paid Signup Form */}
+            <form onSubmit={handleSignup} className="mb-8">
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              {error && <p className={`text-sm mb-4 ${error.includes('✅') ? 'text-green-500' : 'text-red-500'}`}>{error}</p>}
+              
+              <button
+                type="submit"
+                className={`w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isLoading || !selectedPlan}
+              >
+                {isLoading ? "Processing..." : "Proceed to Payment"}
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Social Login Buttons */}
         <div className="flex items-center justify-center space-x-4 mb-6">
@@ -518,4 +619,4 @@ useEffect(() => {
   );
 };
 
-export default Signup;
+export default Signup; 

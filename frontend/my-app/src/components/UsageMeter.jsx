@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { toast } from 'react-toastify';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Clock, Zap, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Define all possible plans with their configurations
 const PLAN_CONFIG = {
-  basic: { limit: 100, color: 'from-blue-500 to-blue-400' },        // $99 plan
-  premium: { limit: 500, color: 'from-purple-500 to-purple-400' },  // $179 plan
+  basic: { limit: 10, color: 'from-blue-500 to-blue-400' },
+  premium: { limit: 40, color: 'from-purple-500 to-purple-400' },
   pro: { limit: 100, color: 'from-purple-600 to-pink-500' },
   trial: { limit: 3, color: 'from-green-500 to-teal-400' },
-  enterprise: { limit: Infinity, color: 'from-blue-500 to-teal-500' } // Unlimited
+  trial_expired: { limit: 3, color: 'from-red-500 to-orange-400' },
+  enterprise: { limit: Infinity, color: 'from-blue-500 to-teal-500' }
 };
 
 const DEFAULT_PLAN = 'basic';
@@ -17,6 +19,9 @@ const DEFAULT_PLAN = 'basic';
 const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
   const [currentUsage, setCurrentUsage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState(null);
+  const [trialExpiry, setTrialExpiry] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(null);
 
   // Safely get plan configuration with fallback to default
   const { limit, color } = PLAN_CONFIG[plan.toLowerCase()] || PLAN_CONFIG[DEFAULT_PLAN];
@@ -30,7 +35,6 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
 
     try {
       setIsLoading(true);
-      console.log('Fetching usage for:', userId); // Debug log
       
       // Get current session for auth
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -52,34 +56,76 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
       }
 
       const usageData = await response.json();
-      console.log('Usage data received:', usageData); // Debug log
+      setUserInfo(usageData);
       
-      // Extract current usage from your API response format
-      // Based on your console log: {count: '3/40', ...}
-      let usageCount = 0;
-      if (usageData.count && typeof usageData.count === 'string') {
-        usageCount = parseInt(usageData.count.split('/')[0]) || 0;
-      } else if (usageData.current_usage) {
-        usageCount = usageData.current_usage;
-      } else if (usageData.usage) {
-        usageCount = usageData.usage;
+      // Handle trial users
+      if (usageData.user?.is_trial_user) {
+        const trialCredits = usageData.user?.usage?.trial_credits || 0;
+        const usedCredits = 3 - trialCredits;
+        setCurrentUsage(usedCredits);
+        
+        // Parse trial expiry
+        if (usageData.user?.trial_expires_at) {
+          const expiryDate = new Date(usageData.user.trial_expires_at);
+          setTrialExpiry(expiryDate);
+        }
+      } else {
+        // Regular user usage parsing
+        let usageCount = 0;
+        if (usageData.count && typeof usageData.count === 'string') {
+          usageCount = parseInt(usageData.count.split('/')[0]) || 0;
+        } else if (usageData.current_usage) {
+          usageCount = usageData.current_usage;
+        } else if (usageData.usage) {
+          usageCount = usageData.usage;
+        }
+        setCurrentUsage(usageCount);
       }
       
-      console.log('Parsed usage count:', usageCount); // Debug log
-      setCurrentUsage(usageCount);
-      
       // Check if limit reached
-      if (limit !== Infinity && usageCount >= limit * (plan === 'pro' ? 0.95 : 1)) {
+      if (limit !== Infinity && currentUsage >= limit * (plan === 'pro' ? 0.95 : 1)) {
         onLimitReached?.();
       }
       
     } catch (error) {
       console.error('Usage fetch error:', error);
-      setCurrentUsage(0); // Fallback
+      setCurrentUsage(0);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Calculate time left for trial
+  useEffect(() => {
+    if (!trialExpiry) return;
+
+    const updateTimeLeft = () => {
+      const now = new Date();
+      const timeDiff = trialExpiry.getTime() - now.getTime();
+      
+      if (timeDiff <= 0) {
+        setTimeLeft("Expired");
+        return;
+      }
+
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m`);
+      } else {
+        setTimeLeft(`${minutes}m`);
+      }
+    };
+
+    updateTimeLeft();
+    const interval = setInterval(updateTimeLeft, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [trialExpiry]);
 
   useEffect(() => {
     if (!userId) return;
@@ -87,60 +133,140 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
   }, [userId, plan]);
 
   const usagePercentage = limit === Infinity ? 0 : Math.min((currentUsage / limit) * 100, 100);
+  const isTrialUser = plan === 'trial' || userInfo?.user?.is_trial_user;
+  const isTrialExpired = plan === 'trial_expired' || (isTrialUser && timeLeft === "Expired");
 
-  return (
-    <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-pink-500/30">
-      {isLoading ? (
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-pink-500/30">
         <div className="flex justify-center py-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-pink-400"></div>
         </div>
+      </div>
+    );
+  }
+
+  // TRIAL EXPIRED STATE
+  if (isTrialExpired) {
+    return (
+      <div className="bg-gradient-to-br from-red-500/20 via-orange-500/20 to-red-500/20 border border-red-500/50 rounded-lg p-4">
+        <div className="flex items-center mb-3">
+          <Clock size={16} className="mr-2 text-red-400" />
+          <span className="font-medium text-white">Trial Expired</span>
+        </div>
+        
+        <p className="text-sm text-red-200 mb-4">
+          Your 3-day trial has ended. Upgrade to continue creating amazing content!
+        </p>
+        
+        <Link 
+          to="/signup?mode=paid"
+          className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center"
+        >
+          <Zap className="w-4 h-4 mr-2" />
+          Upgrade Now
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Link>
+      </div>
+    );
+  }
+
+  // TRIAL USER STATE
+  if (isTrialUser) {
+    const creditsLeft = limit - currentUsage;
+    
+    return (
+      <div className="bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-green-500/20 border border-green-500/50 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+            <Sparkles size={16} className="mr-2 text-green-400" />
+            <span className="font-medium text-white">Trial Credits</span>
+          </div>
+          <div className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+            FREE
+          </div>
+        </div>
+        
+        <p className="text-sm text-green-200 mb-3">
+          You have {creditsLeft} of 3 free credits remaining
+        </p>
+        
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+          <div 
+            className={`bg-gradient-to-r ${color} h-2 rounded-full transition-all duration-500`}
+            style={{ width: `${usagePercentage}%` }}
+          ></div>
+        </div>
+        
+        <div className="flex items-center justify-between text-xs mb-4">
+          <span className="text-green-300">
+            {currentUsage}/{limit} used
+          </span>
+          {timeLeft && timeLeft !== "Expired" && (
+            <span className="text-green-300 flex items-center">
+              <Clock className="w-3 h-3 mr-1" />
+              {timeLeft} left
+            </span>
+          )}
+        </div>
+        
+        {creditsLeft <= 1 && (
+          <Link 
+            to="/signup?mode=paid"
+            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Upgrade for Unlimited
+          </Link>
+        )}
+      </div>
+    );
+  }
+
+  // REGULAR USER STATE
+  return (
+    <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-pink-500/30">
+      <div className="flex items-center mb-3">
+        <Sparkles size={16} className="mr-2 text-pink-400" />
+        <span className="font-medium text-white">Content Credits</span>
+      </div>
+      
+      {limit === Infinity ? (
+        <p className="text-sm text-gray-300 mb-3">
+          Unlimited creations this month
+        </p>
       ) : (
-        <>
-          <div className="flex items-center mb-3">
-            <Sparkles size={16} className="mr-2 text-pink-400" />
-            <span className="font-medium text-white">Content Credits</span>
-          </div>
-          
-          {limit === Infinity ? (
-            <p className="text-sm text-gray-300 mb-3">
-              Unlimited creations this month
-            </p>
-          ) : (
-            <p className="text-sm text-gray-300 mb-3">
-              You've used {currentUsage}/{limit} creations this month
-            </p>
-          )}
-          
-          {limit !== Infinity && (
-            <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
-              <div 
-                className="bg-gradient-to-r from-pink-500 to-rose-500 h-2 rounded-full" 
-                style={{ width: `${usagePercentage}%` }}
-              ></div>
-            </div>
-          )}
-          
-          <div className="text-xs text-gray-400">
-            Next reset: <span className="text-pink-300">June 1, 2025</span>
-          </div>
-          
-          {limit !== Infinity && currentUsage >= limit && (
-            <div className="mt-2 text-center">
-              <p className="text-sm text-red-400">Plan limit reached</p>
-              <button
-                onClick={() => window.location.href = '/upgrade'}
-                className="mt-1 px-3 py-1 text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded hover:opacity-90 transition-opacity"
-              >
-                Upgrade Plan
-              </button>
-            </div>
-          )}
-        </>
+        <p className="text-sm text-gray-300 mb-3">
+          You've used {currentUsage}/{limit} creations this month
+        </p>
+      )}
+      
+      {limit !== Infinity && (
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+          <div 
+            className="bg-gradient-to-r from-pink-500 to-rose-500 h-2 rounded-full" 
+            style={{ width: `${usagePercentage}%` }}
+          ></div>
+        </div>
+      )}
+      
+      <div className="text-xs text-gray-400">
+        Next reset: <span className="text-pink-300">June 1, 2025</span>
+      </div>
+      
+      {limit !== Infinity && currentUsage >= limit && (
+        <div className="mt-2 text-center">
+          <p className="text-sm text-red-400">Plan limit reached</p>
+          <button
+            onClick={() => window.location.href = '/upgrade'}
+            className="mt-1 px-3 py-1 text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded hover:opacity-90 transition-opacity"
+          >
+            Upgrade Plan
+          </button>
+        </div>
       )}
     </div>
   );
 };
 
-export default UsageMeter;
-
-  
+export default UsageMeter; 

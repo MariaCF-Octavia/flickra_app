@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, ArrowRight, 
-         Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp } from 'lucide-react';
+         Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp, Menu, X } from 'lucide-react';
 
-// Your imported assets (keeping original imports + adding new before/after images)
+// Your imported assets (keeping all original imports)
 import waterad from "../assets/water ad.webp";
 import curologyimg from "../assets/curologyimg.jpg";
 import spacurology from "../assets/spa.jpg"; 
@@ -26,15 +26,13 @@ import ysladcf from "../assets/ysladcf.png";
 import ordinaryimg from "../assets/ordinary..webp";
 import ordinaryad from "../assets/ordinaryad2.png";
 
-// YSL and Versace images (already imported above)
-
 const HomeDashboard = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [showDemoVideo, setShowDemoVideo] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTransformation, setActiveTransformation] = useState(0);
-  const [transformationPhase, setTransformationPhase] = useState('before'); // 'before', 'transition', 'after'
+  const [transformationPhase, setTransformationPhase] = useState('before');
   const [videoLoaded, setVideoLoaded] = useState({});
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const [activeSection, setActiveSection] = useState('hero');
@@ -58,11 +56,11 @@ const HomeDashboard = () => {
     // 2. YSL (Original → Results)
     {
       before: { type: 'image', src: yslimg, alt: 'YSL Product Original' },
-      during: { type: 'image', src: yslimg, alt: 'YSL Product Original' }, // Show original during transition
+      during: { type: 'image', src: yslimg, alt: 'YSL Product Original' },
       after: { type: 'image', src: ysladcf, alt: 'YSL Campaign Results' },
       title: 'YSL Luxury Campaign',
       category: 'Beauty & Fashion',
-      hasReference: true // Set to true to show the Original → Results flow
+      hasReference: true
     },
     // 3. Givenchy (Original → Reference → Results)
     {
@@ -85,20 +83,20 @@ const HomeDashboard = () => {
     // 5. Versace (Original → Results)
     {
       before: { type: 'image', src: versaceimg, alt: 'Versace Product Original' },
-      during: { type: 'image', src: versaceimg, alt: 'Versace Product Original' }, // Show original during transition
+      during: { type: 'image', src: versaceimg, alt: 'Versace Product Original' },
       after: { type: 'image', src: versacead, alt: 'Versace Campaign Results' },
       title: 'Versace Premium Campaign',
       category: 'Luxury Fashion',
-      hasReference: true // Set to true to show the Original → Results flow
+      hasReference: true
     },
     // 6. The Ordinary (Original → Results)
     {
       before: { type: 'image', src: ordinaryimg, alt: 'The Ordinary Product Original' },
-      during: { type: 'image', src: ordinaryimg, alt: 'The Ordinary Product Original' }, // Show original during transition
+      during: { type: 'image', src: ordinaryimg, alt: 'The Ordinary Product Original' },
       after: { type: 'image', src: ordinaryad, alt: 'The Ordinary Campaign Results' },
       title: 'The Ordinary Skincare Campaign',
       category: 'Beauty & Skincare',
-      hasReference: true // Set to true to show the Original → Results flow
+      hasReference: true
     },
     // Standalone ads - just show once as they are
     {
@@ -208,9 +206,9 @@ const HomeDashboard = () => {
     { type: 'video', src: adForCf1, title: 'Water Brand Campaign', category: 'Lifestyle' },
     { type: 'video', src: fendiad, title: 'Fendi Luxury Campaign', category: 'Luxury' },
     { type: 'image', src: phone, title: 'iPhone Professional Ad', category: 'Technology' },
-    { type: 'image', src: ysladcf, title: 'YSL Luxury Campaign', category: 'Beauty' }, // Added YSL result
-    { type: 'image', src: versacead, title: 'Versace Premium Campaign', category: 'Fashion' }, // Added Versace result
-    { type: 'image', src: ordinaryad, title: 'The Ordinary Skincare Campaign', category: 'Beauty' }, // Added The Ordinary result
+    { type: 'image', src: ysladcf, title: 'YSL Luxury Campaign', category: 'Beauty' },
+    { type: 'image', src: versacead, title: 'Versace Premium Campaign', category: 'Fashion' },
+    { type: 'image', src: ordinaryad, title: 'The Ordinary Skincare Campaign', category: 'Beauty' },
     { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' }
   ];
 
@@ -279,20 +277,17 @@ const HomeDashboard = () => {
         const currentTransformation = transformations[activeTransformation];
         
         if (currentTransformation.hasReference) {
-          // Check if this is a 2-phase transformation (YSL/Versace/The Ordinary)
           const is2Phase = currentTransformation.title.includes('YSL') || 
                           currentTransformation.title.includes('Versace') || 
                           currentTransformation.title.includes('The Ordinary');
           
           if (is2Phase) {
-            // For YSL/Versace: Original → Results (skip transition phase)
             if (prev === 'before') return 'after';
             if (prev === 'after') {
               setActiveTransformation(prev => (prev + 1) % transformations.length);
               return 'before';
             }
           } else {
-            // Normal 3-phase cycle for reference transformations (Curology/Givenchy/iPhone)
             if (prev === 'before') return 'transition';
             if (prev === 'transition') return 'after';
             if (prev === 'after') {
@@ -301,13 +296,12 @@ const HomeDashboard = () => {
             }
           }
         } else {
-          // Just show the video/image directly for standalone content
           setActiveTransformation(prev => (prev + 1) % transformations.length);
           return 'before';
         }
         return 'before';
       });
-    }, 4000); // Same timing for consistency
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [transformations.length, activeTransformation]);
@@ -349,7 +343,6 @@ const HomeDashboard = () => {
   // ENHANCED: Better video playback control for all phases
   useEffect(() => {
     transformations.forEach((transformation, index) => {
-      // Handle video playback for all phases
       ['before', 'during', 'after'].forEach(phase => {
         const videoKey = `${phase}-${index}`;
         const phaseData = transformation[phase === 'during' ? 'during' : phase === 'before' ? 'before' : 'after'];
@@ -413,6 +406,9 @@ const HomeDashboard = () => {
       if (event.key === 'Escape' && showVideoModal) {
         setShowVideoModal(false);
       }
+      if (event.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
     };
     
     window.addEventListener('scroll', handleScroll);
@@ -422,11 +418,9 @@ const HomeDashboard = () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleEscKey);
     };
-  }, [showVideoModal]);
+  }, [showVideoModal, mobileMenuOpen]);
 
   const playVideo = (videoSrc) => {
-    console.log('playVideo called with:', videoSrc);
-    console.log('Setting showVideoModal to true');
     setCurrentVideo(videoSrc);
     setShowVideoModal(true);
   };
@@ -443,13 +437,7 @@ const HomeDashboard = () => {
         behavior: "smooth"
       });
     }
-  };
-
-  const getCurrentMedia = () => {
-    const current = transformations[activeTransformation];
-    if (transformationPhase === 'before') return current.before;
-    if (transformationPhase === 'transition') return current.during;
-    return current.after;
+    setMobileMenuOpen(false); // Close mobile menu when navigating
   };
 
   return (
@@ -470,13 +458,15 @@ const HomeDashboard = () => {
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-fuchsia-700/15 rounded-full filter blur-3xl opacity-25 animate-blob animation-delay-6000"></div>
       </div>
 
-      {/* Navigation - Fixed contact link */}
+      {/* UPDATED Navigation with Mobile Menu */}
       <nav className={`fixed w-full z-50 transition-all duration-300 ${themeStyles.navBg} ${isScrolled ? 'py-3' : 'py-5'}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center">
             <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">CF Studio</div>
             <div className="ml-3 px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/30">BETA</div>
           </div>
+          
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {['features', 'showcase', 'pricing'].map((section) => (
               <button 
@@ -493,14 +483,62 @@ const HomeDashboard = () => {
             <Link to="/about" className="hover:text-purple-400 transition-colors">About</Link>
             <Link to="/contact" className="hover:text-purple-400 transition-colors">Contact</Link>
             <Link to="/login" className="hover:text-purple-400 transition-colors">Login</Link>
-            <Link to="/signup" className={`px-5 py-2.5 rounded-full ${themeStyles.button} text-white font-medium shadow-lg shadow-purple-500/20 transition-all hover:shadow-xl hover:shadow-purple-500/30`}>
+            {/* UPDATED: Get Started Now goes to trial */}
+            <Link to="/signup?mode=trial" className={`px-5 py-2.5 rounded-full ${themeStyles.button} text-white font-medium shadow-lg shadow-purple-500/20 transition-all hover:shadow-xl hover:shadow-purple-500/30`}>
               Get Started Now
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 rounded-lg bg-gray-800/50 border border-gray-700/50"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50">
+            <div className="px-6 py-4 space-y-4">
+              {['features', 'showcase', 'pricing'].map((section) => (
+                <button 
+                  key={section}
+                  onClick={() => scrollToSection(section)}
+                  className="block w-full text-left py-2 hover:text-purple-400 transition-colors"
+                >
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </button>
+              ))}
+              <Link to="/about" className="block py-2 hover:text-purple-400 transition-colors">About</Link>
+              <Link to="/contact" className="block py-2 hover:text-purple-400 transition-colors">Contact</Link>
+              <Link to="/login" className="block py-2 hover:text-purple-400 transition-colors">Login</Link>
+              
+              {/* Mobile CTA Buttons */}
+              <div className="pt-4 border-t border-gray-800 space-y-3">
+                <Link 
+                  to="/signup?mode=trial" 
+                  className="block w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Sparkles className="w-4 h-4 inline mr-2" />
+                  Try for Free
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className={`block w-full px-4 py-3 rounded-lg ${themeStyles.button} text-white font-medium text-center`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Full Access
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* REDESIGNED HERO SECTION WITH BUSINESS VALUE */}
+      {/* UPDATED HERO SECTION - Changed button routing */}
       <section id="hero" className="relative min-h-screen flex items-center pt-20">
         <div className="container mx-auto px-6 z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-16 items-center">
@@ -539,9 +577,9 @@ const HomeDashboard = () => {
                 </div>
               </div>
               
-              {/* CTA Buttons - Moved higher up on mobile */}
+              {/* UPDATED CTA Buttons - Start Creating Today goes to trial */}
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600">
-                <Link to="/signup" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
+                <Link to="/signup?mode=trial" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
                   Start Creating Today
                 </Link>
                 <button 
@@ -618,8 +656,6 @@ const HomeDashboard = () => {
                       </div>
                     </div>
                   )}
-
-                  
 
                   {/* Transformation display */}
                   <div className="relative w-full h-full">
@@ -813,7 +849,7 @@ const HomeDashboard = () => {
                       key={index}
                       onClick={() => {
                         setActiveTransformation(index);
-                        setTransformationPhase('before'); // Reset to beginning when manually selected
+                        setTransformationPhase('before');
                       }}
                       className={`h-2 md:h-3 rounded-full transition-all relative ${
                         activeTransformation === index 
@@ -822,7 +858,6 @@ const HomeDashboard = () => {
                       }`}
                       aria-label={`View transformation ${index + 1}: ${transformation.title}`}
                     >
-                      {/* Show which phase we're in for active transformation */}
                       {activeTransformation === index && (
                         <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
                           transformationPhase === 'before' ? 'bg-red-400/50' :
@@ -917,7 +952,7 @@ const HomeDashboard = () => {
         </div>
       </section>
 
-      {/* ENHANCED SHOWCASE SECTION - FIXED MOBILE CONSISTENCY */}
+      {/* ENHANCED SHOWCASE SECTION */}
       <section id="showcase" className={`py-32 ${themeStyles.cardBg} relative z-10`}>
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
@@ -962,7 +997,6 @@ const HomeDashboard = () => {
                       playsInline
                       preload="metadata"
                       autoPlay={false}
-                      // NO poster attribute - this was causing the product images to show
                       onMouseOver={(e) => {
                         if (window.innerWidth > 768) {
                           e.target.play().catch(() => {});
@@ -974,15 +1008,12 @@ const HomeDashboard = () => {
                         }
                       }}
                       onLoadedMetadata={(e) => {
-                        // Set video to show a frame from the actual video content
                         e.target.currentTime = 0.1;
                       }}
                       onCanPlay={(e) => {
-                        // Show actual video frame, not product image
                         e.target.currentTime = 0.1;
                       }}
                       style={{
-                        // Ensure videos are visible and show video content on mobile
                         visibility: 'visible',
                         opacity: 1
                       }}
@@ -1084,7 +1115,7 @@ const HomeDashboard = () => {
         </div>
       </section>
 
-      {/* CTA SECTION */}
+      {/* UPDATED CTA SECTION */}
       <section className="py-24 relative z-10">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden relative">
@@ -1100,7 +1131,8 @@ const HomeDashboard = () => {
                 Start creating professional ads in minutes. No long-term contracts, cancel anytime.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/signup" className="px-8 py-4 rounded-full bg-white text-purple-700 font-medium hover:shadow-lg hover:shadow-purple-700/20 transition-all text-center">
+                {/* UPDATED: Start Creating Now goes to trial */}
+                <Link to="/signup?mode=trial" className="px-8 py-4 rounded-full bg-white text-purple-700 font-medium hover:shadow-lg hover:shadow-purple-700/20 transition-all text-center">
                   Start Creating Now
                 </Link>
                 <button 
@@ -1204,7 +1236,6 @@ const HomeDashboard = () => {
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-all"
           onClick={(e) => {
-            // Close modal when clicking outside the video
             if (e.target === e.currentTarget) {
               setShowVideoModal(false);
               setCurrentVideo(null);
@@ -1212,7 +1243,6 @@ const HomeDashboard = () => {
           }}
         >
           <div className="relative w-full max-w-5xl mx-4">
-            {/* Close button */}
             <button
               onClick={() => {
                 setShowVideoModal(false);
@@ -1237,6 +1267,14 @@ const HomeDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
       )}
 
       {/* SCROLL TO TOP BUTTON */}
