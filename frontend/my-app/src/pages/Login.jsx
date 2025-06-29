@@ -39,9 +39,9 @@ const Login = () => {
       let userPlan = user.user_metadata?.plan?.toLowerCase() || 'basic';
       console.log("Determined user plan:", userPlan);
       
-      // 4. Validate plan (including 'pro' for backward compatibility)
-      // Add 'enterprise' to valid plans
-      const validPlans = ['basic', 'premium', 'enterprise', 'pro'];
+      // 4. Validate plan (including 'pro' for backward compatibility and 'trial' for trial users)
+      // Add 'enterprise' and 'trial' to valid plans
+      const validPlans = ['basic', 'premium', 'enterprise', 'pro', 'trial'];
       if (!validPlans.includes(userPlan)) {
         console.error("Invalid plan detected:", userPlan);
         throw new Error(`Invalid subscription plan (${userPlan}). Please contact support.`);
@@ -51,6 +51,11 @@ const Login = () => {
       if (userPlan === 'pro') {
         console.warn("Legacy 'pro' plan detected - automatically treating as 'enterprise'");
         // Optional: You could update the metadata here if desired
+      }
+      
+      // 6. Handle trial users
+      if (userPlan === 'trial') {
+        console.log("Trial user login successful");
       }
       
       console.log("Login successful. Redirecting to dashboard...");
