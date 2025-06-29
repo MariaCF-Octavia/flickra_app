@@ -192,7 +192,7 @@ const UserDashboard = ({ debug = false }) => {
                 "basic"
             );
             
-            if (!["basic", "premium", "enterprise", ""].includes(plan)) {
+            if (!["basic", "premium", "enterprise", "trial"].includes(plan)) {
                 console.warn(`Invalid subscription plan detected: ${plan}`);
                 throw new Error("Invalid subscription plan");
             }
@@ -490,6 +490,7 @@ const handleGeneration = async (content) => {
       basic: 10,
       premium: 40,
       enterprise: Infinity,
+      trial: 3,
     };
     
     console.log(`User plan check: plan=${userPlan}, used=${usage}, limit=${planLimits[userPlan] || 'unknown'}`);
@@ -1493,7 +1494,8 @@ const handleGeneration = async (content) => {
     const planLimits = {
         basic: 10,
         premium: 40,
-        enterprise: Infinity
+        enterprise: Infinity,
+        trial: 3
     };
     
     const AssetThumbnail = ({ asset }) => {
