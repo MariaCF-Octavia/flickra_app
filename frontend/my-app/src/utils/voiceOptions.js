@@ -7,7 +7,7 @@
 import { supabase } from '../supabaseClient';
 
 // Add this at the top - same pattern as BackendFFmpeg
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://contentfactory-4.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
 export const predefinedVoices = {
   male: [

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { loadStripe } from "@stripe/stripe-js";
@@ -20,13 +20,29 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [signupMode, setSignupMode] = useState("paid"); // "paid" or "trial"
+  const [affiliateCode, setAffiliateCode] = useState(""); // NEW: Affiliate tracking
 
-  // Check URL parameters for mode
+  // Check URL parameters for mode AND affiliate code
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
+    const ref = urlParams.get('ref'); // NEW: Capture affiliate code
+    
     if (mode === 'trial') {
       setSignupMode('trial');
+    }
+    
+    // NEW: Store affiliate code if present
+    if (ref) {
+      setAffiliateCode(ref);
+      localStorage.setItem('cf_affiliate_ref', ref);
+      console.log('Affiliate code detected:', ref);
+    } else {
+      // Check if we have stored affiliate code
+      const storedRef = localStorage.getItem('cf_affiliate_ref');
+      if (storedRef) {
+        setAffiliateCode(storedRef);
+      }
     }
   }, []);
 
@@ -127,7 +143,7 @@ const Signup = () => {
     return true;
   };
 
-  // NEW: Trial signup handler
+  // Trial signup handler - NO affiliate tracking for free trials
   const handleTrialSignup = async (e) => {
     e.preventDefault();
     
@@ -150,15 +166,19 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
+      const requestBody = {
+        email: email.trim(),
+        password: password
+      };
+
+      // NO affiliate tracking for trials - they need to upgrade to paid plans
+
       const response = await fetch(`${backendUrl}/trial-signup/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -169,6 +189,9 @@ const Signup = () => {
       const result = await response.json();
       
       if (result.success) {
+        // DON'T clear affiliate code - keep it for when they upgrade!
+        // localStorage.removeItem('cf_affiliate_ref');
+        
         // Trial signup successful - redirect to login or dashboard
         navigate("/login", { 
           state: { 
@@ -188,7 +211,7 @@ const Signup = () => {
     }
   };
   
-  // EXISTING: Paid signup handler
+  // UPDATED: Paid signup handler with affiliate tracking
   const handleSignup = async (e) => {
     e.preventDefault();
     
@@ -206,7 +229,7 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const signupOptions = {
         email: email.trim(),
         password: password,
         options: {
@@ -216,7 +239,14 @@ const Signup = () => {
           },
           emailRedirectTo: `https://contentfactory.ai/signup?confirmed=true&plan=${selectedPlan.toLowerCase()}`
         }
-      });
+      };
+
+      // NEW: Add affiliate code to user metadata if present
+      if (affiliateCode) {
+        signupOptions.options.data.referred_by = affiliateCode;
+      }
+
+      const { data: authData, error: authError } = await supabase.auth.signUp(signupOptions);
 
       if (authError) {
         throw new Error(authError.message || "Registration failed");
@@ -235,6 +265,11 @@ const Signup = () => {
         email: email.trim(),
         user_id: authData.user?.id
       };
+
+      // NEW: Add affiliate code to checkout request
+      if (affiliateCode) {
+        requestBody.referred_by = affiliateCode;
+      }
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120000);
@@ -285,6 +320,9 @@ const Signup = () => {
         throw new Error("Failed to load Stripe instance");
       }
 
+      // Clear stored affiliate code before redirect (successful signup)
+      localStorage.removeItem('cf_affiliate_ref');
+
       const { error: stripeError } = await stripe.redirectToCheckout({
         sessionId: session.sessionId
       });
@@ -326,6 +364,18 @@ const Signup = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 text-white flex items-center justify-center p-6">
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-5xl w-full">
         <h2 className="text-3xl font-bold mb-6 text-center">Sign Up for Content Factory</h2>
+
+        {/* NEW: Affiliate Code Display */}
+        {affiliateCode && (
+          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-6 text-center">
+            <p className="text-green-400 font-medium">
+              🎉 You're signing up through an affiliate link! 
+              <span className="ml-2 bg-green-500/20 px-2 py-1 rounded text-sm">
+                Ref: {affiliateCode}
+              </span>
+            </p>
+          </div>
+        )}
 
         {/* TRIAL VS PAID TOGGLE */}
         <div className="flex justify-center mb-8">
@@ -443,6 +493,12 @@ const Signup = () => {
                 <div>
                   <h3 className="text-2xl font-bold mb-4">Basic</h3>
                   <p className="text-4xl font-bold mb-4">$99<span className="text-lg">/month</span></p>
+                  {/* NEW: Show affiliate bonus for basic plan */}
+                  {affiliateCode && (
+                    <div className="bg-green-500/20 border border-green-500/30 rounded p-2 mb-4">
+                      <p className="text-green-400 text-sm font-medium">💰 $35 affiliate bonus on this plan!</p>
+                    </div>
+                  )}
                   <ul className="mb-6">
                     <li className="mb-2">Generate up to 10 pieces of content/month</li>
                     <li className="mb-2">Access to basic templates</li>
@@ -474,6 +530,12 @@ const Signup = () => {
                 <div>
                   <h3 className="text-2xl font-bold mb-4">Premium</h3>
                   <p className="text-4xl font-bold mb-4">$179<span className="text-lg">/month</span></p>
+                  {/* NEW: Show affiliate bonus for premium plan */}
+                  {affiliateCode && (
+                    <div className="bg-green-500/20 border border-green-500/30 rounded p-2 mb-4">
+                      <p className="text-green-400 text-sm font-medium">💰 $60 affiliate bonus on this plan!</p>
+                    </div>
+                  )}
                   <ul className="mb-6">
                     <li className="mb-2">Generate up to 40 pieces of content/month</li>
                     <li className="mb-2">Access to premium templates</li>
@@ -504,6 +566,12 @@ const Signup = () => {
                 <div>
                   <h3 className="text-2xl font-bold mb-4">Enterprise</h3>
                   <p className="text-4xl font-bold mb-4">$299<span className="text-lg">/month</span></p>
+                  {/* NEW: Show affiliate bonus for enterprise plan */}
+                  {affiliateCode && (
+                    <div className="bg-green-500/20 border border-green-500/30 rounded p-2 mb-4">
+                      <p className="text-green-400 text-sm font-medium">💰 $110 affiliate bonus on this plan!</p>
+                    </div>
+                  )}
                   <ul className="mb-6">
                     <li className="mb-2">Unlimited content generation</li>
                     <li className="mb-2">Access to all templates</li>
@@ -619,4 +687,4 @@ const Signup = () => {
   );
 };
 
-export default Signup; 
+export default Signup;
