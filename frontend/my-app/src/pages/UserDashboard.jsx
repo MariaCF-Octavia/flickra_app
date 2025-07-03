@@ -595,9 +595,9 @@ const handleGeneration = async (content) => {
             lastFrameImageUrl: lastFrameUrl,
             promptText: content.prompt?.trim() || '',
             videoMode: "keyframes",
-            model: "gen3a_turbo",
+            model: "gen3a_turbo", // 🚨 UPDATED: Keyframes only supports gen3a_turbo
             ratio: content.ratio || "1280:768",
-            duration: content.duration || 10  // NEW: Add duration parameter
+            duration: content.duration || 10
           });
           
           console.log('Keyframes video generation request:', {
@@ -606,12 +606,12 @@ const handleGeneration = async (content) => {
             firstFrameUrl,
             lastFrameUrl,
             model: "gen3a_turbo",
-            duration: content.duration || 10  // NEW: Log duration
+            duration: content.duration || 10
           });
         } 
         // Handle single image mode (existing logic)
         else {
-          console.log('Using single image mode');
+          console.log('Using single image mode with model:', content.model || "gen3a_turbo"); // 🚨 UPDATED: Log the actual model
           
           // First, upload the image to get a URL
           let imageUrl = null;
@@ -650,19 +650,22 @@ const handleGeneration = async (content) => {
             promptImageUrl: imageUrl,
             promptText: content.prompt?.trim() || '',
             referenceImageUrl: content.referenceImageUrl || null,
-            videoMode: "single_image",
-            model: content.model || "gen4_turbo",
-            ratio: content.ratio || "1280:720",
-            duration: content.duration || 10  // NEW: Add duration parameter
+            videoMode: content.videoMode || "image_to_video", // 🚨 UPDATED: Use correct backend field name
+            model: content.model || "gen3a_turbo", // 🚨 UPDATED: Default to gen3a_turbo instead of gen4_turbo
+            ratio: content.ratio || "1280:768", // 🚨 UPDATED: Updated default ratio
+            duration: content.duration || 10
           });
           
           console.log('Video generation request:', {
             endpoint,
             promptText: content.prompt?.trim() || '',
             imageUrl,
-            model: content.model || "gen4_turbo",
-            ratio: content.ratio || "1280:720",
-            duration: content.duration || 10  // NEW: Log duration
+            model: content.model || "gen3a_turbo", // 🚨 UPDATED: Show actual model
+            videoMode: content.videoMode || "image_to_video", // 🚨 UPDATED: Show video mode
+            ratio: content.ratio || "1280:768",
+            duration: content.duration || 10,
+            isVeo3: (content.model === 'veo3'), // 🚨 NEW: Track if using Veo3
+            hasNativeAudio: (content.model === 'veo3') // 🚨 NEW: Track audio capability
           });
         }
       } 
@@ -813,7 +816,7 @@ const handleGeneration = async (content) => {
       headers: { ...requestOptions.headers },
       bodyType: typeof body,
       bodyPreview: typeof body === 'string' ? body.substring(0, 100) + '...' : '[non-string body]',
-      duration: content.duration || 'not specified'  // NEW: Log duration
+      duration: content.duration || 'not specified'
     });
 
     debug.stage = 'fetch';
@@ -992,6 +995,12 @@ const handleGeneration = async (content) => {
             errorMessage = 'Please upload the last frame image for keyframes mode.';
           } else if (detailString.includes('Invalid last frame image URL')) {
             errorMessage = 'Invalid last frame image. Please try uploading again.';
+          } else if (detailString.includes('veo3_keyframes_not_supported')) { // 🚨 NEW: Veo3 specific error
+            errorMessage = 'Keyframes mode is not yet supported with Veo3. Please use single image mode or switch to Gen3A Turbo.';
+          } else if (detailString.includes('premium_feature_locked')) { // 🚨 NEW: Veo3 premium error
+            errorMessage = 'Veo3 is a premium feature. Upgrade to access advanced AI models with native audio!';
+          } else if (detailString.includes('Veo3 API error')) { // 🚨 NEW: Veo3 API error
+            errorMessage = 'Veo3 service temporarily unavailable. Please try Gen3A Turbo or try again later.';
           } else if (detailString.includes('rate limit') || detailString.includes('Rate limited')) {
             errorMessage = 'Rate limited by video service. Please wait 5-10 minutes before trying again.';
           } else if (detailString.includes('content') || detailString.includes('moderation')) {
@@ -1063,7 +1072,7 @@ const handleGeneration = async (content) => {
         let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
         
         // Get duration from response data
-        const videoDuration = data.duration || content.duration || 10;  // NEW: Extract duration
+        const videoDuration = data.duration || content.duration || 10;
         
         // TEMPORARY FIX: If we get a CloudFront URL, convert it to Supabase URL
         if (videoUrl && videoUrl.includes('cloudfront.net')) {
@@ -1115,7 +1124,10 @@ const handleGeneration = async (content) => {
           video_url: data.video_url,
           permanent_url: data.permanent_url,
           task_id: data.task_id,
-          duration: videoDuration,  // NEW: Log duration
+          duration: videoDuration,
+          model: data.model || content.model, // 🚨 NEW: Track which model was used
+          hasNativeAudio: (data.model === 'veo3' || content.model === 'veo3'), // 🚨 NEW: Track audio capability
+          apiProvider: data.api_provider || ((data.model === 'veo3' || content.model === 'veo3') ? 'veo3' : 'runway'), // 🚨 NEW: Track API provider
           finalUrl: videoUrl,
           isCloudFront: videoUrl?.includes('cloudfront.net'),
           isSupabase: videoUrl?.includes('supabase.co')
@@ -1179,19 +1191,21 @@ const handleGeneration = async (content) => {
           throw new Error('Server returned invalid video URL');
         }
 
-        // FIXED: Add error handling for video loading WITH DURATION
+        // 🚨 UPDATED: Enhanced metadata for video previews - especially for Veo3
         previewUpdate.video = videoUrl;
         previewUpdate.videoElement = {
           type: 'video',
           url: videoUrl,
           id: `video_${Date.now()}`,
           downloadUrl: videoUrl,
-          duration: videoDuration,  // NEW: Include duration in preview
+          duration: videoDuration,
           metadata: {
-            duration: videoDuration,  // NEW: Include duration in metadata
+            duration: videoDuration,
             model: data.model || content.model,
             ratio: data.ratio || content.ratio,
-            videoMode: data.video_mode || content.videoMode
+            videoMode: data.video_mode || content.videoMode,
+            hasNativeAudio: (data.model === 'veo3' || content.model === 'veo3'), // 🚨 NEW: Track audio capability
+            apiProvider: (data.model === 'veo3' || content.model === 'veo3') ? 'veo3' : 'runway' // 🚨 NEW: Track API provider
           }
         };
           
@@ -1325,6 +1339,19 @@ const handleGeneration = async (content) => {
       debug.stage = 'complete';
       debug.success = true;
 
+      // 🚨 NEW: Enhanced success messages for different models
+      if (type === 'video') {
+        const modelUsed = data.model || content.model || 'gen3a_turbo';
+        const hasAudio = modelUsed === 'veo3';
+        const duration = content.duration || 10;
+        
+        if (hasAudio) {
+          toast.success(`${duration}s video with native audio generated successfully using Veo3! 🎵`);
+        } else {
+          toast.success(`${duration}s video generated successfully using ${modelUsed}!`);
+        }
+      }
+
       return {
         success: true,
         data: result,
@@ -1388,7 +1415,8 @@ const handleGeneration = async (content) => {
         break;
       case 'video':
         const duration = content.duration || 10;
-        toast.error(`${duration}s video generation failed: ${userMessage}`);  // NEW: Show duration in error message
+        const modelUsed = content.model || 'gen3a_turbo'; // 🚨 NEW: Include model in error message
+        toast.error(`${duration}s video generation failed using ${modelUsed}: ${userMessage}`);
         break; 
       case 'tts':
         toast.error(`Voice generation failed: ${userMessage}`);

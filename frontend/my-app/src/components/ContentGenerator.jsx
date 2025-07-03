@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo} from 'react-icons/fi';
+ import React, { useState, useCallback, useEffect } from 'react';
+import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo, FiMusic, FiStar} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceSelector from './VoiceSelector.jsx';
@@ -28,6 +28,33 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     // Duration state for video generation
     const [duration, setDuration] = useState(10);
 
+    // 🆕 NEW: Model selection state for video
+    const [selectedModel, setSelectedModel] = useState('gen3a_turbo');
+
+    // 🆕 NEW: Video models configuration
+    const videoModels = [
+        {
+            id: 'gen3a_turbo',
+            name: 'Gen3A Turbo',
+            icon: FiZap,
+            description: 'Fast & reliable',
+            badge: 'Fast',
+            provider: 'Runway',
+            hasAudio: false,
+            color: 'blue'
+        },
+        {
+            id: 'veo3',
+            name: 'Veo3 Premium',
+            icon: FiMusic,
+            description: 'AI with native audio',
+            badge: 'Audio ✨',
+            provider: 'Google',
+            hasAudio: true,
+            color: 'purple'
+        }
+    ];
+
     const getPlaceholder = useCallback(() => {
         const examples = {
             text: "Describe what you want to generate...",
@@ -36,12 +63,14 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 : "Professional product photo (describe background/setting)",
             video: videoMode === 'keyframes' 
                 ? "Describe the transition between images (e.g., 'woman picks up sunscreen and applies it smoothly')"
-                : "Describe your video scene...",
+                : selectedModel === 'veo3' 
+                    ? "Describe your video scene with audio details (e.g., 'elegant perfume commercial with gentle piano music')"
+                    : "Describe your video scene...",
             tts: "Enter text to convert to speech..."
         };
         
         return examples[type];
-    }, [type, referenceFile, videoMode]);
+    }, [type, referenceFile, videoMode, selectedModel]);
 
     const handleFileChange = useCallback((e) => {
         const selectedFile = e.target.files?.[0];
@@ -207,6 +236,11 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             throw new Error("last_frame_required");
         }
 
+        // 🆕 NEW: Veo3 doesn't support keyframes yet
+        if (type === 'video' && selectedModel === 'veo3' && videoMode === 'keyframes') {
+            throw new Error("veo3_keyframes_not_supported");
+        }
+
         if (file) {
             if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
                 throw new Error("file_type");
@@ -217,7 +251,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         }
 
         return userInput;
-    }, [input, type, selectedVoice, file, referenceFile, videoMode, lastFrameFile]);
+    }, [input, type, selectedVoice, file, referenceFile, videoMode, lastFrameFile, selectedModel]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -235,6 +269,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             videoMode,
             hasLastFrameFile: !!lastFrameFile,
             duration,
+            selectedModel, // 🆕 NEW
             inputLength: input?.length || 0,
             isGenerating
         });
@@ -278,11 +313,17 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 }
             } 
             else if (type === 'video' && file) {
-                console.log("Video generation with mode:", videoMode, "duration:", duration);
+                console.log("Video generation with mode:", videoMode, "duration:", duration, "model:", selectedModel);
                 
                 contentObject.duration = duration;
+                contentObject.model = selectedModel; // 🆕 NEW: Pass selected model
                 
                 if (videoMode === 'keyframes' && lastFrameFile) {
+                    // 🆕 NEW: Block Veo3 keyframes for now
+                    if (selectedModel === 'veo3') {
+                        throw new Error("veo3_keyframes_not_supported");
+                    }
+                    
                     console.log("Using keyframes mode with two images");
                     
                     const uploadFormData1 = new FormData();
@@ -328,7 +369,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     contentObject.lastFrameImage = lastFrameFile;
                     
                 } else {
-                    console.log("Using single image mode");
+                    console.log("Using single image mode with model:", selectedModel);
                     
                     const uploadFormData = new FormData();
                     uploadFormData.append('file', file);
@@ -351,8 +392,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     const uploadData = await uploadResponse.json();
                     console.log("Cloudinary upload successful:", uploadData.secure_url);
                     
-                    contentObject.videoMode = 'single_image';
-                    contentObject.cloudinary_url = uploadData.secure_url;
+                    contentObject.videoMode = 'image_to_video'; // 🆕 NEW: Use correct mode name for backend
+                    contentObject.promptImageUrl = uploadData.secure_url; // 🆕 NEW: Use backend expected field name
+                    contentObject.promptText = userInput; // 🆕 NEW: Use backend expected field name
+                    contentObject.ratio = "1280:768"; // 🆕 NEW: Add ratio for backend
                     contentObject.image = file;
                     
                     formData.append('cloudinary_url', uploadData.secure_url);
@@ -408,6 +451,14 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             if (type === 'video' && response.data?.url) {
                 console.log("Setting video URL:", response.data.url);
                 setVideoUrl(response.data.url);
+                
+                // 🆕 NEW: Store metadata about the generated video
+                setGenerationMetadata({
+                    ...(response.data.metadata || {}),
+                    model: selectedModel,
+                    has_native_audio: selectedModel === 'veo3',
+                    api_provider: selectedModel === 'veo3' ? 'veo3' : 'runway'
+                });
             } else if (type === 'image') {
                 if (response.data?.generation_id) {
                     console.log("Setting generation ID for polling:", response.data.generation_id);
@@ -454,6 +505,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             "file_type": "Only JPEG/PNG/WebP images are allowed (max 10MB)",
             "file_size": "Image must be smaller than 10MB",
             "last_frame_required": "Please upload the last frame image for keyframes mode",
+            "veo3_keyframes_not_supported": "Keyframes mode is not yet supported with Veo3. Please use single image mode or switch to Gen3A Turbo.",
             "session": "Your session expired - please login again",
             "limit_reached": `You've reached your generation limit (${remaining} remaining)`,
             "voice_required": "Please select a voice first",
@@ -484,6 +536,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const renderFilePreview = () => {
         if (type === 'video') {
             if (videoUrl) {
+                const currentModel = videoModels.find(m => m.id === selectedModel);
                 return (
                     <div className={`mt-3 border rounded-lg overflow-hidden ${
                         darkMode ? 'border-gray-600' : 'border-gray-200'
@@ -499,9 +552,18 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         <div className={`p-2 flex justify-between items-center ${
                             darkMode ? 'bg-gray-700' : 'bg-gray-50'
                         }`}>
-                            <span className={`text-xs ${
-                                darkMode ? 'text-gray-200' : 'text-gray-600'
-                            }`}>Your generated video ({duration}s)</span>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs ${
+                                    darkMode ? 'text-gray-200' : 'text-gray-600'
+                                }`}>Your generated video ({duration}s)</span>
+                                {/* 🆕 NEW: Show audio badge for Veo3 */}
+                                {currentModel?.hasAudio && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                                        <FiMusic className="w-3 h-3" />
+                                        Audio
+                                    </span>
+                                )}
+                            </div>
                             <a 
                                 href={videoUrl} 
                                 download={`generated-video-${Date.now()}.mp4`}
@@ -673,6 +735,88 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     return (
         <div className={className}>
             <form onSubmit={handleSubmit} className="space-y-3">
+                {/* 🆕 NEW: Model Selector for Video */}
+                {type === 'video' && (
+                    <div className="space-y-2">
+                        <div className={`text-xs font-medium ${
+                            darkMode ? 'text-gray-200' : 'text-gray-700'
+                        }`}>
+                            AI Model
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {videoModels.map((model) => {
+                                const Icon = model.icon;
+                                const isSelected = selectedModel === model.id;
+                                const colorClasses = {
+                                    blue: isSelected 
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-600 text-white' 
+                                        : (darkMode 
+                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
+                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'),
+                                    purple: isSelected 
+                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-purple-600 text-white' 
+                                        : (darkMode 
+                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
+                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
+                                };
+
+                                return (
+                                    <button
+                                        key={model.id}
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedModel(model.id);
+                                            // Reset keyframes if switching to Veo3
+                                            if (model.id === 'veo3' && videoMode === 'keyframes') {
+                                                setVideoMode('single_image');
+                                                setLastFrameFile(null);
+                                                setLastFramePreviewUrl(null);
+                                            }
+                                        }}
+                                        className={`p-3 rounded-lg border text-sm font-medium transition-all flex items-center justify-between ${
+                                            colorClasses[model.color]
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Icon className="w-4 h-4" />
+                                            <div className="text-left">
+                                                <div className="font-medium">{model.name}</div>
+                                                <div className={`text-xs ${
+                                                    isSelected ? 'text-white/80' : (darkMode ? 'text-gray-400' : 'text-gray-500')
+                                                }`}>
+                                                    {model.description}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {model.hasAudio && (
+                                                <FiMusic className="w-3 h-3" />
+                                            )}
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                                isSelected 
+                                                    ? 'bg-white/20 text-white' 
+                                                    : (model.color === 'purple' 
+                                                        ? 'bg-purple-100 text-purple-800' 
+                                                        : 'bg-blue-100 text-blue-800')
+                                            }`}>
+                                                {model.badge}
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* 🆕 NEW: Show warning if Veo3 + keyframes */}
+                        {selectedModel === 'veo3' && videoMode === 'keyframes' && (
+                            <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 flex items-center gap-2">
+                                <FiZap className="w-3 h-3" />
+                                Keyframes mode not yet supported with Veo3. Switching to single image mode.
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Video Mode Selector - More Compact */}
                 {type === 'video' && (
                     <div className="space-y-2">
@@ -702,17 +846,29 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setVideoMode('keyframes')}
+                                onClick={() => {
+                                    if (selectedModel === 'veo3') {
+                                        setError('Keyframes mode not yet supported with Veo3. Please use single image mode or switch to Gen3A Turbo.');
+                                        return;
+                                    }
+                                    setVideoMode('keyframes');
+                                }}
+                                disabled={selectedModel === 'veo3'}
                                 className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                                    videoMode === 'keyframes'
-                                        ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
-                                        : (darkMode 
-                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
-                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
+                                    selectedModel === 'veo3'
+                                        ? (darkMode ? 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed')
+                                        : videoMode === 'keyframes'
+                                            ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
+                                            : (darkMode 
+                                                ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
+                                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
                                 }`}
                             >
                                 <FiLayers className="w-3 h-3" />
                                 Keyframes
+                                {selectedModel === 'veo3' && (
+                                    <span className="text-xs opacity-60">(Soon)</span>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -770,10 +926,18 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:bg-gray-600' 
                             : 'bg-white border-gray-300 text-gray-900 focus:bg-gray-50'
                     } ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    rows={2}
+                    rows={selectedModel === 'veo3' ? 3 : 2} // 🆕 NEW: More space for Veo3 audio descriptions
                     disabled={isGenerating}
                     required
                 />
+
+                {/* 🆕 NEW: Veo3 Audio Tip */}
+                {type === 'video' && selectedModel === 'veo3' && (
+                    <div className="text-purple-400 text-xs bg-purple-500/10 border border-purple-500/20 rounded-lg p-2 flex items-center gap-2">
+                        <FiMusic className="w-3 h-3" />
+                        <span>Tip: Describe audio elements like "gentle piano music" or "ocean waves" for better results</span>
+                    </div>
+                )}
 
                 {/* Voice Selector for TTS */}
                 {type === 'tts' && (
@@ -833,7 +997,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         </div>
 
                         {/* Last frame upload for keyframes mode */}
-                        {type === 'video' && videoMode === 'keyframes' && (
+                        {type === 'video' && videoMode === 'keyframes' && selectedModel !== 'veo3' && (
                             <div className={`border-2 border-dashed rounded-lg p-2 text-center transition-colors ${
                                 darkMode 
                                     ? 'border-blue-500/30 hover:border-blue-500/50 bg-blue-500/5' 
@@ -935,6 +1099,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             type,
                             hasFile: !!file,
                             videoMode,
+                            selectedModel, // 🆕 NEW
                             hasLastFrameFile: !!lastFrameFile,
                             duration,
                             isDisabled: isGenerating || (typeof remaining === 'number' && remaining <= 0)
@@ -950,10 +1115,13 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         <>
                             <span className="animate-spin inline-block w-4 h-4 border-2 border-current rounded-full border-t-transparent" />
                             <span className="text-sm">
-                                {type === 'video' ? `Generating ${duration}s video...` : 
-                                 type === 'image' ? 'Creating image...' :
-                                 type === 'tts' ? 'Generating speech...' :
-                                 'Processing...'}
+                                {type === 'video' ? 
+                                    selectedModel === 'veo3' 
+                                        ? `Generating ${duration}s video with audio...` 
+                                        : `Generating ${duration}s video...`
+                                : type === 'image' ? 'Creating image...' :
+                                  type === 'tts' ? 'Generating speech...' :
+                                  'Processing...'}
                             </span>
                         </>
                     ) : (
@@ -973,15 +1141,20 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             ) : (
                                 <>
                                     {type === 'tts' ? <FiPlay className="w-4 h-4" /> : 
-                                     type === 'video' ? <FiVideo className="w-4 h-4" /> :
+                                     type === 'video' ? (
+                                        selectedModel === 'veo3' ? <FiMusic className="w-4 h-4" /> : <FiVideo className="w-4 h-4" />
+                                     ) :
                                      type === 'image' ? <FiImage className="w-4 h-4" /> :
                                      <FiZap className="w-4 h-4" />}
                                     <span className="text-sm">
                                         {type === 'tts' ? 'Generate Speech' : 
-                                         type === 'video' ? `Create ${duration}s Video` :
-                                         type === 'image' ? 'Create Image' :
-                                         type === 'text' ? 'Create Copy' :
-                                         `Create ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+                                         type === 'video' ? 
+                                            selectedModel === 'veo3' 
+                                                ? `Create ${duration}s Video + Audio` 
+                                                : `Create ${duration}s Video`
+                                        : type === 'image' ? 'Create Image' :
+                                          type === 'text' ? 'Create Copy' :
+                                          `Create ${type.charAt(0).toUpperCase() + type.slice(1)}`}
                                     </span>
                                 </>
                             )}
@@ -1010,4 +1183,4 @@ ContentGenerator.defaultProps = {
     buttonGradient: 'from-pink-600 to-rose-600'
 };
 
-export default ContentGenerator; 
+export default ContentGenerator;
