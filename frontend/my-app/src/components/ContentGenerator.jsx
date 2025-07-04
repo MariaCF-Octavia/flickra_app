@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+ import React, { useState, useCallback, useEffect } from 'react';
 import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo, FiMusic, FiStar} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -587,13 +587,19 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 }
             }
 
-            // NEW: Handle async video response
-            if (type === 'video' && response?.success && response.data?.job_id) {
-                console.log("Video generation started with job_id:", response.data.job_id);
-                setVideoJobId(response.data.job_id);
-                setGenerationStatus('Video generation started...');
-                // Don't reset form yet - wait for completion
-                return;
+            // NEW: Handle async video response ONLY
+            if (type === 'video') {
+                if (response?.success && (response.data?.job_id || response.data?.task_id)) {
+                    const jobId = response.data?.job_id || response.data?.task_id;
+                    console.log("Video generation started with job_id:", jobId);
+                    setVideoJobId(jobId);
+                    setGenerationStatus('Video generation started...');
+                    // Don't reset form yet - wait for completion
+                    // Don't try to use any video URL from this response
+                    return;
+                } else {
+                    throw new Error("Backend didn't return job_id for async processing");
+                }
             }
 
             if (!response?.success) {
@@ -603,18 +609,8 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
             console.log("Generation successful:", response);
 
-            // Handle immediate video response (for backwards compatibility)
-            if (type === 'video' && response.data?.url) {
-                console.log("Setting video URL:", response.data.url);
-                setVideoUrl(response.data.url);
-                
-                setGenerationMetadata({
-                    ...(response.data.metadata || {}),
-                    model: selectedModel,
-                    has_native_audio: selectedModel === 'veo3',
-                    api_provider: selectedModel === 'veo3' ? 'veo3' : 'runway'
-                });
-            } else if (type === 'image') {
+            // Handle other types (image, tts, etc.) - NOT video
+            if (type === 'image') {
                 if (response.data?.generation_id) {
                     console.log("Setting generation ID for polling:", response.data.generation_id);
                     setGenerationId(response.data.generation_id);
@@ -628,9 +624,12 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 }
             }
 
-            // Only reset form for non-polling generations
-            if (type !== 'image' || !response.data?.generation_id) {
+            // Only reset form for non-polling generations (NOT video)
+            if (type !== 'image' && type !== 'video') {
                 console.log("Resetting form after successful generation");
+                resetForm();
+            } else if (type === 'image' && !response.data?.generation_id) {
+                console.log("Resetting form after successful image generation");
                 resetForm();
             }
 
