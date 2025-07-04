@@ -1341,7 +1341,7 @@ const handleGeneration = async (content) => {
 
       // 🚨 NEW: Enhanced success messages for different models
       if (type === 'video') {
-        const modelUsed = data.model || content.model || 'gen3a_turbo';
+        const modelUsed = result.model || content.model || 'gen3a_turbo';
         const hasAudio = modelUsed === 'veo3';
         const duration = content.duration || 10;
         
