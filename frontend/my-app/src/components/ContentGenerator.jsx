@@ -1,4 +1,4 @@
- import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo, FiMusic, FiStar} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +20,11 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const [generationId, setGenerationId] = useState(null);
     const [pollingAttempts, setPollingAttempts] = useState(0);
 
+    // NEW: Video polling states
+    const [videoJobId, setVideoJobId] = useState(null);
+    const [videoPollingAttempts, setVideoPollingAttempts] = useState(0);
+    const [generationStatus, setGenerationStatus] = useState('');
+
     // Video mode states
     const [videoMode, setVideoMode] = useState('single_image');
     const [lastFrameFile, setLastFrameFile] = useState(null);
@@ -28,10 +33,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     // Duration state for video generation
     const [duration, setDuration] = useState(10);
 
-    // 🆕 NEW: Model selection state for video
+    // Model selection state for video
     const [selectedModel, setSelectedModel] = useState('gen3a_turbo');
 
-    // 🆕 NEW: Video models configuration
+    // Video models configuration
     const videoModels = [
         {
             id: 'gen3a_turbo',
@@ -137,6 +142,144 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const [isPolling, setIsPolling] = useState(false);
     const [consecutiveErrors, setConsecutiveErrors] = useState(0);
 
+    // NEW: Video polling effect
+    useEffect(() => {
+        if (!videoJobId || type !== 'video') return;
+
+        let isMounted = true;
+        let attempts = 0;
+        let pollInterval;
+
+        const pollVideoStatus = async () => {
+            if (isPolling) return;
+            setIsPolling(true);
+
+            try {
+                console.log(`Polling video status for job ${videoJobId}, attempt ${attempts + 1}`);
+                
+                // Use the status endpoint instead of onGenerate
+                const statusResponse = await fetch(`/video-status/${videoJobId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!statusResponse.ok) {
+                    throw new Error(`Status check failed: ${statusResponse.status}`);
+                }
+
+                const result = await statusResponse.json();
+                
+                if (!isMounted) return;
+
+                console.log(`Video status response:`, result);
+
+                // Update status message
+                const statusMessages = {
+                    'processing': 'Starting video generation...',
+                    'calling_api': 'Connecting to AI service...',
+                    'api_processing': selectedModel === 'veo3' ? 'Generating video with audio...' : 'Generating video...',
+                    'completed': 'Video generation complete!',
+                    'failed': 'Generation failed',
+                    'not_found': 'Job not found'
+                };
+                
+                setGenerationStatus(statusMessages[result.status] || 'Processing...');
+
+                if (result.status === 'completed' && result.video_url) {
+                    console.log('Video generation completed:', result.video_url);
+                    setVideoUrl(result.video_url);
+                    setGenerationMetadata({
+                        ...(result.metadata || {}),
+                        model: selectedModel,
+                        has_native_audio: selectedModel === 'veo3',
+                        api_provider: selectedModel === 'veo3' ? 'veo3' : 'runway'
+                    });
+                    setVideoJobId(null);
+                    setIsGenerating(false);
+                    setConsecutiveErrors(0);
+                    setGenerationStatus('');
+                    setVideoPollingAttempts(0);
+                } else if (result.status === 'failed') {
+                    const errorMsg = result.error || 'Video generation failed';
+                    console.error('Video generation failed:', errorMsg);
+                    setError(errorMsg);
+                    setIsGenerating(false);
+                    setVideoJobId(null);
+                    setGenerationStatus('');
+                    setVideoPollingAttempts(0);
+                } else if (attempts >= 120) { // 10 minutes at 5-second intervals
+                    console.error('Video generation timed out after 10 minutes');
+                    setError('Video generation timed out. Please try again.');
+                    setIsGenerating(false);
+                    setVideoJobId(null);
+                    setGenerationStatus('');
+                    setVideoPollingAttempts(0);
+                } else {
+                    // Continue polling
+                    attempts++;
+                    setVideoPollingAttempts(attempts);
+                    
+                    // Progressive delay: start with 5s, increase to 10s after 5 minutes
+                    const delay = attempts > 60 ? 10000 : 5000;
+                    pollInterval = setTimeout(pollVideoStatus, delay);
+                }
+            } catch (err) {
+                if (!isMounted) return;
+                
+                console.error('Error polling video status:', err);
+                
+                const is429Error = err.message.includes('429') || 
+                                   err.message.includes('Too Many Requests') ||
+                                   err.message.includes('Status 429');
+                
+                if (is429Error) {
+                    setConsecutiveErrors(prev => prev + 1);
+                    
+                    if (consecutiveErrors >= 3) {
+                        setError('Too many rate limit errors. Please wait a few minutes before trying again.');
+                        setIsGenerating(false);
+                        setVideoJobId(null);
+                        setGenerationStatus('');
+                        return;
+                    }
+                    
+                    console.log('Rate limited during video polling, waiting longer before retry...');
+                    const backoffDelay = Math.min(10000 + (consecutiveErrors * 5000), 30000);
+                    pollInterval = setTimeout(pollVideoStatus, backoffDelay);
+                } else {
+                    setConsecutiveErrors(0);
+                    
+                    // For network errors, retry a few times before giving up
+                    if (attempts < 5) {
+                        console.log('Network error during polling, retrying...');
+                        pollInterval = setTimeout(pollVideoStatus, 10000);
+                        attempts++;
+                    } else {
+                        setError(`Network error: ${err.message}`);
+                        setIsGenerating(false);
+                        setVideoJobId(null);
+                        setGenerationStatus('');
+                    }
+                }
+            } finally {
+                setIsPolling(false);
+            }
+        };
+
+        // Start polling after a short delay
+        pollInterval = setTimeout(pollVideoStatus, 3000);
+
+        return () => {
+            isMounted = false;
+            clearTimeout(pollInterval);
+            setIsPolling(false);
+        };
+    }, [videoJobId, type, selectedModel, consecutiveErrors]);
+
+    // Existing image polling effect (unchanged)
     useEffect(() => {
         if (!generationId || type !== 'image') return;
 
@@ -236,7 +379,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             throw new Error("last_frame_required");
         }
 
-        // 🆕 NEW: Veo3 doesn't support keyframes yet
+        // Veo3 doesn't support keyframes yet
         if (type === 'video' && selectedModel === 'veo3' && videoMode === 'keyframes') {
             throw new Error("veo3_keyframes_not_supported");
         }
@@ -259,8 +402,11 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         setVideoUrl(null);
         setGeneratedImageUrl(null);
         setGenerationId(null);
+        setVideoJobId(null); // NEW: Reset video job ID
         setPollingAttempts(0);
+        setVideoPollingAttempts(0); // NEW: Reset video polling attempts
         setConsecutiveErrors(0);
+        setGenerationStatus(''); // NEW: Reset status
 
         console.log("handleSubmit called, current state:", {
             type,
@@ -269,7 +415,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             videoMode,
             hasLastFrameFile: !!lastFrameFile,
             duration,
-            selectedModel, // 🆕 NEW
+            selectedModel,
             inputLength: input?.length || 0,
             isGenerating
         });
@@ -316,10 +462,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 console.log("Video generation with mode:", videoMode, "duration:", duration, "model:", selectedModel);
                 
                 contentObject.duration = duration;
-                contentObject.model = selectedModel; // 🆕 NEW: Pass selected model
+                contentObject.model = selectedModel;
                 
                 if (videoMode === 'keyframes' && lastFrameFile) {
-                    // 🆕 NEW: Block Veo3 keyframes for now
+                    // Block Veo3 keyframes for now
                     if (selectedModel === 'veo3') {
                         throw new Error("veo3_keyframes_not_supported");
                     }
@@ -392,10 +538,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     const uploadData = await uploadResponse.json();
                     console.log("Cloudinary upload successful:", uploadData.secure_url);
                     
-                    contentObject.videoMode = 'image_to_video'; // 🆕 NEW: Use correct mode name for backend
-                    contentObject.promptImageUrl = uploadData.secure_url; // 🆕 NEW: Use backend expected field name
-                    contentObject.promptText = userInput; // 🆕 NEW: Use backend expected field name
-                    contentObject.ratio = "1280:768"; // 🆕 NEW: Add ratio for backend
+                    contentObject.videoMode = 'image_to_video';
+                    contentObject.promptImageUrl = uploadData.secure_url;
+                    contentObject.promptText = userInput;
+                    contentObject.ratio = "1280:768";
                     contentObject.image = file;
                     
                     formData.append('cloudinary_url', uploadData.secure_url);
@@ -441,6 +587,15 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 }
             }
 
+            // NEW: Handle async video response
+            if (type === 'video' && response?.success && response.data?.job_id) {
+                console.log("Video generation started with job_id:", response.data.job_id);
+                setVideoJobId(response.data.job_id);
+                setGenerationStatus('Video generation started...');
+                // Don't reset form yet - wait for completion
+                return;
+            }
+
             if (!response?.success) {
                 console.error("Generation response indicated failure:", response);
                 throw new Error(response.error || "Generation failed");
@@ -448,11 +603,11 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
             console.log("Generation successful:", response);
 
+            // Handle immediate video response (for backwards compatibility)
             if (type === 'video' && response.data?.url) {
                 console.log("Setting video URL:", response.data.url);
                 setVideoUrl(response.data.url);
                 
-                // 🆕 NEW: Store metadata about the generated video
                 setGenerationMetadata({
                     ...(response.data.metadata || {}),
                     model: selectedModel,
@@ -473,6 +628,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                 }
             }
 
+            // Only reset form for non-polling generations
             if (type !== 'image' || !response.data?.generation_id) {
                 console.log("Resetting form after successful generation");
                 resetForm();
@@ -497,6 +653,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         }
         setIsGenerating(false);
         setConsecutiveErrors(0);
+        setGenerationStatus(''); // NEW: Reset status
     };
 
     const handleGenerationError = (err) => {
@@ -527,6 +684,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
         }
         
         setIsGenerating(false);
+        setGenerationStatus(''); // NEW: Reset status on error
         
         if (debug) {
             console.error('Generation error:', err);
@@ -556,7 +714,6 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <span className={`text-xs ${
                                     darkMode ? 'text-gray-200' : 'text-gray-600'
                                 }`}>Your generated video ({duration}s)</span>
-                                {/* 🆕 NEW: Show audio badge for Veo3 */}
                                 {currentModel?.hasAudio && (
                                     <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
                                         <FiMusic className="w-3 h-3" />
@@ -588,22 +745,6 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                                 <img 
                                     src={previewUrl} 
                                     alt="First frame" 
-                                    className="w-full h-20 object-cover"
-                                />
-                                <div className={`p-1 text-xs text-center ${
-                                    darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'
-                                }`}>
-                                    First Frame
-                                </div>
-                            </div>
-                        )}
-                        {lastFramePreviewUrl && (
-                            <div className={`border rounded-lg overflow-hidden ${
-                                darkMode ? 'border-gray-600' : 'border-gray-200'
-                            }`}>
-                                <img 
-                                    src={lastFramePreviewUrl} 
-                                    alt="Last frame" 
                                     className="w-full h-20 object-cover"
                                 />
                                 <div className={`p-1 text-xs text-center ${
@@ -735,7 +876,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     return (
         <div className={className}>
             <form onSubmit={handleSubmit} className="space-y-3">
-                {/* 🆕 NEW: Model Selector for Video */}
+                {/* Model Selector for Video */}
                 {type === 'video' && (
                     <div className="space-y-2">
                         <div className={`text-xs font-medium ${
@@ -807,7 +948,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             })}
                         </div>
                         
-                        {/* 🆕 NEW: Show warning if Veo3 + keyframes */}
+                        {/* Show warning if Veo3 + keyframes */}
                         {selectedModel === 'veo3' && videoMode === 'keyframes' && (
                             <div className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 flex items-center gap-2">
                                 <FiZap className="w-3 h-3" />
@@ -926,12 +1067,12 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:bg-gray-600' 
                             : 'bg-white border-gray-300 text-gray-900 focus:bg-gray-50'
                     } ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    rows={selectedModel === 'veo3' ? 3 : 2} // 🆕 NEW: More space for Veo3 audio descriptions
+                    rows={selectedModel === 'veo3' ? 3 : 2}
                     disabled={isGenerating}
                     required
                 />
 
-                {/* 🆕 NEW: Veo3 Audio Tip */}
+                {/* Veo3 Audio Tip */}
                 {type === 'video' && selectedModel === 'veo3' && (
                     <div className="text-purple-400 text-xs bg-purple-500/10 border border-purple-500/20 rounded-lg p-2 flex items-center gap-2">
                         <FiMusic className="w-3 h-3" />
@@ -947,6 +1088,28 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             initialVoiceId={selectedVoice}
                             darkMode={darkMode}
                         />
+                    </div>
+                )}
+
+                {/* NEW: Video Generation Status */}
+                {type === 'video' && isGenerating && generationStatus && (
+                    <div className={`text-xs bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 ${
+                        darkMode ? 'text-blue-400' : 'text-blue-600'
+                    }`}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="animate-spin inline-block w-3 h-3 border-2 border-current rounded-full border-t-transparent" />
+                            <span className="font-medium">{generationStatus}</span>
+                        </div>
+                        {videoPollingAttempts > 0 && (
+                            <div className="text-xs opacity-75">
+                                Polling attempt {videoPollingAttempts} • This may take up to 10 minutes
+                            </div>
+                        )}
+                        <div className="mt-2 text-xs opacity-75">
+                            {selectedModel === 'veo3' 
+                                ? "Veo3 generates high-quality videos with native audio - worth the wait!" 
+                                : "Video generation typically takes 2-5 minutes"}
+                        </div>
                     </div>
                 )}
 
@@ -1099,7 +1262,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                             type,
                             hasFile: !!file,
                             videoMode,
-                            selectedModel, // 🆕 NEW
+                            selectedModel,
                             hasLastFrameFile: !!lastFrameFile,
                             duration,
                             isDisabled: isGenerating || (typeof remaining === 'number' && remaining <= 0)
