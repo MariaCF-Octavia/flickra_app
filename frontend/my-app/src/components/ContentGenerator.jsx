@@ -144,7 +144,15 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
     // NEW: Video polling effect
     useEffect(() => {
-        if (!videoJobId || type !== 'video') return;
+        console.log("🔍 POLLING useEffect triggered:", { videoJobId, type });
+        
+        if (!videoJobId || type !== 'video') {
+            console.log("🔍 POLLING useEffect exiting early:", { 
+                hasVideoJobId: !!videoJobId, 
+                isVideoType: type === 'video' 
+            });
+            return;
+        }
 
         let isMounted = true;
         let attempts = 0;
@@ -593,6 +601,9 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     const jobId = response.data?.job_id || response.data?.task_id;
                     console.log("Video generation started with job_id:", jobId);
                     setVideoJobId(jobId);
+                    console.log("🔍 DEBUG: videoJobId set to:", jobId);
+                    console.log("🔍 DEBUG: Current type:", type);
+                    console.log("🔍 DEBUG: Should trigger polling useEffect");
                     setGenerationStatus('Video generation started...');
                     // Don't reset form yet - wait for completion
                     // Don't try to use any video URL from this response
