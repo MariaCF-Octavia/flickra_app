@@ -401,6 +401,7 @@ const pollSDXLResult = useCallback(async (generationId, accessToken) => {
 
 // First, fix your API_BASE constant - remove the extra "http://"
 
+
 const handleGeneration = async (content) => {
   const debug = {
     stage: 'init',
@@ -594,9 +595,9 @@ const handleGeneration = async (content) => {
             lastFrameImageUrl: lastFrameUrl,
             promptText: content.prompt?.trim() || '',
             videoMode: "keyframes",
-            model: "gen3a_turbo", // 🚨 UPDATED: Keyframes only supports gen3a_turbo
+            model: "gen3a_turbo",
             ratio: content.ratio || "1280:768",
-            duration: content.duration || 10
+            duration: content.duration || 10  // NEW: Add duration parameter
           });
           
           console.log('Keyframes video generation request:', {
@@ -605,12 +606,12 @@ const handleGeneration = async (content) => {
             firstFrameUrl,
             lastFrameUrl,
             model: "gen3a_turbo",
-            duration: content.duration || 10
+            duration: content.duration || 10  // NEW: Log duration
           });
         } 
         // Handle single image mode (existing logic)
         else {
-          console.log('Using single image mode with model:', content.model || "gen3a_turbo"); // 🚨 UPDATED: Log the actual model
+          console.log('Using single image mode');
           
           // First, upload the image to get a URL
           let imageUrl = null;
@@ -649,22 +650,19 @@ const handleGeneration = async (content) => {
             promptImageUrl: imageUrl,
             promptText: content.prompt?.trim() || '',
             referenceImageUrl: content.referenceImageUrl || null,
-            videoMode: content.videoMode || "image_to_video", // 🚨 UPDATED: Use correct backend field name
-            model: content.model || "gen3a_turbo", // 🚨 UPDATED: Default to gen3a_turbo instead of gen4_turbo
-            ratio: content.ratio || "1280:768", // 🚨 UPDATED: Updated default ratio
-            duration: content.duration || 10
+            videoMode: "single_image",
+            model: content.model || "gen4_turbo",
+            ratio: content.ratio || "1280:720",
+            duration: content.duration || 10  // NEW: Add duration parameter
           });
           
           console.log('Video generation request:', {
             endpoint,
             promptText: content.prompt?.trim() || '',
             imageUrl,
-            model: content.model || "gen3a_turbo", // 🚨 UPDATED: Show actual model
-            videoMode: content.videoMode || "image_to_video", // 🚨 UPDATED: Show video mode
-            ratio: content.ratio || "1280:768",
-            duration: content.duration || 10,
-            isVeo3: (content.model === 'veo3'), // 🚨 NEW: Track if using Veo3
-            hasNativeAudio: (content.model === 'veo3') // 🚨 NEW: Track audio capability
+            model: content.model || "gen4_turbo",
+            ratio: content.ratio || "1280:720",
+            duration: content.duration || 10  // NEW: Log duration
           });
         }
       } 
@@ -815,7 +813,7 @@ const handleGeneration = async (content) => {
       headers: { ...requestOptions.headers },
       bodyType: typeof body,
       bodyPreview: typeof body === 'string' ? body.substring(0, 100) + '...' : '[non-string body]',
-      duration: content.duration || 'not specified'
+      duration: content.duration || 'not specified'  // NEW: Log duration
     });
 
     debug.stage = 'fetch';
@@ -994,12 +992,6 @@ const handleGeneration = async (content) => {
             errorMessage = 'Please upload the last frame image for keyframes mode.';
           } else if (detailString.includes('Invalid last frame image URL')) {
             errorMessage = 'Invalid last frame image. Please try uploading again.';
-          } else if (detailString.includes('veo3_keyframes_not_supported')) { // 🚨 NEW: Veo3 specific error
-            errorMessage = 'Keyframes mode is not yet supported with Veo3. Please use single image mode or switch to Gen3A Turbo.';
-          } else if (detailString.includes('premium_feature_locked')) { // 🚨 NEW: Veo3 premium error
-            errorMessage = 'Veo3 is a premium feature. Upgrade to access advanced AI models with native audio!';
-          } else if (detailString.includes('Veo3 API error')) { // 🚨 NEW: Veo3 API error
-            errorMessage = 'Veo3 service temporarily unavailable. Please try Gen3A Turbo or try again later.';
           } else if (detailString.includes('rate limit') || detailString.includes('Rate limited')) {
             errorMessage = 'Rate limited by video service. Please wait 5-10 minutes before trying again.';
           } else if (detailString.includes('content') || detailString.includes('moderation')) {
@@ -1067,49 +1059,144 @@ const handleGeneration = async (content) => {
         const data = await response.json();
         Object.assign(result, data);
 
-        // NEW: Handle async video response - don't try to use immediate URL
-        if (data.job_id || data.task_id) {
-          console.log('Video generation started with job_id:', data.job_id || data.task_id);
+        // FIXED: Use the permanent Supabase URL instead of temporary Runway URL
+        let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
+        
+        // Get duration from response data
+        const videoDuration = data.duration || content.duration || 10;  // NEW: Extract duration
+        
+        // TEMPORARY FIX: If we get a CloudFront URL, convert it to Supabase URL
+        if (videoUrl && videoUrl.includes('cloudfront.net')) {
+          console.log('⚠️ Got CloudFront URL, attempting to construct Supabase URL...');
           
-          // Don't set any video URL or preview - let ContentGenerator handle the polling
-          result.job_id = data.task_id || data.job_id;
-          result.status = 'processing';
+          // Extract the task ID from the response or URL
+          const taskId = data.task_id || videoUrl.match(/([a-f0-9-]{36})/)?.[1];
           
-          // Clear file inputs after successful job creation
-          setFileKey(Date.now().toString());
-          
-          // Don't set previewUpdate.video - this was causing the 400 error!
-          // ContentGenerator will handle polling and display when ready
-          
-        } else {
-          // Keep old logic for backwards compatibility (shouldn't be used with new async system)
-          console.warn('Received video response without job_id - using old sync method');
-          
-          let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
-          if (videoUrl) {
-            // Apply URL cleaning if needed
-            videoUrl = videoUrl.replace(/[?&]$/, '');
+          if (taskId) {
+            // Construct the Supabase URL based on your pattern from the logs
+            const supabaseUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
             
-            previewUpdate.video = videoUrl;
-            previewUpdate.videoElement = {
-              type: 'video',
-              url: videoUrl,
-              id: `video_${Date.now()}`,
-              downloadUrl: videoUrl,
-              duration: data.duration || content.duration || 10,
-              metadata: {
-                duration: data.duration || content.duration || 10,
-                model: data.model || content.model,
-                ratio: data.ratio || content.ratio,
-                videoMode: data.video_mode || content.videoMode,
-                hasNativeAudio: (data.model === 'veo3' || content.model === 'veo3'),
-                apiProvider: (data.model === 'veo3' || content.model === 'veo3') ? 'veo3' : 'runway'
-              }
-            };
+            console.log('🔧 Converted CloudFront URL to Supabase URL:', {
+              original: videoUrl,
+              converted: supabaseUrl,
+              taskId: taskId,
+              userId: user.id
+            });
             
-            setFileKey(Date.now().toString());
+            videoUrl = supabaseUrl;
           }
         }
+
+        // FIXED: Clean up video URL for mobile compatibility
+        if (videoUrl) {
+          // Remove trailing ? or & that cause mobile issues
+          videoUrl = videoUrl.replace(/[?&]$/, '');
+          
+          // Additional mobile-specific cleaning
+          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          if (isMobile) {
+            console.log('📱 Mobile device detected - cleaning video URL for compatibility');
+            
+            try {
+              const urlObj = new URL(videoUrl);
+              // Reconstruct clean URL without problematic query parameters
+              videoUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+              console.log('📱 Cleaned video URL for mobile:', videoUrl);
+            } catch (urlError) {
+              console.error('📱 URL cleaning failed, using original:', urlError);
+            }
+          }
+          
+          console.log('🧹 Final cleaned video URL:', videoUrl);
+        }
+        
+        console.log('Video response data:', {
+          supabase_url: data.supabase_url,
+          video_url: data.video_url,
+          permanent_url: data.permanent_url,
+          task_id: data.task_id,
+          duration: videoDuration,  // NEW: Log duration
+          finalUrl: videoUrl,
+          isCloudFront: videoUrl?.includes('cloudfront.net'),
+          isSupabase: videoUrl?.includes('supabase.co')
+        });
+
+        if (data.task_id && !videoUrl) {
+          try {
+            console.log(`Polling for video result with task ID: ${data.task_id}`);
+            const pollResult = await pollVideoStatus(data.task_id, session.access_token);
+            
+            // FIXED: Prefer permanent URLs from polling result
+            videoUrl = pollResult.supabase_url || pollResult.permanent_url || pollResult.video_url || pollResult.url;
+            
+            // Apply the same CloudFront to Supabase conversion for polling results
+            if (videoUrl && videoUrl.includes('cloudfront.net')) {
+              const taskId = data.task_id;
+              videoUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
+              console.log('🔧 Converted polling CloudFront URL to Supabase URL:', videoUrl);
+            }
+
+            // FIXED: Clean polling URLs too
+            if (videoUrl) {
+              videoUrl = videoUrl.replace(/[?&]$/, '');
+              console.log('🧹 Cleaned polling video URL:', videoUrl);
+            }
+            
+            console.log('Polling result URLs:', {
+              supabase_url: pollResult.supabase_url,
+              video_url: pollResult.video_url,
+              permanent_url: pollResult.permanent_url,
+              finalUrl: videoUrl
+            });
+            
+          } catch (pollError) {
+            console.error('Video polling failed:', pollError);
+            throw new Error(`Video generation processing error: ${pollError.message}`);
+          }
+        }
+
+        if (!videoUrl) {
+          console.error('Video generation completed but no URL received', data);
+          throw new Error("No video URL received from server");
+        }
+
+        // FIXED: Better URL validation
+        try {
+          const urlObj = new URL(videoUrl);
+          console.log('Using video URL:', videoUrl);
+          
+          // Check if it's a Supabase URL (preferred) or other valid URL
+          if (videoUrl.includes('supabase.co')) {
+            console.log('✅ Using permanent Supabase URL - should work on mobile');
+          } else if (videoUrl.includes('cloudfront.net')) {
+            console.log('⚠️ Using temporary CloudFront URL - may not work on mobile');
+          } else {
+            console.log('ℹ️ Using other video URL:', urlObj.hostname);
+          }
+          
+        } catch (urlError) {
+          console.error('Invalid video URL received:', videoUrl);
+          throw new Error('Server returned invalid video URL');
+        }
+
+        // FIXED: Add error handling for video loading WITH DURATION
+        previewUpdate.video = videoUrl;
+        previewUpdate.videoElement = {
+          type: 'video',
+          url: videoUrl,
+          id: `video_${Date.now()}`,
+          downloadUrl: videoUrl,
+          duration: videoDuration,  // NEW: Include duration in preview
+          metadata: {
+            duration: videoDuration,  // NEW: Include duration in metadata
+            model: data.model || content.model,
+            ratio: data.ratio || content.ratio,
+            videoMode: data.video_mode || content.videoMode
+          }
+        };
+          
+        // FIXED: Clear file inputs after successful generation
+        setFileKey(Date.now().toString());
       }
       else if (type === 'image') {
         if (!contentType.includes('application/json')) {
@@ -1238,19 +1325,6 @@ const handleGeneration = async (content) => {
       debug.stage = 'complete';
       debug.success = true;
 
-      // 🚨 NEW: Enhanced success messages for different models
-      if (type === 'video') {
-        const modelUsed = result.model || content.model || 'gen3a_turbo';
-        const hasAudio = modelUsed === 'veo3';
-        const duration = content.duration || 10;
-        
-        if (hasAudio) {
-          toast.success(`${duration}s video with native audio generated successfully using Veo3! 🎵`);
-        } else {
-          toast.success(`${duration}s video generated successfully using ${modelUsed}!`);
-        }
-      }
-
       return {
         success: true,
         data: result,
@@ -1314,8 +1388,7 @@ const handleGeneration = async (content) => {
         break;
       case 'video':
         const duration = content.duration || 10;
-        const modelUsed = content.model || 'gen3a_turbo'; // 🚨 NEW: Include model in error message
-        toast.error(`${duration}s video generation failed using ${modelUsed}: ${userMessage}`);
+        toast.error(`${duration}s video generation failed: ${userMessage}`);  // NEW: Show duration in error message
         break; 
       case 'tts':
         toast.error(`Voice generation failed: ${userMessage}`);
