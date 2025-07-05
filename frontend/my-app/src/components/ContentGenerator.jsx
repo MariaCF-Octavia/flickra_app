@@ -1,4 +1,4 @@
- import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo, FiMusic, FiStar} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -145,14 +145,18 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     // NEW: Video polling effect
     useEffect(() => {
         console.log("🔍 POLLING useEffect triggered:", { videoJobId, type });
+        console.log("🔍 CURRENT PROPS:", { type: type, isGenerating });
         
         if (!videoJobId || type !== 'video') {
             console.log("🔍 POLLING useEffect exiting early:", { 
                 hasVideoJobId: !!videoJobId, 
-                isVideoType: type === 'video' 
+                isVideoType: type === 'video',
+                actualType: type
             });
             return;
         }
+        
+        console.log("🔍 STARTING POLLING for job:", videoJobId);
 
         let isMounted = true;
         let attempts = 0;
