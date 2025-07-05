@@ -1072,7 +1072,7 @@ const handleGeneration = async (content) => {
           console.log('Video generation started with job_id:', data.job_id || data.task_id);
           
           // Don't set any video URL or preview - let ContentGenerator handle the polling
-          result.job_id = data.job_id || data.task_id;
+          result.job_id = data.task_id || data.job_id;
           result.status = 'processing';
           
           // Clear file inputs after successful job creation
