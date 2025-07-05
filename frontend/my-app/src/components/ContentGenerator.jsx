@@ -144,29 +144,18 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
     // NEW: Video polling effect
     useEffect(() => {
-        console.log("🔍 POLLING useEffect triggered:", { 
-            videoJobId: videoJobId, 
-            type: type,
-            videoJobIdValue: videoJobId,
-            typeValue: type
-        });
-        console.log("🔍 CURRENT PROPS:", { 
-            type: type, 
-            isGenerating: isGenerating,
-            actualTypeValue: JSON.stringify(type),
-            actualVideoJobId: JSON.stringify(videoJobId)
-        });
+        console.log("🔍 POLLING useEffect triggered - videoJobId:", videoJobId);
+        console.log("🔍 POLLING useEffect triggered - type:", type);
+        console.log("🔍 POLLING useEffect triggered - isGenerating:", isGenerating);
         
         if (!videoJobId || type !== 'video') {
-            console.log("🔍 POLLING useEffect exiting early:", { 
-                hasVideoJobId: !!videoJobId, 
-                isVideoType: type === 'video',
-                actualType: type,
-                videoJobIdIsNull: videoJobId === null,
-                videoJobIdIsUndefined: videoJobId === undefined,
-                typeCheck: `"${type}" !== "video"`,
-                strictTypeCheck: type !== 'video'
-            });
+            console.log("🔍 POLLING useEffect exiting early");
+            console.log("🔍 videoJobId is:", videoJobId);
+            console.log("🔍 type is:", type);
+            console.log("🔍 hasVideoJobId:", !!videoJobId);
+            console.log("🔍 isVideoType:", type === 'video');
+            console.log("🔍 videoJobId check:", !videoJobId);
+            console.log("🔍 type check:", type !== 'video');
             return;
         }
         
