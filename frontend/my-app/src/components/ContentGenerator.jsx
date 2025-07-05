@@ -147,20 +147,15 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const [consecutiveErrors, setConsecutiveErrors] = useState(0);
 
     // NEW: Video polling effect
-    useEffect(() => {
+      useEffect(() => {
         console.log("🔍 POLLING useEffect triggered - videoJobId:", videoJobId);
         console.log("🔍 POLLING useEffect triggered - effectiveType:", effectiveType);
         console.log("🔍 POLLING useEffect triggered - originalType:", type);
         console.log("🔍 POLLING useEffect triggered - isGenerating:", isGenerating);
         
-        if (!videoJobId || effectiveType !== 'video') {
-            console.log("🔍 POLLING useEffect exiting early");
-            console.log("🔍 videoJobId is:", videoJobId);
-            console.log("🔍 effectiveType is:", effectiveType);
-            console.log("🔍 hasVideoJobId:", !!videoJobId);
-            console.log("🔍 isVideoType:", effectiveType === 'video');
-            console.log("🔍 videoJobId check:", !videoJobId);
-            console.log("🔍 type check:", effectiveType !== 'video');
+        // FIX: Only check if videoJobId exists - ignore type changes from parent
+        if (!videoJobId) {
+            console.log("🔍 POLLING useEffect exiting early - no videoJobId");
             return;
         }
         
@@ -177,8 +172,8 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             try {
                 console.log(`Polling video status for job ${videoJobId}, attempt ${attempts + 1}`);
                 
-                // Use the status endpoint instead of onGenerate
-                const statusResponse = await fetch(`/video-status/${videoJobId}`, {
+                // Use the correct endpoint format based on your backend
+                const statusResponse = await fetch(`https://fastapi-app-production-ac48.up.railway.app/api/video-status/${videoJobId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -222,7 +217,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     setConsecutiveErrors(0);
                     setGenerationStatus('');
                     setVideoPollingAttempts(0);
-                    setLockedType(null); // NEW: Unlock type when video completes
+                    setLockedType(null); // Unlock type when video completes
                 } else if (result.status === 'failed') {
                     const errorMsg = result.error || 'Video generation failed';
                     console.error('Video generation failed:', errorMsg);
@@ -231,8 +226,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     setVideoJobId(null);
                     setGenerationStatus('');
                     setVideoPollingAttempts(0);
-                    setLockedType(null); // NEW: Unlock type on timeout
-                    setLockedType(null); // NEW: Unlock type on failure
+                    setLockedType(null); // Unlock type on failure
                 } else if (attempts >= 120) { // 10 minutes at 5-second intervals
                     console.error('Video generation timed out after 10 minutes');
                     setError('Video generation timed out. Please try again.');
@@ -240,6 +234,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     setVideoJobId(null);
                     setGenerationStatus('');
                     setVideoPollingAttempts(0);
+                    setLockedType(null); // Unlock type on timeout
                 } else {
                     // Continue polling
                     attempts++;
@@ -266,6 +261,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         setIsGenerating(false);
                         setVideoJobId(null);
                         setGenerationStatus('');
+                        setLockedType(null);
                         return;
                     }
                     
@@ -285,6 +281,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                         setIsGenerating(false);
                         setVideoJobId(null);
                         setGenerationStatus('');
+                        setLockedType(null);
                     }
                 }
             } finally {
@@ -300,7 +297,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             clearTimeout(pollInterval);
             setIsPolling(false);
         };
-            }, [videoJobId, effectiveType, selectedModel, consecutiveErrors]);
+    }, [videoJobId, selectedModel, consecutiveErrors]); 
 
     // Existing image polling effect (unchanged)
     useEffect(() => {
