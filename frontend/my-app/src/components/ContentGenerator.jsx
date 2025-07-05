@@ -24,6 +24,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     const [videoJobId, setVideoJobId] = useState(null);
     const [videoPollingAttempts, setVideoPollingAttempts] = useState(0);
     const [generationStatus, setGenerationStatus] = useState('');
+    
+    // NEW: Prevent type changes during video generation
+    const [lockedType, setLockedType] = useState(null);
+    const effectiveType = lockedType || type;
 
     // Video mode states
     const [videoMode, setVideoMode] = useState('single_image');
@@ -145,17 +149,18 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
     // NEW: Video polling effect
     useEffect(() => {
         console.log("🔍 POLLING useEffect triggered - videoJobId:", videoJobId);
-        console.log("🔍 POLLING useEffect triggered - type:", type);
+        console.log("🔍 POLLING useEffect triggered - effectiveType:", effectiveType);
+        console.log("🔍 POLLING useEffect triggered - originalType:", type);
         console.log("🔍 POLLING useEffect triggered - isGenerating:", isGenerating);
         
-        if (!videoJobId || type !== 'video') {
+        if (!videoJobId || effectiveType !== 'video') {
             console.log("🔍 POLLING useEffect exiting early");
             console.log("🔍 videoJobId is:", videoJobId);
-            console.log("🔍 type is:", type);
+            console.log("🔍 effectiveType is:", effectiveType);
             console.log("🔍 hasVideoJobId:", !!videoJobId);
-            console.log("🔍 isVideoType:", type === 'video');
+            console.log("🔍 isVideoType:", effectiveType === 'video');
             console.log("🔍 videoJobId check:", !videoJobId);
-            console.log("🔍 type check:", type !== 'video');
+            console.log("🔍 type check:", effectiveType !== 'video');
             return;
         }
         
@@ -217,6 +222,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     setConsecutiveErrors(0);
                     setGenerationStatus('');
                     setVideoPollingAttempts(0);
+                    setLockedType(null); // NEW: Unlock type when video completes
                 } else if (result.status === 'failed') {
                     const errorMsg = result.error || 'Video generation failed';
                     console.error('Video generation failed:', errorMsg);
@@ -225,6 +231,8 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     setVideoJobId(null);
                     setGenerationStatus('');
                     setVideoPollingAttempts(0);
+                    setLockedType(null); // NEW: Unlock type on timeout
+                    setLockedType(null); // NEW: Unlock type on failure
                 } else if (attempts >= 120) { // 10 minutes at 5-second intervals
                     console.error('Video generation timed out after 10 minutes');
                     setError('Video generation timed out. Please try again.');
@@ -292,7 +300,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             clearTimeout(pollInterval);
             setIsPolling(false);
         };
-    }, [videoJobId, type, selectedModel, consecutiveErrors]);
+            }, [videoJobId, effectiveType, selectedModel, consecutiveErrors]);
 
     // Existing image polling effect (unchanged)
     useEffect(() => {
@@ -608,8 +616,10 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
                     const jobId = response.data?.job_id || response.data?.task_id;
                     console.log("Video generation started with job_id:", jobId);
                     setVideoJobId(jobId);
+                    setLockedType('video'); // NEW: Lock the type to prevent parent changes
                     console.log("🔍 DEBUG: videoJobId set to:", jobId);
                     console.log("🔍 DEBUG: Current type:", type);
+                    console.log("🔍 DEBUG: Locked type to video");
                     console.log("🔍 DEBUG: Should trigger polling useEffect");
                     setGenerationStatus('Video generation started...');
                     // Don't reset form yet - wait for completion
