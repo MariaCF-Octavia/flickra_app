@@ -531,6 +531,11 @@ const handleGeneration = async (content) => {
         if (content.videoMode === 'keyframes' && content.lastFrameImage) {
           console.log('Using keyframes mode with two images');
           
+          // UPDATED: Block keyframes for veo2 model
+          if (content.model === 'veo2') {
+            throw new Error('Keyframes mode is not yet supported with Premium model. Please use single image mode or switch to Standard model.');
+          }
+          
           // Upload first frame image
           let firstFrameUrl = null;
           if (content.image) {
@@ -595,9 +600,9 @@ const handleGeneration = async (content) => {
             lastFrameImageUrl: lastFrameUrl,
             promptText: content.prompt?.trim() || '',
             videoMode: "keyframes",
-            model: "gen3a_turbo",
+            model: "gen3a_turbo", // Force gen3a_turbo for keyframes
             ratio: content.ratio || "1280:768",
-            duration: content.duration || 10  // NEW: Add duration parameter
+            duration: content.duration || 10
           });
           
           console.log('Keyframes video generation request:', {
@@ -606,7 +611,7 @@ const handleGeneration = async (content) => {
             firstFrameUrl,
             lastFrameUrl,
             model: "gen3a_turbo",
-            duration: content.duration || 10  // NEW: Log duration
+            duration: content.duration || 10
           });
         } 
         // Handle single image mode (existing logic)
@@ -645,24 +650,24 @@ const handleGeneration = async (content) => {
             throw new Error("Image is required for video generation");
           }
           
-          // Now send JSON request with image URL AND DURATION
+          // UPDATED: Now send JSON request with image URL AND DURATION
           body = JSON.stringify({
             promptImageUrl: imageUrl,
             promptText: content.prompt?.trim() || '',
             referenceImageUrl: content.referenceImageUrl || null,
-            videoMode: "single_image",
-            model: content.model || "gen4_turbo",
+            videoMode: "image_to_video", // UPDATED: Use correct mode name
+            model: content.model || "gen3a_turbo", // UPDATED: Support both veo2 and gen3a_turbo
             ratio: content.ratio || "1280:720",
-            duration: content.duration || 10  // NEW: Add duration parameter
+            duration: content.duration || 10
           });
           
           console.log('Video generation request:', {
             endpoint,
             promptText: content.prompt?.trim() || '',
             imageUrl,
-            model: content.model || "gen4_turbo",
+            model: content.model || "gen3a_turbo",
             ratio: content.ratio || "1280:720",
-            duration: content.duration || 10  // NEW: Log duration
+            duration: content.duration || 10
           });
         }
       } 
@@ -813,7 +818,7 @@ const handleGeneration = async (content) => {
       headers: { ...requestOptions.headers },
       bodyType: typeof body,
       bodyPreview: typeof body === 'string' ? body.substring(0, 100) + '...' : '[non-string body]',
-      duration: content.duration || 'not specified'  // NEW: Log duration
+      duration: content.duration || 'not specified'
     });
 
     debug.stage = 'fetch';
@@ -953,6 +958,8 @@ const handleGeneration = async (content) => {
           errorMessage = extractedMessage || 'You\'ve reached your generation limit. Upgrade to continue!';
         } else if (errorType === 'feature_locked') {
           errorMessage = extractedMessage || 'This feature is not available in trial. Upgrade to access all features.';
+        } else if (errorType === 'premium_feature_locked') {  // UPDATED: Handle premium feature locked
+          errorMessage = extractedMessage || 'Premium model is not available in trial. Upgrade to access advanced AI models!';
         } else if (errorType === 'video_generation_failed') {
           errorMessage = extractedMessage || 'Video generation failed. Please try again.';
         }
@@ -992,6 +999,8 @@ const handleGeneration = async (content) => {
             errorMessage = 'Please upload the last frame image for keyframes mode.';
           } else if (detailString.includes('Invalid last frame image URL')) {
             errorMessage = 'Invalid last frame image. Please try uploading again.';
+          } else if (detailString.includes('Keyframes mode is not yet supported with Premium model')) {  // UPDATED: Handle veo2 keyframes error
+            errorMessage = 'Keyframes mode is not yet supported with Premium model. Please use single image mode or switch to Standard model.';
           } else if (detailString.includes('rate limit') || detailString.includes('Rate limited')) {
             errorMessage = 'Rate limited by video service. Please wait 5-10 minutes before trying again.';
           } else if (detailString.includes('content') || detailString.includes('moderation')) {
@@ -1059,11 +1068,26 @@ const handleGeneration = async (content) => {
         const data = await response.json();
         Object.assign(result, data);
 
-        // FIXED: Use the permanent Supabase URL instead of temporary Runway URL
+        // UPDATED: Handle new async video response format
+        if (data.job_id) {
+          console.log(`✅ Video generation started with job_id: ${data.job_id}`);
+          console.log('🔄 Video will be processed asynchronously');
+          
+          // Return early for async processing - the ContentGenerator will handle polling
+          return {
+            success: true,
+            data: data,
+            preview: {},
+            contentType: type,
+            isAsync: true  // Flag to indicate async processing
+          };
+        }
+
+        // Legacy handling for immediate video URLs (if any)
         let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
         
         // Get duration from response data
-        const videoDuration = data.duration || content.duration || 10;  // NEW: Extract duration
+        const videoDuration = data.duration || content.duration || 10;
         
         // TEMPORARY FIX: If we get a CloudFront URL, convert it to Supabase URL
         if (videoUrl && videoUrl.includes('cloudfront.net')) {
@@ -1115,7 +1139,8 @@ const handleGeneration = async (content) => {
           video_url: data.video_url,
           permanent_url: data.permanent_url,
           task_id: data.task_id,
-          duration: videoDuration,  // NEW: Log duration
+          job_id: data.job_id,  // UPDATED: Also log job_id
+          duration: videoDuration,
           finalUrl: videoUrl,
           isCloudFront: videoUrl?.includes('cloudfront.net'),
           isSupabase: videoUrl?.includes('supabase.co')
@@ -1186,12 +1211,13 @@ const handleGeneration = async (content) => {
           url: videoUrl,
           id: `video_${Date.now()}`,
           downloadUrl: videoUrl,
-          duration: videoDuration,  // NEW: Include duration in preview
+          duration: videoDuration,
           metadata: {
-            duration: videoDuration,  // NEW: Include duration in metadata
+            duration: videoDuration,
             model: data.model || content.model,
             ratio: data.ratio || content.ratio,
-            videoMode: data.video_mode || content.videoMode
+            videoMode: data.video_mode || content.videoMode,
+            api_provider: data.api_provider  // UPDATED: Include api_provider from response
           }
         };
           
@@ -1388,7 +1414,8 @@ const handleGeneration = async (content) => {
         break;
       case 'video':
         const duration = content.duration || 10;
-        toast.error(`${duration}s video generation failed: ${userMessage}`);  // NEW: Show duration in error message
+        const modelType = content.model === 'veo2' ? 'Premium' : 'Standard';  // UPDATED: Show model type in error
+        toast.error(`${duration}s ${modelType} video generation failed: ${userMessage}`);
         break; 
       case 'tts':
         toast.error(`Voice generation failed: ${userMessage}`);
@@ -1416,7 +1443,6 @@ const handleGeneration = async (content) => {
     console.log(`Generation attempt completed at ${endTime} for type: ${content?.type || 'text'}`);
   }
 };
-  
   // Rest of your component code remains the same
     
 
