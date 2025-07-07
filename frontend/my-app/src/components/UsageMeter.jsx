@@ -1,20 +1,89 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { toast } from 'react-toastify';
-import { Sparkles, Clock, Zap, ArrowRight } from 'lucide-react';
+import { Sparkles, Clock, Zap, ArrowRight, Crown, Star, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Define all possible plans with their configurations
+// Updated plan configuration to match new pricing structure
 const PLAN_CONFIG = {
-  basic: { limit: 10, color: 'from-blue-500 to-blue-400' },
-  premium: { limit: 40, color: 'from-purple-500 to-purple-400' },
-  pro: { limit: 100, color: 'from-purple-600 to-pink-500' },
-  trial: { limit: 3, color: 'from-green-500 to-teal-400' },
-  trial_expired: { limit: 3, color: 'from-red-500 to-orange-400' },
-  enterprise: { limit: Infinity, color: 'from-blue-500 to-teal-500' }
+  // New pricing plans
+  free: { 
+    limit: 3, 
+    color: 'from-gray-500 to-gray-400',
+    name: 'Free',
+    price: 0,
+    icon: Sparkles
+  },
+  starter: { 
+    limit: 25, 
+    color: 'from-blue-500 to-blue-400',
+    name: 'Starter',
+    price: 49,
+    icon: Zap
+  },
+  professional: { 
+    limit: 50, 
+    color: 'from-purple-500 to-purple-400',
+    name: 'Professional',
+    price: 89,
+    icon: Star
+  },
+  business: { 
+    limit: 100, 
+    color: 'from-orange-500 to-orange-400',
+    name: 'Business',
+    price: 159,
+    icon: Building2
+  },
+  enterprise: { 
+    limit: Infinity, 
+    color: 'from-yellow-500 to-yellow-400',
+    name: 'Enterprise',
+    price: 249,
+    icon: Crown
+  },
+  
+  // Trial and legacy plans
+  trial: { 
+    limit: 3, 
+    color: 'from-green-500 to-teal-400',
+    name: 'Trial',
+    price: 0,
+    icon: Sparkles
+  },
+  trial_expired: { 
+    limit: 3, 
+    color: 'from-red-500 to-orange-400',
+    name: 'Trial Expired',
+    price: 0,
+    icon: Clock
+  },
+  
+  // Legacy plans (for backward compatibility)
+  basic: { 
+    limit: 25, 
+    color: 'from-blue-500 to-blue-400',
+    name: 'Basic (Legacy)',
+    price: 49,
+    icon: Zap
+  },
+  premium: { 
+    limit: 50, 
+    color: 'from-purple-500 to-purple-400',
+    name: 'Premium (Legacy)',
+    price: 89,
+    icon: Star
+  },
+  pro: { 
+    limit: Infinity, 
+    color: 'from-yellow-500 to-yellow-400',
+    name: 'Pro (Legacy)',
+    price: 249,
+    icon: Crown
+  }
 };
 
-const DEFAULT_PLAN = 'basic';
+const DEFAULT_PLAN = 'free';
 
 const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
   const [currentUsage, setCurrentUsage] = useState(0);
@@ -24,7 +93,9 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
   const [timeLeft, setTimeLeft] = useState(null);
 
   // Safely get plan configuration with fallback to default
-  const { limit, color } = PLAN_CONFIG[plan.toLowerCase()] || PLAN_CONFIG[DEFAULT_PLAN];
+  const planKey = plan.toLowerCase();
+  const planConfig = PLAN_CONFIG[planKey] || PLAN_CONFIG[DEFAULT_PLAN];
+  const { limit, color, name: planName, price, icon: PlanIcon } = planConfig;
 
   const fetchUsage = async () => {
     if (!userId) {
@@ -78,12 +149,15 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
           usageCount = usageData.current_usage;
         } else if (usageData.usage) {
           usageCount = usageData.usage;
+        } else if (usageData.user?.usage?.used) {
+          usageCount = usageData.user.usage.used;
         }
         setCurrentUsage(usageCount);
       }
       
-      // Check if limit reached
-      if (limit !== Infinity && currentUsage >= limit * (plan === 'pro' ? 0.95 : 1)) {
+      // Check if limit reached (with 95% threshold for pro/enterprise plans)
+      const threshold = ['enterprise', 'pro'].includes(planKey) ? 0.95 : 1;
+      if (limit !== Infinity && currentUsage >= limit * threshold) {
         onLimitReached?.();
       }
       
@@ -135,12 +209,24 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
   const usagePercentage = limit === Infinity ? 0 : Math.min((currentUsage / limit) * 100, 100);
   const isTrialUser = plan === 'trial' || userInfo?.user?.is_trial_user;
   const isTrialExpired = plan === 'trial_expired' || (isTrialUser && timeLeft === "Expired");
+  const remainingCredits = limit === Infinity ? 'unlimited' : Math.max(0, limit - currentUsage);
+
+  // Get next month date for reset display
+  const getNextResetDate = () => {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-pink-500/30">
+      <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-gray-600/30">
         <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-pink-400"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
         </div>
       </div>
     );
@@ -156,8 +242,23 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
         </div>
         
         <p className="text-sm text-red-200 mb-4">
-          Your 3-day trial has ended. Upgrade to continue creating amazing content!
+          Your 7-day trial has ended. Upgrade to continue creating amazing content!
         </p>
+        
+        <div className="space-y-2 mb-4 text-xs text-red-200">
+          <div className="flex justify-between">
+            <span>Starter (25 credits):</span>
+            <span className="font-medium">$49/month</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Professional (50 credits):</span>
+            <span className="font-medium">$89/month</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Enterprise (unlimited):</span>
+            <span className="font-medium">$249/month</span>
+          </div>
+        </div>
         
         <Link 
           to="/signup?mode=paid"
@@ -211,58 +312,114 @@ const UsageMeter = ({ userId, plan = DEFAULT_PLAN, onLimitReached }) => {
         </div>
         
         {creditsLeft <= 1 && (
-          <Link 
-            to="/signup?mode=paid"
-            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center"
-          >
-            <Zap className="w-4 h-4 mr-2" />
-            Upgrade for Unlimited
-          </Link>
+          <div className="space-y-2">
+            <div className="text-xs text-green-200 mb-2">
+              <strong>Upgrade options:</strong>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+              <div className="bg-green-500/10 p-2 rounded">
+                <div className="font-medium text-green-300">Starter</div>
+                <div className="text-green-200">25 credits - $49/mo</div>
+              </div>
+              <div className="bg-green-500/10 p-2 rounded">
+                <div className="font-medium text-green-300">Professional</div>
+                <div className="text-green-200">50 credits - $89/mo</div>
+              </div>
+            </div>
+            <Link 
+              to="/signup?mode=paid"
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Upgrade for More Credits
+            </Link>
+          </div>
         )}
       </div>
     );
   }
 
   // REGULAR USER STATE
+  const isNearLimit = limit !== Infinity && usagePercentage >= 80;
+  const isAtLimit = limit !== Infinity && currentUsage >= limit;
+
   return (
-    <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border border-pink-500/30">
-      <div className="flex items-center mb-3">
-        <Sparkles size={16} className="mr-2 text-pink-400" />
-        <span className="font-medium text-white">Content Credits</span>
+    <div className={`bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800 rounded-lg p-4 border ${
+      isAtLimit ? 'border-red-500/50' : isNearLimit ? 'border-yellow-500/50' : 'border-gray-600/30'
+    }`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <PlanIcon size={16} className="mr-2 text-purple-400" />
+          <span className="font-medium text-white">{planName} Plan</span>
+        </div>
+        {price > 0 && (
+          <div className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
+            ${price}/mo
+          </div>
+        )}
       </div>
       
       {limit === Infinity ? (
-        <p className="text-sm text-gray-300 mb-3">
-          Unlimited creations this month
-        </p>
+        <div>
+          <p className="text-sm text-gray-300 mb-3">
+            ✨ Unlimited creations this month
+          </p>
+          <div className="flex items-center text-xs text-gray-400">
+            <Sparkles className="w-3 h-3 mr-1" />
+            <span>Used: {currentUsage} creations</span>
+          </div>
+        </div>
       ) : (
-        <p className="text-sm text-gray-300 mb-3">
-          You've used {currentUsage}/{limit} creations this month
-        </p>
-      )}
-      
-      {limit !== Infinity && (
-        <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
-          <div 
-            className="bg-gradient-to-r from-pink-500 to-rose-500 h-2 rounded-full" 
-            style={{ width: `${usagePercentage}%` }}
-          ></div>
+        <div>
+          <p className="text-sm text-gray-300 mb-3">
+            You've used {currentUsage}/{limit} creations this month
+          </p>
+          
+          <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+            <div 
+              className={`bg-gradient-to-r ${
+                isAtLimit ? 'from-red-500 to-red-400' : 
+                isNearLimit ? 'from-yellow-500 to-orange-400' : 
+                color
+              } h-2 rounded-full transition-all duration-500`}
+              style={{ width: `${usagePercentage}%` }}
+            ></div>
+          </div>
+          
+          <div className="flex items-center justify-between text-xs mb-2">
+            <span className={`${isAtLimit ? 'text-red-300' : isNearLimit ? 'text-yellow-300' : 'text-gray-400'}`}>
+              {remainingCredits} credits remaining
+            </span>
+            <span className="text-gray-400">
+              Resets: {getNextResetDate()}
+            </span>
+          </div>
         </div>
       )}
       
-      <div className="text-xs text-gray-400">
-        Next reset: <span className="text-pink-300">June 1, 2025</span>
-      </div>
-      
-      {limit !== Infinity && currentUsage >= limit && (
-        <div className="mt-2 text-center">
-          <p className="text-sm text-red-400">Plan limit reached</p>
-          <button
-            onClick={() => window.location.href = '/upgrade'}
-            className="mt-1 px-3 py-1 text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded hover:opacity-90 transition-opacity"
+      {/* Upgrade prompts */}
+      {isAtLimit && (
+        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-sm text-red-400 mb-2 font-medium">Plan limit reached!</p>
+          <Link
+            to="/signup?mode=paid"
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-3 rounded text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center"
           >
+            <ArrowRight className="w-4 h-4 mr-2" />
             Upgrade Plan
-          </button>
+          </Link>
+        </div>
+      )}
+      
+      {isNearLimit && !isAtLimit && (
+        <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <p className="text-sm text-yellow-400 mb-2">⚠️ Running low on credits</p>
+          <Link
+            to="/signup?mode=paid"
+            className="text-xs text-yellow-300 hover:text-yellow-200 underline"
+          >
+            Consider upgrading →
+          </Link>
         </div>
       )}
     </div>

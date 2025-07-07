@@ -485,13 +485,19 @@ const handleGeneration = async (content) => {
     debug.sessionActive = !!session;
     debug.sessionExpiresAt = session.expires_at;
     
-    debug.stage = 'plan-check';
-    const planLimits = {
-      basic: 10,
-      premium: 40,
-      enterprise: Infinity,
-      trial: 3,
-    };
+   debug.stage = 'plan-check';
+const planLimits = {
+  free: 3,
+  trial: 3,
+  starter: 25,
+  professional: 50,
+  business: 100,
+  enterprise: Infinity,
+  // Legacy plan support
+  basic: 25,      // Map to starter
+  premium: 50,    // Map to professional
+  pro: Infinity   // Map to enterprise
+};
     
     console.log(`User plan check: plan=${userPlan}, used=${usage}, limit=${planLimits[userPlan] || 'unknown'}`);
     
@@ -1518,11 +1524,17 @@ const handleGeneration = async (content) => {
     }
     
     const planLimits = {
-        basic: 10,
-        premium: 40,
-        enterprise: Infinity,
-        trial: 3
-    };
+    free: 3,
+    trial: 3,
+    starter: 25,
+    professional: 50,
+    business: 100,
+    enterprise: Infinity,
+    // Legacy plan support
+    basic: 25,      // Map to starter
+    premium: 50,    // Map to professional
+    pro: Infinity   // Map to enterprise
+};
     
     const AssetThumbnail = ({ asset }) => {
         const isImage = asset.type === 'image';
