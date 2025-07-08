@@ -54,10 +54,6 @@ const UserDashboard = ({ debug = false }) => {
     }
   };
 
-
-
-
-
   useEffect(() => {
     let isMounted = true;
     
@@ -192,7 +188,15 @@ const UserDashboard = ({ debug = false }) => {
                 "basic"
             );
             
-            if (!["basic", "premium", "enterprise", "trial"].includes(plan)) {
+            // Updated valid plans to match new pricing structure
+            const validPlans = [
+                'free', 'trial', 'trial_expired',
+                'starter', 'professional', 'business', 'enterprise',
+                // Legacy plans for backward compatibility
+                'basic', 'premium', 'pro'
+            ];
+            
+            if (!validPlans.includes(plan)) {
                 console.warn(`Invalid subscription plan detected: ${plan}`);
                 throw new Error("Invalid subscription plan");
             }
