@@ -212,55 +212,69 @@ const HomeDashboard = () => {
     { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' }
   ];
 
-  const pricingTiers = [
-    {
-      name: "Basic",
-      price: "$99",
-      period: "per month",
-      features: [
-        "10 generations per month",
-        "Image, Video, Text & Voice AI",
-        "Standard quality output",
-        "Basic support",
-        "Core features access"
-      ],
-      cta: "Start Creating",
-      popular: false,
-      savings: "Everything you need to get started"
-    },
-    {
-      name: "Premium",
-      price: "$179",
-      period: "per month",
-      features: [
-        "40 generations per month",
-        "Advanced editing tools",
-        "4K upscale (coming soon)",
-        "Social media analytics (coming soon)",
-        "Priority support",
-        "All AI features"
-      ],
-      cta: "Go Premium",
-      popular: true,
-      savings: "Perfect for growing businesses"
-    },
-    {
-      name: "Enterprise",
-      price: "$299",
-      period: "per month",
-      features: [
-        "Unlimited generations",
-        "Team access (coming soon)",
-        "White labeling (coming soon)",
-        "Advanced analytics",
-        "Dedicated support",
-        "API access"
-      ],
-      cta: "Contact Sales",
-      popular: false,
-      savings: "For agencies and large teams"
-    }
-  ];
+ const pricingTiers = [
+  {
+    name: "Starter",
+    price: "$49",
+    period: "/month",
+    features: [
+      "25 generations/month",
+      "Basic templates",
+      "Standard quality",
+      "Email support"
+    ],
+    cta: "Choose Starter",
+    popular: false,
+    savings: "Everything you need to get started"
+  },
+  {
+    name: "Professional",
+    price: "$89",
+    period: "/month",
+    features: [
+      "50 generations/month",
+      "Premium templates",
+      "HD quality",
+      "Priority support",
+      "Advanced editing"
+    ],
+    cta: "Choose Professional",
+    popular: true,
+    savings: "Perfect for growing businesses"
+  },
+  {
+    name: "Business",
+    price: "$159",
+    period: "/month",
+    features: [
+      "100 generations/month",
+      "All templates",
+      "4K quality",
+      "24/7 support",
+      "Team collaboration",
+      "API access"
+    ],
+    cta: "Choose Business",
+    popular: false,
+    savings: "For agencies and large teams"
+  },
+  {
+    name: "Enterprise",
+    price: "$249",
+    period: "/month",
+    features: [
+      "Unlimited generations",
+      "Custom templates",
+      "8K quality",
+      "Dedicated support",
+      "White-label option",
+      "Custom integrations"
+    ],
+    cta: "Choose Enterprise",
+    popular: false,
+    savings: "For enterprise-level needs"
+  }
+];
 
   // Success metrics to build trust
   const successMetrics = [
