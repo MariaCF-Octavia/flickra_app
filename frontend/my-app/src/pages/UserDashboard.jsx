@@ -1581,214 +1581,208 @@ const planLimits = {
 
 // Add these states with your other useState declarations in UserDashboard main component
 
-
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
-  
   const navigate = useNavigate();
-  const handleProfileClick = () => {
-    navigate('/profile');
-  };
 
-  const handleSettingsClick = () => {
-    navigate('/settings');
-  };
-
-  const navItems = [
+  const navSections = [
     {
-      title: "MARKETING HUB",
+      title: "Create",
       items: [
-        { id: 'generators', label: 'Ad Creator Suite', icon: <Layout size={16} />, available: true },
-        { id: 'ffmpeg', label: 'Production Studio', icon: <Book size={16} />, available: ['premium', 'enterprise'].includes(userPlan) },
+        { id: 'generators', label: 'Studio', icon: '✨', description: 'AI creative tools' },
+        { id: 'editor', label: 'Editor', icon: '🎨', description: 'Advanced editing', premium: true },
+        { id: 'ffmpeg', label: 'Production', icon: '🎬', description: 'Video & audio tools', premium: true },
       ]
     },
     {
-      title: "ASSET MANAGEMENT",
+      title: "Manage", 
       items: [
-        { id: 'library', label: 'Media Library', icon: <FiFolder size={16} />, available: true },
-        { id: 'editor', label: 'Creative Studio', icon: <FiEdit size={16} />, available: ['premium', 'enterprise'].includes(userPlan) },
-      ]
-    },
-    {
-      title: "ANALYTICS",
-      items: [
-        { id: 'analytics', label: 'Campaign Insights', icon: <FiBarChart2 size={16} />, available: ['premium', 'enterprise'].includes(userPlan) },
-        { id: 'performance', label: 'ROI Dashboard', icon: <FiTrendingUp size={16} />, available: userPlan === 'enterprise' },
-      ]
-    },
-    {
-      title: "ACCOUNT",
-      items: [
-        { id: 'settings', label: 'Settings', icon: <Settings size={16} />, available: true },
-        { id: 'profile', label: 'Profile', icon: <User size={16} />, available: true },
-        { id: 'logout', label: 'Logout', icon: <LogOut size={16} />, action: handleLogout, available: true },
+        { id: 'library', label: 'Assets', icon: '📁', description: 'Your creations' },
+        { id: 'analytics', label: 'Insights', icon: '📊', description: 'Performance data', premium: true },
       ]
     }
   ];
 
   return (
     <>
-      {/* REMOVED DUPLICATE MOBILE BUTTON - Using parent component's button instead */}
-      
       {/* Sidebar */}
-      <div className={`w-64 border-r p-5 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
-        sidebarOpen ? 'left-0' : '-left-64 lg:left-0'
-      } bg-gray-900 border-gray-800 top-0`}>
-        <div className="mb-8">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-transparent bg-clip-text">CF Studio</span>
-          </h2>
-          <div className={`text-xs font-medium mt-2 px-2 py-1 rounded-full inline-block ${
-            userPlan === 'enterprise' ? 'bg-gradient-to-r from-blue-500/20 to-teal-500/20 text-blue-300 border border-blue-500/30' :
-            userPlan === 'premium' ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-300 border border-pink-500/30' :
-            'bg-gray-800 text-gray-300 border border-gray-700'
+      <div className={`w-80 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
+        sidebarOpen ? 'left-0' : '-left-80 lg:left-0'
+      } bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 top-0`}>
+        
+        {/* Header */}
+        <div className="p-8 border-b border-slate-700/50">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">CF</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">CF Studio</h2>
+              <p className="text-slate-400 text-sm">Creative AI Platform</p>
+            </div>
+          </div>
+          
+          {/* Plan Badge */}
+          <div className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold ${
+            userPlan === 'enterprise' 
+              ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30' 
+              : userPlan === 'premium'
+              ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30'
+              : 'bg-slate-700/50 text-slate-300 border border-slate-600/50'
           }`}>
+            <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
             {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} Plan
           </div>
         </div>
-    
-        <nav className="space-y-6 mt-6">
-          {navItems.map((section) => (
+
+        {/* Navigation */}
+        <nav className="flex-1 p-6 space-y-8">
+          {navSections.map((section) => (
             <div key={section.title}>
-              <h3 className="text-xs font-semibold uppercase mb-3 tracking-wider text-gray-500">
+              <h3 className="text-xs font-bold uppercase mb-4 tracking-wider text-slate-500">
                 {section.title}
               </h3>
-              <div className="space-y-1.5">
-                {section.items.map((item) => (
-                  item.available && (
+              <div className="space-y-2">
+                {section.items.map((item) => {
+                  const isActive = activeTab === item.id;
+                  const isAvailable = !item.premium || ['premium', 'enterprise'].includes(userPlan);
+                  
+                  return (
                     <button
                       key={item.id}
                       onClick={() => {
-                        if (item.action) {
-                          item.action();
-                        } else if (item.id === 'profile') {
-                          handleProfileClick();
+                        if (item.id === 'profile') {
+                          navigate('/profile');
                         } else if (item.id === 'settings') {
-                          handleSettingsClick();
+                          navigate('/settings');
                         } else {
                           setActiveTab(item.id);
                         }
                         setSidebarOpen(false);
                       }}
-                      className={`flex items-center w-full py-2 px-3 rounded-md font-medium transition-colors text-sm ${
-                        activeTab === item.id ? 
-                          'bg-gradient-to-r from-pink-600 to-rose-600 text-white' : 
-                          'hover:bg-gray-800 text-gray-300'
+                      disabled={!isAvailable}
+                      className={`w-full group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30' 
+                          : isAvailable
+                          ? 'hover:bg-slate-700/50 border border-transparent hover:border-slate-600/50'
+                          : 'opacity-50 cursor-not-allowed border border-transparent'
                       }`}
                     >
-                      <span className="mr-2">{item.icon}</span>
-                      <span>{item.label}</span>
-                      {item.id === 'editor' && (
-                        <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-blue-900 text-blue-200">
-                          New
-                        </span>
+                      {isActive && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl"></div>
                       )}
+                      
+                      <div className="relative flex items-start space-x-3">
+                        <div className={`flex-shrink-0 text-2xl transition-transform group-hover:scale-110 ${
+                          isActive ? 'scale-110' : ''
+                        }`}>
+                          {item.icon}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="flex items-center justify-between">
+                            <h4 className={`font-semibold ${
+                              isActive ? 'text-white' : 'text-slate-200 group-hover:text-white'
+                            }`}>
+                              {item.label}
+                            </h4>
+                            {item.premium && !['premium', 'enterprise'].includes(userPlan) && (
+                              <div className="text-xs px-2 py-1 bg-slate-600/50 text-slate-400 rounded-md">
+                                Pro
+                              </div>
+                            )}
+                          </div>
+                          <p className={`text-sm mt-1 ${
+                            isActive ? 'text-purple-200' : 'text-slate-400 group-hover:text-slate-300'
+                          }`}>
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
                     </button>
-                  )
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
         </nav>
-    
-        {/* Enhanced Content Credits Section - More Stylish */}
-        <div className="mt-auto pt-6">
-          <div className="rounded-xl p-4 border relative overflow-hidden bg-gradient-to-br from-gray-800/90 via-gray-800 to-gray-900 border-gray-700/80 shadow-xl backdrop-blur-sm">
-            {/* Subtle background pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-pink-500/20 via-transparent to-rose-500/20"></div>
-              <div className="absolute top-2 right-2 w-20 h-20 rounded-full bg-gradient-to-br from-pink-500/10 to-transparent blur-xl"></div>
-            </div>
+
+        {/* Usage Display */}
+        <div className="p-6 border-t border-slate-700/50">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-700 p-6 border border-slate-600/30">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl"></div>
             
-            <div className="relative z-10">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 flex items-center justify-center mr-3 shadow-lg shadow-pink-500/25">
-                  {userPlan === 'enterprise' ? (
-                    <Zap size={16} className="text-white" />
-                  ) : (
-                    <Sparkles size={16} className="text-white" />
-                  )}
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  {userPlan === 'enterprise' ? '∞' : '⚡'}
                 </div>
                 <div>
-                  <span className="font-bold text-pink-300 text-sm tracking-wide">Content Credits</span>
-                  <div className="text-xs text-gray-400 font-medium">
-                    {userPlan === 'enterprise' ? (
-                      <span className="flex items-center gap-1">
-                        <Star size={10} className="text-yellow-400" />
-                        Unlimited Access
-                      </span>
-                    ) : (
-                      'Monthly Allocation'
-                    )}
-                  </div>
+                  <h4 className="font-bold text-white">Creative Credits</h4>
+                  <p className="text-slate-400 text-sm">
+                    {userPlan === 'enterprise' ? 'Unlimited access' : 'Monthly allocation'}
+                  </p>
                 </div>
               </div>
-              
+
               {userPlan === 'enterprise' ? (
-                // Enterprise Plan - Show unlimited with FULL bar (NEW BEHAVIOR)
-                <>
-                  <p className="text-sm text-pink-200/90 mb-4 font-semibold">
-                    <span className="text-yellow-400">∞</span> Unlimited generations • <span className="text-white">{usage}</span> created this month
-                  </p>
-                  
-                  {/* ALWAYS FULL progress bar for enterprise */}
-                  <div className="w-full rounded-full h-4 mb-4 bg-gray-700/60 overflow-hidden shadow-inner relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-700/40 to-gray-600/40"></div>
-                    <div 
-                      className="bg-gradient-to-r from-pink-500 via-rose-500 via-pink-600 to-rose-600 h-4 rounded-full shadow-lg relative z-10"
-                      style={{ width: '100%' }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent rounded-full"></div>
-                      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full"></div>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-300 font-semibold">Unlimited</span>
+                    <span className="text-slate-300 text-sm">{usage} created</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-pink-300/90 flex items-center gap-1.5 font-medium">
-                      <span className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400 animate-pulse shadow-sm"></span>
-                      Unlimited Access
-                    </span>
-                    <span className="text-gray-300 bg-gradient-to-r from-gray-800/60 to-gray-700/60 px-2.5 py-1 rounded-full border border-gray-600/50 font-medium">
-                      {usage} used
-                    </span>
+                  <div className="w-full h-3 bg-slate-600/50 rounded-full overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
                   </div>
-                </>
+                </div>
               ) : (
-                // Basic/Premium Plans - Show normal usage (EXISTING BEHAVIOR)
-                <>
-                  <p className="text-sm text-pink-200/90 mb-4 font-semibold">
-                    <span className="text-white">{usage}</span>/<span className="text-pink-300">{planLimits[userPlan]}</span> creations this month
-                  </p>
-                  
-                  {/* Progressive filling for non-enterprise plans */}
-                  <div className="w-full rounded-full h-4 mb-4 bg-gray-700/60 overflow-hidden shadow-inner relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-700/40 to-gray-600/40"></div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-semibold">{usage}/{planLimits[userPlan]}</span>
+                    <span className="text-slate-300 text-sm">{planLimits[userPlan] - usage} left</span>
+                  </div>
+                  <div className="w-full h-3 bg-slate-600/50 rounded-full overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 h-4 rounded-full transition-all duration-1000 ease-out shadow-lg relative z-10"
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(100, (usage / planLimits[userPlan]) * 100)}%` }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent rounded-full"></div>
-                    </div>
+                    ></div>
                   </div>
-                  
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-300 bg-gradient-to-r from-gray-800/60 to-gray-700/60 px-2.5 py-1 rounded-full border border-gray-600/50 font-medium">
-                      {planLimits[userPlan] - usage} remaining
-                    </span>
-                    <span className="text-pink-300/90 font-medium">
-                      {Math.round((usage / planLimits[userPlan]) * 100)}% used
-                    </span>
-                  </div>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
+
+        {/* Account Actions */}
+        <div className="p-6 border-t border-slate-700/50 space-y-2">
+          <button 
+            onClick={() => navigate('/settings')}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+          >
+            <Settings size={20} />
+            <span>Settings</span>
+          </button>
+          <button 
+            onClick={() => navigate('/profile')}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+          >
+            <User size={20} />
+            <span>Profile</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -1797,215 +1791,173 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
 };
 
 const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   const typeConfig = {
     text: {
-      icon: <FiFileText className="w-5 h-5" />,
       title: 'AI Copywriter',
-      subtitle: 'Professional ad copy that converts',
-      description: 'Generate compelling headlines, product descriptions, and marketing copy that drives sales',
-      examples: [
-        'Discover the secret to radiant skin - Beauty brand headline',
-        'Transform your morning routine in 30 seconds - Product description',
-        'Join 50k+ customers who love our organic formula - Social proof copy'
-      ],
-      beforeAfter: {
-        before: "Basic product description",
-        after: "Compelling marketing copy with emotional triggers"
-      },
-      workflow: "1. Describe your product → 2. Get professional copy → 3. Use across all platforms",
-      tips: "Best for: Headlines, product descriptions, social media captions, email subject lines",
-      available: true,
-      badge: null,
-      gradient: 'from-pink-500 to-rose-500',
-      buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950',
-      color: 'pink'
+      subtitle: 'Write ads that sell',
+      description: 'Generate compelling headlines, product descriptions, and marketing copy that converts customers',
+      icon: '✍️',
+      gradient: 'from-purple-500 to-pink-500',
+      glowColor: 'purple',
+      preview: {
+        before: 'Basic product description',
+        after: 'Compelling marketing copy with emotional triggers'
+      }
     },
     image: {
-      icon: <FiImage className="w-5 h-5" />,
-      title: 'Product Transformer',
-      subtitle: 'Turn simple photos into stunning ads',
-      description: 'Transform basic product photos into professional marketing visuals with perfect backgrounds and styling',
-      examples: [
-        'Product on bathroom tiles → Luxury spa advertisement',
-        'Phone on desk → Premium lifestyle magazine shot',
-        'Skincare tube → High-end beauty campaign visual'
-      ],
-      beforeAfter: {
-        before: "Simple product photo",
-        after: "Professional marketing visual with perfect styling"
-      },
-      workflow: "1. Upload product photo → 2. Add style reference → 3. Describe scene and @ both images with a describtion  → 4. Get professional results",
-      tips: "Pro tip: Add a 'style reference' image to match any aesthetic you want",
-      available: true,
-      badge: "Most Popular",
-      gradient: 'from-pink-500 to-rose-500',
-      buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950',
-      color: 'pink'
+      title: 'Photo Enhancer',
+      subtitle: 'Professional product photography',
+      description: 'Transform basic product photos into stunning marketing visuals with perfect backgrounds',
+      icon: '📸',
+      gradient: 'from-blue-500 to-cyan-500',
+      glowColor: 'blue',
+      preview: {
+        before: 'Simple product photo',
+        after: 'Professional marketing visual'
+      }
     },
     video: {
-      icon: <FiVideo className="w-5 h-5" />,
-      title: 'Video Ad Creator',
-      subtitle: 'Static photos → Dynamic video ads',
-      description: 'Create engaging video content from your product images - perfect for social media, ads, and websites',
-      examples: [
-        'Product photo → Instagram Story with smooth motion',
-        'Two images → Smooth transition showing before/after',
-        'Single image → 10-second promotional video with AI animation'
-      ],
-      beforeAfter: {
-        before: "Static product image",
-        after: "Engaging video ad ready for any platform"
-      },
-      workflow: "1. Upload image(s) → 2. Choose duration (5s/10s) → 3. Describe motion → 4. Get video ad",
-      tips: "Perfect for: Instagram Stories, Facebook ads, YouTube shorts, website headers",
-      available: true,
-      badge: userPlan === 'premium' ? 'Premium' : null,
-      gradient: 'from-pink-500 to-rose-500',
-      buttonGradient: 'from-pink-600 to-rose-600', 
-      iconBg: 'bg-pink-950',
-      color: 'pink'
+      title: 'Video Creator',
+      subtitle: 'Bring products to life',
+      description: 'Create engaging video commercials from your product images - perfect for social media and ads',
+      icon: '🎬',
+      gradient: 'from-emerald-500 to-teal-500',
+      glowColor: 'emerald',
+      preview: {
+        before: 'Static product image',
+        after: 'Dynamic 10-second commercial'
+      }
     },
     tts: {
-      icon: <FiMic className="w-5 h-5" />,
-      title: 'Voice Generator',
-      subtitle: 'Professional narration in seconds',
+      title: 'Voice Studio',
+      subtitle: 'Professional narration',
       description: 'Add premium voiceovers to your videos with natural-sounding AI voices in multiple languages',
-      examples: [
-        'Introducing our breakthrough formula... - Product explainer',
-        'Trusted by over 10,000 businesses... - Authority narrator',
-        'Here\'s what our customers are saying... - Testimonial voice'
-      ],
-      beforeAfter: {
-        before: "Silent video or text script",
-        after: "Professional narration ready for your content"
-      },
-      workflow: "1. Write your script → 2. Choose voice style → 3. Generate audio → 4. Download or use",
-      tips: "Great for: Video narration, audio ads, explainer videos, podcast intros",
-      available: true,
-      badge: 'New',
-      gradient: 'from-pink-500 to-rose-500',
-      buttonGradient: 'from-pink-600 to-rose-600',
-      iconBg: 'bg-pink-950',
-      color: 'pink'
+      icon: '🎙️',
+      gradient: 'from-orange-500 to-red-500',
+      glowColor: 'orange',
+      preview: {
+        before: 'Silent video or text script',
+        after: 'Professional narration ready'
+      }
     }
   };
 
   const config = typeConfig[type];
-  
+
   return (
-    <div className="rounded-xl border overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col bg-gray-800 border-gray-700 hover:border-gray-600">
-      {/* Enhanced top accent with consistent pink gradient */}
-      <div className={`h-1.5 bg-gradient-to-r ${config.gradient} relative`}>
-        <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20"></div>
-      </div>
-      
-      <div className="p-6 flex-1 flex flex-col">
-        {/* Enhanced header with better layout */}
-        <div className="flex items-start justify-between mb-5">
-          <div className="flex items-center flex-1">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${config.iconBg} shadow-lg relative overflow-hidden`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-transparent"></div>
-              <div className="relative z-10 text-pink-400">{config.icon}</div>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-white">{config.title}</h3>
-                {config.badge && (
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 font-semibold">
-                    {config.badge}
-                  </span>
-                )}
+    <div className="group relative">
+      {/* Main Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 hover:border-slate-600/50 transition-all duration-500 hover:scale-[1.02]">
+        {/* Glow Effect */}
+        <div className={`absolute -inset-0.5 bg-gradient-to-r ${config.gradient} rounded-3xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+        
+        {/* Content */}
+        <div className="relative bg-slate-800/90 rounded-3xl p-8">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${config.gradient} flex items-center justify-center text-2xl shadow-lg`}>
+                {config.icon}
               </div>
-              <p className="text-sm text-gray-400 font-medium">{config.subtitle}</p>
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-1">{config.title}</h3>
+                <p className="text-slate-400 text-lg">{config.subtitle}</p>
+              </div>
+            </div>
+            
+            {/* Credits Display */}
+            <div className="text-right">
+              <div className={`inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r ${config.gradient} bg-opacity-20 border border-slate-500/30`}>
+                <span className="text-white font-semibold">
+                  {userPlan === 'enterprise' ? '∞' : remaining}
+                </span>
+                <span className="text-slate-300 ml-1 text-sm">
+                  {userPlan === 'enterprise' ? '' : 'left'}
+                </span>
+              </div>
             </div>
           </div>
-          
-          {/* Enhanced credits display */}
-          <div className="flex flex-col items-end">
-            <span className="text-xs px-3 py-1.5 rounded-full bg-gray-700 text-pink-400 border border-pink-500/30 font-semibold">
-              {userPlan === 'enterprise' ? '∞' : remaining} credits
-            </span>
-          </div>
-        </div>
-        
-        {/* Enhanced description */}
-        <p className="text-sm mb-5 text-gray-300 leading-relaxed">{config.description}</p>
-        
-        {/* Before/After Section with consistent styling */}
-        <div className="mb-5 p-4 rounded-lg bg-gray-700/50 border border-gray-600/50">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400"></div>
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Transformation</span>
-          </div>
-          <div className="grid grid-cols-1 gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-red-400 font-medium">Before:</span>
-              <span className="text-gray-400">{config.beforeAfter.before}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400 font-medium">After:</span>
-              <span className="text-gray-300">{config.beforeAfter.after}</span>
+
+          {/* Description */}
+          <p className="text-slate-300 text-lg leading-relaxed mb-8">{config.description}</p>
+
+          {/* Before/After Preview */}
+          <div className="mb-8 p-6 rounded-2xl bg-slate-700/30 border border-slate-600/30">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                  <span className="text-red-300 font-semibold text-sm uppercase tracking-wide">Before</span>
+                </div>
+                <p className="text-slate-400">{config.preview.before}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span className="text-green-300 font-semibold text-sm uppercase tracking-wide">After</span>
+                </div>
+                <p className="text-white">{config.preview.after}</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Enhanced examples with clean styling - NO EMOJIS */}
-        <div className="mb-5 flex-1">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Examples</span>
-            <div className="w-1 h-1 rounded-full bg-pink-400"></div>
+
+          {/* Action Button */}
+          <div className="space-y-4">
+            <ContentGenerator
+              type={type}
+              remaining={remaining}
+              onGenerate={onGenerate}
+              className="w-full"
+              darkMode={true}
+            />
+            
+            {/* Expand Details */}
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-full py-2 text-slate-400 hover:text-white transition-colors text-sm flex items-center justify-center"
+            >
+              {isExpanded ? 'Less details' : 'More details'}
+              <ChevronRight size={16} className={`ml-1 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+            </button>
           </div>
-          <div className="space-y-2.5">
-            {config.examples.map((example, i) => (
-              <div key={i} className="rounded-lg p-3 text-sm cursor-pointer transition-all duration-200 bg-gray-700/70 text-gray-200 hover:bg-gray-600/70 border border-gray-600/50 hover:border-gray-500/50 group/example">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-400 group-hover/example:text-gray-300 transition-colors text-xs mt-0.5 flex-shrink-0">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="group-hover/example:text-white transition-colors">{example}</span>
+
+          {/* Expanded Details */}
+          {isExpanded && (
+            <div className="mt-6 pt-6 border-t border-slate-600/30 space-y-4 animate-in slide-in-from-top-2 duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-slate-700/50">
+                  <h4 className="text-white font-semibold mb-2">Best For</h4>
+                  <p className="text-slate-300 text-sm">
+                    {type === 'image' && 'Product photos, lifestyle shots, brand imagery'}
+                    {type === 'video' && 'Social media ads, website headers, marketing campaigns'}
+                    {type === 'text' && 'Headlines, product descriptions, social captions'}
+                    {type === 'tts' && 'Video narration, audio ads, explainer videos'}
+                  </p>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-slate-700/50">
+                  <h4 className="text-white font-semibold mb-2">Output</h4>
+                  <p className="text-slate-300 text-sm">
+                    {type === 'image' && 'High-resolution images ready for any platform'}
+                    {type === 'video' && '5-10 second MP4 videos, mobile optimized'}
+                    {type === 'text' && 'Professional copy in multiple formats'}
+                    {type === 'tts' && 'High-quality MP3 audio files'}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
-        
-        {/* Workflow Section with consistent pink accents */}
-        <div className="mb-5 p-4 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-600/30">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-pink-400"></div>
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">How it works</span>
-          </div>
-          <p className="text-xs text-gray-400 leading-relaxed">{config.workflow}</p>
-        </div>
-        
-        {/* Tips Section with consistent pink theme */}
-        <div className="mb-6 p-3 rounded-lg bg-pink-500/10 border border-pink-500/20">
-          <p className="text-xs text-pink-300">{config.tips}</p>
-        </div>
-        
-        {/* Enhanced CTA button */}
-        {config.available ? (
-          <ContentGenerator
-            type={type}
-            remaining={remaining}
-            onGenerate={onGenerate}
-            className="w-full"
-            darkMode={true}
-          />
-        ) : (
-          <button className="w-full py-3 rounded-lg text-sm font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors border border-gray-600">
-            Upgrade to {type === 'video' ? 'Premium' : 'Enterprise'} Plan
-          </button>
-        )}
       </div>
     </div>
   );
 };
 
 return (
-  <div className="flex flex-col min-h-screen dark bg-[#121212]">
+  <div className="flex flex-col min-h-screen bg-slate-900">
     {/* Demo Video Modal */}
     <DemoVideo 
       isOpen={showDemoVideo}
@@ -2023,44 +1975,59 @@ return (
       />
     )}
 
-    {/* Header */}
-    <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm bg-gray-900/90 backdrop-blur-md border-gray-800">
-      <div className="flex items-center">
+    {/* Updated Header */}
+    <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10 bg-slate-900/80 backdrop-blur-xl border-slate-700/50">
+      <div className="flex items-center space-x-4">
         <button 
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden p-3 rounded-md mr-2 relative z-50 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white touch-manipulation"
-          style={{ 
-            minHeight: '44px', 
-            minWidth: '44px',
-            WebkitTapHighlightColor: 'transparent'
-          }}
-          type="button"
-          aria-label="Toggle menu"
+          className="lg:hidden p-3 rounded-xl bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 text-white transition-all duration-200"
+          style={{ minHeight: '44px', minWidth: '44px' }}
         >
-          {sidebarOpen ? (
-            <FiX className="w-5 h-5" />
-          ) : (
-            <FiMenu className="w-5 h-5" />
-          )}
+          {sidebarOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
         </button>
-        <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-transparent bg-clip-text font-bold text-lg mr-3">CF Studio</div>
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-          userPlan === 'enterprise' ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-300 border border-pink-500/30' :
-          userPlan === 'premium' ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-300 border border-pink-500/30' :
-          'bg-gray-800 text-gray-300 border border-gray-700'
-        }`}>
-          {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
-        </span>
+        
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+            <span className="text-white font-bold">CF</span>
+          </div>
+          <div>
+            <div className="font-bold text-lg text-white">CF Studio</div>
+            <div className="text-xs text-slate-400">Creative AI Platform</div>
+          </div>
+        </div>
       </div>
       
-      <div className="flex items-center space-x-3">
-        <button 
-          onClick={handleLogout}
-          className="px-3 py-1.5 rounded-md bg-gray-800 text-red-400 hover:bg-gray-700 transition-colors flex items-center text-sm font-medium"
-        >
-          <LogOut size={16} className="mr-1.5" />
-          <span>Logout</span>
-        </button>
+      <div className="flex items-center space-x-4">
+        {/* Plan Status */}
+        <div className={`hidden sm:flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+          userPlan === 'enterprise' 
+            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30'
+            : userPlan === 'premium'
+            ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30'
+            : 'bg-slate-700/50 text-slate-300 border border-slate-600/50'
+        }`}>
+          <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+          {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
+        </div>
+
+        {/* User Menu */}
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => navigate('/profile')}
+            className="p-2 rounded-xl bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white transition-colors"
+            title="Profile"
+          >
+            <User size={18} />
+          </button>
+          
+          <button 
+            onClick={handleLogout}
+            className="flex items-center px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
+          >
+            <LogOut size={16} className="mr-1.5" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -2077,152 +2044,72 @@ return (
       />
     
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-auto mt-16 lg:mt-0 bg-[#151515]">
-        {/* Enhanced Welcome Banner with consistent pink gradients */}
-        <div className="rounded-xl mb-8 shadow-2xl overflow-hidden bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 border border-gray-700 relative">
-          {/* Background pattern with pink theme */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 rounded-full filter blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-rose-500 via-pink-500 to-rose-600 rounded-full filter blur-3xl"></div>
-          </div>
-          
-          <div className="relative z-10 flex flex-col lg:flex-row">
-            <div className="lg:w-2/3 p-8">
-              <div className="flex items-center mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 flex items-center justify-center mr-4 shadow-xl">
-                  <Sparkles size={24} className="text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">
-                    Transform Ideas Into 
-                    <span className="bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 text-transparent bg-clip-text ml-2">
-                      Professional Ads
-                    </span>
-                  </h1>
-                  <p className="text-gray-400 text-sm font-medium">
-                    AI-powered marketing studio used by 1000+ businesses
-                  </p>
-                </div>
-              </div>
-              
-              <p className="text-lg mb-6 text-gray-300 leading-relaxed">
-                Upload any product photo and watch our AI create stunning advertisements, dynamic videos, 
-                and compelling copy in seconds. No design skills required.
-              </p>
-              
-              {/* Quick stats with pink accents */}
-              <div className="flex flex-wrap gap-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-pink-400"></div>
-                  <span className="text-sm text-gray-300">Create commercials</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-rose-400"></div>
-                  <span className="text-sm text-gray-300">Average 3x engagement</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                  <span className="text-sm text-gray-300">Ready in 30 seconds</span>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button 
-                  onClick={() => setShowDemoVideo(true)}
-                  className="bg-gradient-to-r from-pink-600 via-rose-600 to-pink-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:shadow-xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center group"
-                >
-                  <span>Watch 4-Minute Demo</span>
-                  <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
-                
-                <button 
-                  className="px-6 py-3 rounded-lg text-sm font-semibold bg-gray-700/50 text-white border border-gray-600 hover:bg-gray-600/50 transition-colors flex items-center justify-center"
-                >
-                  <HelpCircle size={16} className="mr-2" />
-                  How It Works
-                </button>
-              </div>
-            </div>
-            
-            {/* Before/After Preview with consistent pink theme */}
-            <div className="lg:w-1/3 bg-gradient-to-br from-pink-600/20 via-rose-600/20 to-pink-700/20 p-8 backdrop-blur-sm">
-              <div className="h-full flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-white flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400"></div>
-                    See The Magic
-                  </h3>
-                  <p className="text-sm text-gray-300 mb-4">
-                    Real transformations from basic product photos to professional ads
-                  </p>
-                  
-                  {/* Mini before/after preview */}
-                  <div className="space-y-3">
-                    <div className="bg-black/20 rounded-lg p-3 border border-gray-600/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
-                        <span className="text-xs text-gray-400 font-medium">BEFORE</span>
-                      </div>
-                      <p className="text-xs text-gray-300">Basic product on bathroom tiles</p>
-                    </div>
-                    
-                    <div className="flex justify-center">
-                      <div className="w-6 h-0.5 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full"></div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-3 border border-green-500/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                        <span className="text-xs text-green-300 font-medium">AFTER</span>
-                      </div>
-                      <p className="text-xs text-green-100">Luxury spa advertisement</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star className="w-4 h-4 text-pink-400" />
-                    <span className="text-sm font-semibold text-white">
-                      {userPlan === 'enterprise' ? 'Unlimited Access' : 
-                       userPlan === 'premium' ? 'Premium User' : 'Getting Started'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    {userPlan === 'enterprise' ? 'Create unlimited professional ads' :
-                     userPlan === 'premium' ? '40 generations per month' :
-                     '10 generations to start your journey'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Rest of the component remains exactly the same from here down */}
+      <main className="flex-1 overflow-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {/* Generators Tab */}
         {activeTab === 'generators' && (
-          <div className="space-y-6">
-            {/* Generators Grid - Now immediately visible */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold flex items-center text-white">
-                    Create Marketing Assets
-                    <span className="ml-2 text-xs bg-gradient-to-r from-pink-500/20 to-rose-500/20 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/30">
-                      {userPlan === 'premium' || userPlan === 'enterprise' ? 'Premium Access' : 'Standard Access'}
-                    </span>
-                  </h2>
-                  <div className="flex items-center">
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              {/* Hero Section */}
+              <div className="mb-12 text-center">
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
+                  What will you create today?
+                </h1>
+                <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+                  Transform your ideas into professional campaigns in minutes with our AI-powered creative studio
+                </p>
+                
+                {/* Quick Start Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-pink-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative z-10">
+                      <div className="text-4xl mb-4">🚀</div>
+                      <h3 className="text-xl font-bold mb-2">Launch Campaign</h3>
+                      <p className="text-purple-100">Product photo → Complete ad suite</p>
+                    </div>
+                  </div>
+                  
+                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-cyan-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative z-10">
+                      <div className="text-4xl mb-4">🎬</div>
+                      <h3 className="text-xl font-bold mb-2">Create Videos</h3>
+                      <p className="text-blue-100">Static images → Dynamic commercials</p>
+                    </div>
+                  </div>
+                  
+                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/80 to-teal-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative z-10">
+                      <div className="text-4xl mb-4">✨</div>
+                      <h3 className="text-xl font-bold mb-2">Enhance Photos</h3>
+                      <p className="text-emerald-100">Basic → Professional quality</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Creative Studio Grid */}
+              <div className="space-y-8">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-bold text-white">Creative Studio</h2>
+                  <div className="flex items-center space-x-4">
+                    <div className="px-4 py-2 bg-slate-800/50 backdrop-blur rounded-xl border border-slate-700/50">
+                      <span className="text-slate-400 text-sm">
+                        {userPlan === 'enterprise' ? 'Unlimited Access' : `${planLimits[userPlan] - usage} credits remaining`}
+                      </span>
+                    </div>
                     <button 
                       onClick={() => setShowDemoVideo(true)}
-                      className="flex items-center py-1.5 px-3 rounded-md text-xs bg-gray-700 text-white hover:bg-gray-600"
+                      className="flex items-center px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-colors"
                     >
-                      <Info size={12} className="mr-1.5" />
-                      Tutorial
+                      <Info size={16} className="mr-2" />
+                      Watch Tutorial
                     </button>
                   </div>
                 </div>
-                <div className="grid gap-5 md:grid-cols-2">
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <GeneratorCard 
                     type="image" 
                     remaining={planLimits[userPlan] - usage} 
@@ -2253,351 +2140,106 @@ return (
           </div>
         )}
 
+        {/* Creative Studio (Editor) */}
         {activeTab === 'editor' && (
-          <div className="rounded-lg border bg-gray-800/80 border-gray-700">
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Creative Studio</h2>
-                  <p className="text-sm mt-1 text-gray-400">
-                    Advanced image editing and transformation tools powered by Cloudinary
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Premium Feature</span>
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-gray-700">
-                <CloudinaryEditor 
-                  darkMode={true}
-                  userPlan={userPlan}
-                  onImageEdit={(editedImage) => {
-                    console.log('Image edited:', editedImage);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'ffmpeg' && (
-          <div className="rounded-lg border bg-gray-800/80 border-gray-700">
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Production Studio</h2>
-                  <p className="text-sm mt-1 text-gray-400">
-                    Professional video editing and audio merging tools powered by server-side processing
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/30">Server Processing</span>
-                </div>
-              </div>
-              <BackendFFmpeg darkMode={true} />
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'analytics' && (
-          <div className="rounded-lg border bg-gray-800/80 border-gray-700">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-700/50">
-                <Clock className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-white">
-                ROI Dashboard Coming Soon
-              </h3>
-              <p className="text-sm mb-5 max-w-md mx-auto text-gray-400">
-                Advanced ROI tracking and performance metrics are in development
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30">
-                  Enterprise Feature
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'library' && (
-          <div className="rounded-lg border bg-gray-800/80 border-gray-700">
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Media Library</h2>
-                  <p className="text-sm mt-1 text-gray-400">
-                    Browse and manage all your marketing assets
-                  </p>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="px-3 py-1.5 rounded-md flex items-center bg-gray-700">
-                    <select className="text-sm bg-transparent outline-none text-white">
-                      <option>All Assets</option>
-                      <option>Images</option>
-                      <option>Videos</option>
-                      <option>Audio</option>
-                      <option>Text</option>
-                    </select>
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-white mb-2">Creative Studio</h2>
+                      <p className="text-slate-400">Advanced image editing and transformation tools</p>
+                    </div>
+                    <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-xl border border-blue-500/30">
+                      Premium Feature
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => {
-                      const fileInput = document.createElement('input');
-                      fileInput.type = 'file';
-                      fileInput.multiple = true;
-                      fileInput.accept = 'image/*,video/*,audio/*';
-                      fileInput.onchange = (e) => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          toast.success(`${e.target.files.length} file(s) uploaded successfully`);
-                          console.log('Files selected:', e.target.files);
-                        }
-                      };
-                      fileInput.click();
+                  <CloudinaryEditor 
+                    darkMode={true}
+                    userPlan={userPlan}
+                    onImageEdit={(editedImage) => {
+                      console.log('Image edited:', editedImage);
                     }}
-                    className="flex items-center px-3 py-1.5 rounded-md text-sm bg-pink-600 text-white hover:bg-pink-700"
-                  >
-                    <Upload size={14} className="mr-1.5" />
-                    Import Assets
-                  </button>
+                  />
                 </div>
               </div>
-              
-              <div className="space-y-6">
-                {previews.text && (
-                  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="text-base font-medium text-white">Professional Ad Copy</h3>
-                        <p className="text-xs text-gray-400">
-                          Generated on {new Date().toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button 
-                          onClick={() => setActiveTab('editor')}
-                          className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                        >
-                          <FiEdit size={16} />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            const blob = new Blob([previews.text], { type: 'text/plain' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `content_${Date.now()}.txt`;
-                            document.body.appendChild(a);
-                            a.click();
-                            URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            toast.success('Text content downloaded successfully');
-                          }}
-                         className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                        >
-                          <FiDownload size={16} />
-                        </button>
-                      </div>
+            </div>
+          </div>
+        )}
+
+        {/* Production Studio (FFmpeg) */}
+        {activeTab === 'ffmpeg' && (
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-white mb-2">Production Studio</h2>
+                      <p className="text-slate-400">Professional video editing and audio merging tools</p>
                     </div>
-                    <div className="prose max-w-none prose-invert text-white">
-                      <ReactMarkdown>
-                        {previews.text}
-                      </ReactMarkdown>
+                    <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 rounded-xl border border-green-500/30">
+                      Server Processing
                     </div>
                   </div>
-                )}
-                
-                {previews.image && (
-  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
-      <div className="grid md:grid-cols-2 gap-6">
-          <div>
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="text-base font-medium text-white">Product Original</h3>
-                  <p className="text-xs text-gray-400">
-                    Source Image
-                  </p>
+                  <BackendFFmpeg darkMode={true} />
                 </div>
               </div>
-              <div className="rounded-lg overflow-hidden border border-gray-700 aspect-square">
-                <img 
-                  src={previews.sourceImage} 
-                  className="w-full h-full object-cover" 
-                  alt="Source content" 
-                />
-              </div>
+            </div>
           </div>
-          <div>
-              <div className="flex justify-between items-center mb-3">
-                <div>
-                  <h3 className="text-base font-medium text-white">Enhanced Marketing Asset</h3>
-                  <p className="text-xs text-gray-400">
-                    Professional Transformation
+        )}
+
+        {/* Analytics Section */}
+        {activeTab === 'analytics' && (
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+                <div className="p-16 text-center">
+                  <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 bg-slate-700/50">
+                    <Clock className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-white">
+                    ROI Dashboard Coming Soon
+                  </h3>
+                  <p className="text-lg mb-8 max-w-md mx-auto text-slate-400">
+                    Advanced ROI tracking and performance metrics are in development
                   </p>
-                </div>
-                <div className="flex gap-2">
-                  <a
-                    href={previews.image}
-                    download={`transformed_${Date.now()}.png`}
-                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                    title="Download"
-                  >
-                    <FiDownload size={16} />
-                  </a>
-                  <button
-                    onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
-                    className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                    title="Fullscreen"
-                  >
-                    <FiMaximize size={16} />
-                  </button>
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 text-sm font-medium rounded-xl border border-blue-500/30">
+                      Enterprise Feature
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="rounded-lg overflow-hidden border border-gray-700 aspect-square">
-                <img 
-                  src={previews.image} 
-                  className="w-full h-full object-cover" 
-                  alt="Generated content" 
-                />
-              </div>
-              {previews.metadata && (
-                <div className="mt-3 text-sm rounded-md p-3 bg-gray-700 text-gray-300">
-                  <div className="mb-1 font-medium">Generation Details</div>
-                  <p className="text-xs">Prompt: {previews.metadata.prompt}</p>
-                  <p className="text-xs">Seed: {previews.metadata.seed || 'random'}</p>
-                  <p className="text-xs">Transformation Strength: {previews.metadata.image_strength}</p>
-                </div>
-              )}
+            </div>
           </div>
-      </div>
-  </div>
-)}
-                
-                {previews.video && (
-                  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
-                    <div className="flex justify-between items-center mb-3">
-                      <div>
-                        <h3 className="text-base font-medium text-white">Professional Video Ad</h3>
-                        <p className="text-xs text-gray-400">
-                          Ready for all platforms
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="px-2 py-0.5 rounded-full text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30">Premium Quality</div>
-                        <a
-                          href={previews.video}
-                          download={`video_${Date.now()}.mp4`}
-                          className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                          title="Download"
-                        >
-                          <FiDownload size={16} />
-                        </a>
-                        <button
-                          onClick={() => setFullscreenPreview({ type: 'video', content: previews.video })}
-                          className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                          title="Fullscreen"
-                        >
-                          <FiMaximize size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="rounded-lg overflow-hidden border border-gray-700">
-                      <video
-                        controls
-                        className="w-full rounded-lg"
-                        playsInline
-                        webkit-playsinline="true"
-                        muted
-                        preload="metadata"
-                        crossOrigin="anonymous"
-                        onError={(e) => {
-                          console.error('Video load error:', e);
-                          console.log('Video URL that failed:', previews.video);
-                          console.log('User agent:', navigator.userAgent);
-                          console.log('Is mobile:', /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-                        }}
-                        onLoadStart={() => console.log('Video loading started:', previews.video)}
-                        onLoadedData={() => console.log('Video loaded successfully:', previews.video)}
-                        onCanPlay={() => console.log('Video can play')}
-                        onCanPlayThrough={() => console.log('Video can play through')}
-                      >
-                        <source src={previews.video} type="video/mp4" />
-                        <source src={previews.video.replace('.mp4', '.webm')} type="video/webm" />
-                        Your browser does not support the video tag.
-                      </video>
+        )}
+
+        {/* Media Library */}
+        {activeTab === 'library' && (
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+                <div className="p-8">
+                  {/* Header */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 space-y-4 lg:space-y-0">
+                    <div>
+                      <h2 className="text-3xl font-bold text-white mb-2">Media Library</h2>
+                      <p className="text-slate-400">Manage and organize all your creative assets</p>
                     </div>
                     
-                    <div className="mt-3 text-center">
-                      <p className="text-xs text-gray-400 mb-2">
-                        If video doesn't play above, try these options:
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                        <a
-                          href={previews.video}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-pink-400 hover:text-pink-300 text-sm underline"
-                        >
-                          Open in new tab
-                        </a>
-                        <a
-                          href={previews.video}
-                          download={`video_${Date.now()}.mp4`}
-                          className="text-blue-400 hover:text-blue-300 text-sm underline"
-                        >
-                          Download directly
-                        </a>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center bg-slate-700/50 rounded-xl p-1">
+                        <select className="bg-transparent text-white px-4 py-2 outline-none rounded-lg">
+                          <option>All Assets</option>
+                          <option>Images</option>
+                          <option>Videos</option>
+                          <option>Audio</option>
+                          <option>Text</option>
+                        </select>
                       </div>
-                    </div>
-                  </div>
-                )}
-
-                {previews.audio && (
-                  <div className="p-5 rounded-lg border bg-gray-800 border-gray-700">
-                    <div className="flex justify-between items-center mb-3">
-                      <div>
-                        <h3 className="text-base font-medium text-white">Professional Voiceover</h3>
-                        <p className="text-xs text-gray-400">
-                          Ready for video integration
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30">Professional Results</div>
-                        <a
-                          href={previews.audio}
-                          download={`audio_${Date.now()}.mp3`}
-                          className="p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600"
-                          title="Download"
-                        >
-                          <FiDownload size={16} />
-                        </a>
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-lg border border-gray-700 bg-gray-700">
-                      {previews.audioElement}
-                    </div>
-                  </div>
-                )}
-
-                {!previews.text && !previews.image && !previews.video && !previews.audio && (
-                  <div className="p-8 text-center rounded-lg border border-gray-700 bg-gray-800/40">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-700">
-                      <FiFolder className="w-8 h-8 text-gray-500" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2 text-white">
-                      Your media library is empty
-                    </h3>
-                    <p className="text-sm mb-5 max-w-md mx-auto text-gray-400">
-                      Create professional marketing assets with our AI tools or import your existing brand assets
-                    </p>
-                    <div className="flex items-center justify-center gap-3">
-                      <button 
-                        onClick={() => setActiveTab('generators')}
-                        className="px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:from-pink-700 hover:to-rose-700 shadow-lg shadow-pink-600/20"
-                      >
-                        Create New Asset
-                      </button>
+                      
                       <button 
                         onClick={() => {
                           const fileInput = document.createElement('input');
@@ -2607,19 +2249,274 @@ return (
                           fileInput.onchange = (e) => {
                             if (e.target.files && e.target.files.length > 0) {
                               toast.success(`${e.target.files.length} file(s) uploaded successfully`);
-                              console.log('Files selected:', e.target.files);
                             }
                           };
                           fileInput.click();
                         }}
-                        className="px-4 py-2 rounded-md text-sm font-medium bg-gray-700 text-white hover:bg-gray-600"
+                        className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
                       >
-                        <Upload size={14} className="inline mr-1.5" />
-                        Import Files
+                        <Upload size={16} className="mr-2" />
+                        Import Assets
                       </button>
                     </div>
                   </div>
-                )}
+                  
+                  {/* Content Grid */}
+                  <div className="space-y-8">
+                    {/* Text Content */}
+                    {previews.text && (
+                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                              <FiFileText className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-white">AI-Generated Copy</h3>
+                              <p className="text-slate-400">Created {new Date().toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <button 
+                              onClick={() => {
+                                const blob = new Blob([previews.text], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `content_${Date.now()}.txt`;
+                                document.body.appendChild(a);
+                                a.click();
+                                URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
+                                toast.success('Content downloaded');
+                              }}
+                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                            >
+                              <FiDownload size={18} />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="prose prose-invert max-w-none">
+                          <ReactMarkdown>{previews.text}</ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Image Content */}
+                    {previews.image && (
+                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300">
+                        <div className="grid lg:grid-cols-2 gap-8 p-6">
+                          {/* Original Image */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="text-xl font-bold text-white">Original Product</h3>
+                                <p className="text-slate-400">Source image</p>
+                              </div>
+                            </div>
+                            <div className="relative aspect-square rounded-xl overflow-hidden border border-slate-600/50">
+                              <img 
+                                src={previews.sourceImage} 
+                                className="w-full h-full object-cover" 
+                                alt="Source content" 
+                              />
+                            </div>
+                          </div>
+
+                          {/* Enhanced Image */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="text-xl font-bold text-white">AI Enhanced</h3>
+                                <p className="text-slate-400">Professional transformation</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <a
+                                  href={previews.image}
+                                  download={`enhanced_${Date.now()}.png`}
+                                  className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                                >
+                                  <FiDownload size={18} />
+                                </a>
+                                <button
+                                  onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
+                                  className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                                >
+                                  <FiMaximize size={18} />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="relative aspect-square rounded-xl overflow-hidden border border-slate-600/50">
+                              <img 
+                                src={previews.image} 
+                                className="w-full h-full object-cover" 
+                                alt="Enhanced content" 
+                              />
+                            </div>
+                            {previews.metadata && (
+                              <div className="mt-4 p-4 rounded-xl bg-slate-600/30 border border-slate-500/30">
+                                <h4 className="text-white font-semibold mb-2">Generation Details</h4>
+                                <div className="space-y-1 text-sm text-slate-300">
+                                  <p>Prompt: {previews.metadata.prompt}</p>
+                                  <p>Seed: {previews.metadata.seed || 'random'}</p>
+                                  <p>Strength: {previews.metadata.image_strength}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Video Content */}
+                    {previews.video && (
+                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                              <FiVideo className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-white">AI Video Commercial</h3>
+                              <p className="text-slate-400">Professional quality • Ready for all platforms</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <div className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-lg border border-blue-500/30 text-sm font-medium">
+                              Premium Quality
+                            </div>
+                            <a
+                              href={previews.video}
+                              download={`video_${Date.now()}.mp4`}
+                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                            >
+                              <FiDownload size={18} />
+                            </a>
+                            <button
+                              onClick={() => setFullscreenPreview({ type: 'video', content: previews.video })}
+                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                            >
+                              <FiMaximize size={18} />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="rounded-xl overflow-hidden border border-slate-600/50">
+                          <video
+                            controls
+                            className="w-full rounded-xl"
+                            playsInline
+                            webkit-playsinline="true"
+                            muted
+                            preload="metadata"
+                          >
+                            <source src={previews.video} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                        </div>
+                        
+                        <div className="mt-4 text-center">
+                          <p className="text-xs text-slate-400 mb-2">
+                            If video doesn't play above, try these options:
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                            <a
+                              href={previews.video}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 text-sm underline"
+                            >
+                              Open in new tab
+                            </a>
+                            <a
+                              href={previews.video}
+                              download={`video_${Date.now()}.mp4`}
+                              className="text-purple-400 hover:text-purple-300 text-sm underline"
+                            >
+                              Download directly
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Audio Content */}
+                    {previews.audio && (
+                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                              <FiMic className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-white">AI Voiceover</h3>
+                              <p className="text-slate-400">Professional narration • Ready for video integration</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <div className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-lg border border-orange-500/30 text-sm font-medium">
+                              Studio Quality
+                            </div>
+                            <a
+                              href={previews.audio}
+                              download={`audio_${Date.now()}.mp3`}
+                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                            >
+                              <FiDownload size={18} />
+                            </a>
+                          </div>
+                        </div>
+                        
+                        <div className="p-6 rounded-xl bg-slate-600/30 border border-slate-500/30">
+                          {previews.audioElement}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty State */}
+                    {!previews.text && !previews.image && !previews.video && !previews.audio && (
+                      <div className="text-center py-16">
+                        <div className="w-24 h-24 mx-auto rounded-3xl bg-slate-700/50 flex items-center justify-center mb-6">
+                          <FiFolder className="w-12 h-12 text-slate-500" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-4">Your creative library awaits</h3>
+                        <p className="text-slate-400 mb-8 max-w-md mx-auto text-lg">
+                          Start creating professional marketing assets with our AI-powered tools
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <button 
+                            onClick={() => setActiveTab('generators')}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-semibold text-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
+                          >
+                            Start Creating
+                          </button>
+                          <button 
+                            onClick={() => {
+                              const fileInput = document.createElement('input');
+                              fileInput.type = 'file';
+                              fileInput.multiple = true;
+                              fileInput.accept = 'image/*,video/*,audio/*';
+                              fileInput.onchange = (e) => {
+                                if (e.target.files && e.target.files.length > 0) {
+                                  toast.success(`${e.target.files.length} file(s) uploaded`);
+                                }
+                              };
+                              fileInput.click();
+                            }}
+                            className="px-8 py-4 bg-slate-700/50 hover:bg-slate-600/50 text-white rounded-2xl font-semibold text-lg border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300"
+                          >
+                            <Upload size={20} className="inline mr-2" />
+                            Import Files
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2628,6 +2525,6 @@ return (
     </div>
   </div>
 );
-}
+};
+
 export default UserDashboard;
-             
