@@ -1580,24 +1580,23 @@ const planLimits = {
 
 
 // Add these states with your other useState declarations in UserDashboard main component
-
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const navSections = [
     {
-      title: "Create",
+      title: "CREATIVE SUITE",
       items: [
-        { id: 'generators', label: 'Studio', icon: '✨', description: 'AI creative tools' },
-        { id: 'editor', label: 'Editor', icon: '🎨', description: 'Advanced editing', premium: true },
-        { id: 'ffmpeg', label: 'Production', icon: '🎬', description: 'Video & audio tools', premium: true },
+        { id: 'generators', label: 'Campaign Studio', icon: <FiLayers size={18} />, description: 'Generate professional assets' },
+        { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true },
+        { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true },
       ]
     },
     {
-      title: "Manage", 
+      title: "ASSET MANAGEMENT", 
       items: [
-        { id: 'library', label: 'Assets', icon: '📁', description: 'Your creations' },
-        { id: 'analytics', label: 'Insights', icon: '📊', description: 'Performance data', premium: true },
+        { id: 'library', label: 'Media Library', icon: <FiFolder size={18} />, description: 'Organize your assets' },
+        { id: 'analytics', label: 'Performance', icon: <FiBarChart2 size={18} />, description: 'Campaign insights', premium: true },
       ]
     }
   ];
@@ -1605,29 +1604,29 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
   return (
     <>
       {/* Sidebar */}
-      <div className={`w-80 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
-        sidebarOpen ? 'left-0' : '-left-80 lg:left-0'
-      } bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 top-0`}>
+      <div className={`w-72 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
+        sidebarOpen ? 'left-0' : '-left-72 lg:left-0'
+      } bg-[#0f1419] border-r border-slate-800/50 top-0`}>
         
         {/* Header */}
-        <div className="p-8 border-b border-slate-700/50">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">CF</span>
+        <div className="p-6 border-b border-slate-800/50">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold">CF</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">CF Studio</h2>
+              <h2 className="text-lg font-semibold text-white">CF Studio</h2>
               <p className="text-slate-400 text-sm">Creative AI Platform</p>
             </div>
           </div>
           
           {/* Plan Badge */}
-          <div className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold ${
+          <div className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${
             userPlan === 'enterprise' 
-              ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30' 
+              ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 border border-indigo-500/30' 
               : userPlan === 'premium'
               ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30'
-              : 'bg-slate-700/50 text-slate-300 border border-slate-600/50'
+              : 'bg-slate-800/50 text-slate-300 border border-slate-700/50'
           }`}>
             <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
             {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} Plan
@@ -1635,13 +1634,13 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-6 space-y-8">
+        <nav className="flex-1 p-4 space-y-6">
           {navSections.map((section) => (
             <div key={section.title}>
-              <h3 className="text-xs font-bold uppercase mb-4 tracking-wider text-slate-500">
+              <h3 className="text-xs font-semibold uppercase mb-3 tracking-wider text-slate-500">
                 {section.title}
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {section.items.map((item) => {
                   const isActive = activeTab === item.id;
                   const isAvailable = !item.premium || ['premium', 'enterprise'].includes(userPlan);
@@ -1660,39 +1659,35 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
                         setSidebarOpen(false);
                       }}
                       disabled={!isAvailable}
-                      className={`w-full group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 ${
+                      className={`w-full group relative overflow-hidden rounded-lg p-3 transition-all duration-200 ${
                         isActive 
-                          ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30' 
+                          ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-indigo-500/30' 
                           : isAvailable
-                          ? 'hover:bg-slate-700/50 border border-transparent hover:border-slate-600/50'
+                          ? 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
                           : 'opacity-50 cursor-not-allowed border border-transparent'
                       }`}
                     >
-                      {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl"></div>
-                      )}
-                      
-                      <div className="relative flex items-start space-x-3">
-                        <div className={`flex-shrink-0 text-2xl transition-transform group-hover:scale-110 ${
-                          isActive ? 'scale-110' : ''
+                      <div className="relative flex items-center space-x-3">
+                        <div className={`flex-shrink-0 transition-colors ${
+                          isActive ? 'text-indigo-300' : 'text-slate-400 group-hover:text-slate-300'
                         }`}>
                           {item.icon}
                         </div>
                         <div className="flex-1 text-left">
                           <div className="flex items-center justify-between">
-                            <h4 className={`font-semibold ${
+                            <h4 className={`font-medium ${
                               isActive ? 'text-white' : 'text-slate-200 group-hover:text-white'
                             }`}>
                               {item.label}
                             </h4>
                             {item.premium && !['premium', 'enterprise'].includes(userPlan) && (
-                              <div className="text-xs px-2 py-1 bg-slate-600/50 text-slate-400 rounded-md">
+                              <div className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded">
                                 Pro
                               </div>
                             )}
                           </div>
-                          <p className={`text-sm mt-1 ${
-                            isActive ? 'text-purple-200' : 'text-slate-400 group-hover:text-slate-300'
+                          <p className={`text-xs mt-0.5 ${
+                            isActive ? 'text-indigo-200' : 'text-slate-500 group-hover:text-slate-400'
                           }`}>
                             {item.description}
                           </p>
@@ -1707,43 +1702,40 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
         </nav>
 
         {/* Usage Display */}
-        <div className="p-6 border-t border-slate-700/50">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-700 p-6 border border-slate-600/30">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl"></div>
-            
+        <div className="p-4 border-t border-slate-800/50">
+          <div className="relative overflow-hidden rounded-lg bg-slate-800/30 p-4 border border-slate-700/30">
             <div className="relative">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                  {userPlan === 'enterprise' ? '∞' : '⚡'}
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <FiZap className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white">Creative Credits</h4>
-                  <p className="text-slate-400 text-sm">
+                  <h4 className="font-medium text-white text-sm">Generation Credits</h4>
+                  <p className="text-slate-400 text-xs">
                     {userPlan === 'enterprise' ? 'Unlimited access' : 'Monthly allocation'}
                   </p>
                 </div>
               </div>
 
               {userPlan === 'enterprise' ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-purple-300 font-semibold">Unlimited</span>
-                    <span className="text-slate-300 text-sm">{usage} created</span>
+                    <span className="text-indigo-300 font-medium text-sm">Unlimited</span>
+                    <span className="text-slate-300 text-xs">{usage} created</span>
                   </div>
-                  <div className="w-full h-3 bg-slate-600/50 rounded-full overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                  <div className="w-full h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-semibold">{usage}/{planLimits[userPlan]}</span>
-                    <span className="text-slate-300 text-sm">{planLimits[userPlan] - usage} left</span>
+                    <span className="text-white font-medium text-sm">{usage}/{planLimits[userPlan]}</span>
+                    <span className="text-slate-300 text-xs">{planLimits[userPlan] - usage} remaining</span>
                   </div>
-                  <div className="w-full h-3 bg-slate-600/50 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-slate-700/50 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-1000"
+                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(100, (usage / planLimits[userPlan]) * 100)}%` }}
                     ></div>
                   </div>
@@ -1754,27 +1746,27 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
         </div>
 
         {/* Account Actions */}
-        <div className="p-6 border-t border-slate-700/50 space-y-2">
+        <div className="p-4 border-t border-slate-800/50 space-y-1">
           <button 
             onClick={() => navigate('/settings')}
-            className="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+            className="w-full flex items-center space-x-3 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
           >
-            <Settings size={20} />
-            <span>Settings</span>
+            <Settings size={16} />
+            <span className="text-sm">Settings</span>
           </button>
           <button 
             onClick={() => navigate('/profile')}
-            className="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+            className="w-full flex items-center space-x-3 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
           >
-            <User size={20} />
-            <span>Profile</span>
+            <User size={16} />
+            <span className="text-sm">Profile</span>
           </button>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 p-3 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+            className="w-full flex items-center space-x-3 p-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
           >
-            <LogOut size={20} />
-            <span>Logout</span>
+            <LogOut size={16} />
+            <span className="text-sm">Sign Out</span>
           </button>
         </div>
       </div>
@@ -1790,57 +1782,44 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
   );
 };
 
-const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   
   const typeConfig = {
     text: {
-      title: 'AI Copywriter',
-      subtitle: 'Write ads that sell',
-      description: 'Generate compelling headlines, product descriptions, and marketing copy that converts customers',
-      icon: '✍️',
-      gradient: 'from-purple-500 to-pink-500',
-      glowColor: 'purple',
-      preview: {
-        before: 'Basic product description',
-        after: 'Compelling marketing copy with emotional triggers'
-      }
+      title: 'Copy Generation',
+      subtitle: 'Professional marketing copy',
+      description: 'Generate compelling headlines, product descriptions, and marketing content optimized for conversion.',
+      icon: <FiFileText size={20} />,
+      gradient: 'from-blue-500 to-cyan-500',
+      borderGradient: 'from-blue-500/20 to-cyan-500/20',
+      capability: 'AI-powered copywriting'
     },
     image: {
-      title: 'Photo Enhancer',
+      title: 'Image Enhancement',
       subtitle: 'Professional product photography',
-      description: 'Transform basic product photos into stunning marketing visuals with perfect backgrounds',
-      icon: '📸',
-      gradient: 'from-blue-500 to-cyan-500',
-      glowColor: 'blue',
-      preview: {
-        before: 'Simple product photo',
-        after: 'Professional marketing visual'
-      }
+      description: 'Transform product photos into polished marketing visuals with advanced AI styling and background enhancement.',
+      icon: <FiImage size={20} />,
+      gradient: 'from-indigo-500 to-purple-600',
+      borderGradient: 'from-indigo-500/20 to-purple-600/20',
+      capability: 'Product image transformation'
     },
     video: {
-      title: 'Video Creator',
-      subtitle: 'Bring products to life',
-      description: 'Create engaging video commercials from your product images - perfect for social media and ads',
-      icon: '🎬',
-      gradient: 'from-emerald-500 to-teal-500',
-      glowColor: 'emerald',
-      preview: {
-        before: 'Static product image',
-        after: 'Dynamic 10-second commercial'
-      }
+      title: 'Video Production',
+      subtitle: 'Dynamic commercial content',
+      description: 'Create engaging video advertisements from static images with professional motion and transitions.',
+      icon: <FiVideo size={20} />,
+      gradient: 'from-emerald-500 to-teal-600',
+      borderGradient: 'from-emerald-500/20 to-teal-600/20',
+      capability: 'Video generation & editing'
     },
     tts: {
-      title: 'Voice Studio',
+      title: 'Voice Synthesis',
       subtitle: 'Professional narration',
-      description: 'Add premium voiceovers to your videos with natural-sounding AI voices in multiple languages',
-      icon: '🎙️',
+      description: 'Generate high-quality voiceovers and narration using advanced AI voice synthesis technology.',
+      icon: <FiMic size={20} />,
       gradient: 'from-orange-500 to-red-500',
-      glowColor: 'orange',
-      preview: {
-        before: 'Silent video or text script',
-        after: 'Professional narration ready'
-      }
+      borderGradient: 'from-orange-500/20 to-red-500/20',
+      capability: 'AI voice generation'
     }
   };
 
@@ -1849,107 +1828,56 @@ const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   return (
     <div className="group relative">
       {/* Main Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 hover:border-slate-600/50 transition-all duration-500 hover:scale-[1.02]">
-        {/* Glow Effect */}
-        <div className={`absolute -inset-0.5 bg-gradient-to-r ${config.gradient} rounded-3xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+      <div className="relative overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
         
-        {/* Content */}
-        <div className="relative bg-slate-800/90 rounded-3xl p-8">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-800/50">
+          <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${config.gradient} flex items-center justify-center text-2xl shadow-lg`}>
-                {config.icon}
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center justify-center shadow-lg`}>
+                <div className="text-white">{config.icon}</div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-white mb-1">{config.title}</h3>
-                <p className="text-slate-400 text-lg">{config.subtitle}</p>
+                <h3 className="text-lg font-semibold text-white mb-1">{config.title}</h3>
+                <p className="text-slate-400 text-sm">{config.subtitle}</p>
               </div>
             </div>
             
             {/* Credits Display */}
             <div className="text-right">
-              <div className={`inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r ${config.gradient} bg-opacity-20 border border-slate-500/30`}>
-                <span className="text-white font-semibold">
+              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
+                <span className="text-white font-medium text-sm">
                   {userPlan === 'enterprise' ? '∞' : remaining}
                 </span>
-                <span className="text-slate-300 ml-1 text-sm">
-                  {userPlan === 'enterprise' ? '' : 'left'}
+                <span className="text-slate-400 ml-1 text-xs">
+                  {userPlan === 'enterprise' ? '' : 'credits'}
                 </span>
               </div>
             </div>
           </div>
+        </div>
 
+        {/* Content */}
+        <div className="p-6">
           {/* Description */}
-          <p className="text-slate-300 text-lg leading-relaxed mb-8">{config.description}</p>
+          <p className="text-slate-300 leading-relaxed mb-6">{config.description}</p>
 
-          {/* Before/After Preview */}
-          <div className="mb-8 p-6 rounded-2xl bg-slate-700/30 border border-slate-600/30">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <span className="text-red-300 font-semibold text-sm uppercase tracking-wide">Before</span>
-                </div>
-                <p className="text-slate-400">{config.preview.before}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  <span className="text-green-300 font-semibold text-sm uppercase tracking-wide">After</span>
-                </div>
-                <p className="text-white">{config.preview.after}</p>
-              </div>
+          {/* Capability Badge */}
+          <div className="mb-6">
+            <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
+              <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+              <span className="text-slate-300 text-xs font-medium">{config.capability}</span>
             </div>
           </div>
 
           {/* Action Button */}
-          <div className="space-y-4">
-            <ContentGenerator
-              type={type}
-              remaining={remaining}
-              onGenerate={onGenerate}
-              className="w-full"
-              darkMode={true}
-            />
-            
-            {/* Expand Details */}
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="w-full py-2 text-slate-400 hover:text-white transition-colors text-sm flex items-center justify-center"
-            >
-              {isExpanded ? 'Less details' : 'More details'}
-              <ChevronRight size={16} className={`ml-1 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-            </button>
-          </div>
-
-          {/* Expanded Details */}
-          {isExpanded && (
-            <div className="mt-6 pt-6 border-t border-slate-600/30 space-y-4 animate-in slide-in-from-top-2 duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-slate-700/50">
-                  <h4 className="text-white font-semibold mb-2">Best For</h4>
-                  <p className="text-slate-300 text-sm">
-                    {type === 'image' && 'Product photos, lifestyle shots, brand imagery'}
-                    {type === 'video' && 'Social media ads, website headers, marketing campaigns'}
-                    {type === 'text' && 'Headlines, product descriptions, social captions'}
-                    {type === 'tts' && 'Video narration, audio ads, explainer videos'}
-                  </p>
-                </div>
-                
-                <div className="p-4 rounded-xl bg-slate-700/50">
-                  <h4 className="text-white font-semibold mb-2">Output</h4>
-                  <p className="text-slate-300 text-sm">
-                    {type === 'image' && 'High-resolution images ready for any platform'}
-                    {type === 'video' && '5-10 second MP4 videos, mobile optimized'}
-                    {type === 'text' && 'Professional copy in multiple formats'}
-                    {type === 'tts' && 'High-quality MP3 audio files'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          <ContentGenerator
+            type={type}
+            remaining={remaining}
+            onGenerate={onGenerate}
+            className="w-full"
+            darkMode={true}
+          />
         </div>
       </div>
     </div>
@@ -1957,7 +1885,7 @@ const GeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
 };
 
 return (
-  <div className="flex flex-col min-h-screen bg-slate-900">
+  <div className="flex flex-col min-h-screen bg-[#0a0e13]">
     {/* Demo Video Modal */}
     <DemoVideo 
       isOpen={showDemoVideo}
@@ -1975,23 +1903,23 @@ return (
       />
     )}
 
-    {/* Updated Header */}
-    <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10 bg-slate-900/80 backdrop-blur-xl border-slate-700/50">
+    {/* Professional Header */}
+    <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10 bg-[#0f1419]/90 backdrop-blur-xl border-slate-800/50">
       <div className="flex items-center space-x-4">
         <button 
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden p-3 rounded-xl bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 text-white transition-all duration-200"
+          className="lg:hidden p-2.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 text-white transition-all duration-200"
           style={{ minHeight: '44px', minWidth: '44px' }}
         >
           {sidebarOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
         </button>
         
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-            <span className="text-white font-bold">CF</span>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">CF</span>
           </div>
           <div>
-            <div className="font-bold text-lg text-white">CF Studio</div>
+            <div className="font-semibold text-white">CF Studio</div>
             <div className="text-xs text-slate-400">Creative AI Platform</div>
           </div>
         </div>
@@ -1999,12 +1927,12 @@ return (
       
       <div className="flex items-center space-x-4">
         {/* Plan Status */}
-        <div className={`hidden sm:flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+        <div className={`hidden sm:flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${
           userPlan === 'enterprise' 
-            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30'
+            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 border border-indigo-500/30'
             : userPlan === 'premium'
             ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30'
-            : 'bg-slate-700/50 text-slate-300 border border-slate-600/50'
+            : 'bg-slate-800/50 text-slate-300 border border-slate-700/50'
         }`}>
           <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
           {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
@@ -2014,18 +1942,18 @@ return (
         <div className="flex items-center space-x-2">
           <button 
             onClick={() => navigate('/profile')}
-            className="p-2 rounded-xl bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white transition-colors"
             title="Profile"
           >
-            <User size={18} />
+            <User size={16} />
           </button>
           
           <button 
             onClick={handleLogout}
-            className="flex items-center px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
+            className="flex items-center px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
           >
-            <LogOut size={16} className="mr-1.5" />
-            <span className="hidden sm:inline">Logout</span>
+            <LogOut size={14} className="mr-1.5" />
+            <span className="hidden sm:inline text-sm">Sign Out</span>
           </button>
         </div>
       </div>
@@ -2044,115 +1972,123 @@ return (
       />
     
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        {/* Generators Tab */}
+      <main className="flex-1 overflow-auto bg-gradient-to-br from-[#0a0e13] via-[#0f1419] to-[#0a0e13]">
+        {/* Campaign Studio */}
         {activeTab === 'generators' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              {/* Hero Section */}
-              <div className="mb-12 text-center">
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
-                  What will you create today?
-                </h1>
-                <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                  Transform your ideas into professional campaigns in minutes with our AI-powered creative studio
-                </p>
-                
-                {/* Quick Start Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-pink-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative z-10">
-                      <div className="text-4xl mb-4">🚀</div>
-                      <h3 className="text-xl font-bold mb-2">Launch Campaign</h3>
-                      <p className="text-purple-100">Product photo → Complete ad suite</p>
-                    </div>
-                  </div>
-                  
-                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-cyan-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative z-10">
-                      <div className="text-4xl mb-4">🎬</div>
-                      <h3 className="text-xl font-bold mb-2">Create Videos</h3>
-                      <p className="text-blue-100">Static images → Dynamic commercials</p>
-                    </div>
-                  </div>
-                  
-                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/80 to-teal-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative z-10">
-                      <div className="text-4xl mb-4">✨</div>
-                      <h3 className="text-xl font-bold mb-2">Enhance Photos</h3>
-                      <p className="text-emerald-100">Basic → Professional quality</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Creative Studio Grid */}
-              <div className="space-y-8">
+              {/* Professional Header */}
+              <div className="mb-12">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-bold text-white">Creative Studio</h2>
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2">
+                      Campaign Studio
+                    </h1>
+                    <p className="text-lg text-slate-400 max-w-2xl">
+                      Professional AI-powered tools for creating high-impact marketing campaigns
+                    </p>
+                  </div>
+                  
                   <div className="flex items-center space-x-4">
-                    <div className="px-4 py-2 bg-slate-800/50 backdrop-blur rounded-xl border border-slate-700/50">
-                      <span className="text-slate-400 text-sm">
+                    <div className="px-4 py-2 bg-slate-800/50 backdrop-blur rounded-lg border border-slate-700/50">
+                      <span className="text-slate-300 text-sm font-medium">
                         {userPlan === 'enterprise' ? 'Unlimited Access' : `${planLimits[userPlan] - usage} credits remaining`}
                       </span>
                     </div>
                     <button 
                       onClick={() => setShowDemoVideo(true)}
-                      className="flex items-center px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-colors"
+                      className="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium"
                     >
-                      <Info size={16} className="mr-2" />
-                      Watch Tutorial
+                      <FiPlay size={16} className="mr-2" />
+                      View Demo
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <GeneratorCard 
-                    type="image" 
-                    remaining={planLimits[userPlan] - usage} 
-                    onGenerate={handleGeneration}
-                    userPlan={userPlan}
-                  />
-                  <GeneratorCard 
-                    type="video" 
-                    remaining={planLimits[userPlan] - usage} 
-                    onGenerate={handleGeneration}
-                    userPlan={userPlan}
-                  />
-                  <GeneratorCard 
-                    type="tts" 
-                    remaining={planLimits[userPlan] - usage} 
-                    onGenerate={handleGeneration}
-                    userPlan={userPlan}
-                  />
-                  <GeneratorCard 
-                    type="text" 
-                    remaining={planLimits[userPlan] - usage} 
-                    onGenerate={handleGeneration}
-                    userPlan={userPlan}
-                  />
+                {/* Professional Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <FiZap className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-white">98%</div>
+                        <div className="text-slate-400 text-sm">Cost Reduction</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                        <FiClock className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-white">10x</div>
+                        <div className="text-slate-400 text-sm">Faster Creation</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <FiTrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-white">$5000+</div>
+                        <div className="text-slate-400 text-sm">Campaign Value</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+              {/* Professional Generator Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <ProfessionalGeneratorCard 
+                  type="image" 
+                  remaining={planLimits[userPlan] - usage} 
+                  onGenerate={handleGeneration}
+                  userPlan={userPlan}
+                />
+                <ProfessionalGeneratorCard 
+                  type="video" 
+                  remaining={planLimits[userPlan] - usage} 
+                  onGenerate={handleGeneration}
+                  userPlan={userPlan}
+                />
+                <ProfessionalGeneratorCard 
+                  type="tts" 
+                  remaining={planLimits[userPlan] - usage} 
+                  onGenerate={handleGeneration}
+                  userPlan={userPlan}
+                />
+                <ProfessionalGeneratorCard 
+                  type="text" 
+                  remaining={planLimits[userPlan] - usage} 
+                  onGenerate={handleGeneration}
+                  userPlan={userPlan}
+                />
               </div>
             </div>
           </div>
         )}
 
-        {/* Creative Studio (Editor) */}
+        {/* Image Editor */}
         {activeTab === 'editor' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-2">Creative Studio</h2>
-                      <p className="text-slate-400">Advanced image editing and transformation tools</p>
+                      <h2 className="text-2xl font-bold text-white mb-2">Advanced Image Editor</h2>
+                      <p className="text-slate-400">Professional image editing and transformation tools</p>
                     </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-xl border border-blue-500/30">
-                      Premium Feature
+                    <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-lg border border-blue-500/30">
+                      Professional Tools
                     </div>
                   </div>
                   <CloudinaryEditor 
@@ -2168,18 +2104,18 @@ return (
           </div>
         )}
 
-        {/* Production Studio (FFmpeg) */}
+        {/* Media Production */}
         {activeTab === 'ffmpeg' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-2">Production Studio</h2>
-                      <p className="text-slate-400">Professional video editing and audio merging tools</p>
+                      <h2 className="text-2xl font-bold text-white mb-2">Media Production Suite</h2>
+                      <p className="text-slate-400">Professional video editing and audio processing</p>
                     </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 rounded-xl border border-green-500/30">
+                    <div className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30">
                       Server Processing
                     </div>
                   </div>
@@ -2190,23 +2126,23 @@ return (
           </div>
         )}
 
-        {/* Analytics Section */}
+        {/* Performance Analytics */}
         {activeTab === 'analytics' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
                 <div className="p-16 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 bg-slate-700/50">
-                    <Clock className="w-10 h-10 text-slate-400" />
+                  <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-slate-800/50">
+                    <FiBarChart2 className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-white">
-                    ROI Dashboard Coming Soon
+                  <h3 className="text-xl font-bold mb-4 text-white">
+                    Performance Analytics
                   </h3>
-                  <p className="text-lg mb-8 max-w-md mx-auto text-slate-400">
-                    Advanced ROI tracking and performance metrics are in development
+                  <p className="text-slate-400 mb-8 max-w-md mx-auto">
+                    Advanced campaign performance tracking and ROI analytics coming soon
                   </p>
                   <div className="flex items-center justify-center gap-3">
-                    <span className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 text-sm font-medium rounded-xl border border-blue-500/30">
+                    <span className="px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 text-sm font-medium rounded-lg border border-indigo-500/30">
                       Enterprise Feature
                     </span>
                   </div>
@@ -2220,23 +2156,23 @@ return (
         {activeTab === 'library' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-3xl bg-slate-800/50 backdrop-blur border border-slate-700/50 overflow-hidden">
+              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
                 <div className="p-8">
                   {/* Header */}
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 space-y-4 lg:space-y-0">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-2">Media Library</h2>
-                      <p className="text-slate-400">Manage and organize all your creative assets</p>
+                      <h2 className="text-2xl font-bold text-white mb-2">Media Library</h2>
+                      <p className="text-slate-400">Organize and manage your creative assets</p>
                     </div>
                     
                     <div className="flex items-center space-x-4">
-                      <div className="flex items-center bg-slate-700/50 rounded-xl p-1">
+                      <div className="flex items-center bg-slate-800/50 rounded-lg p-1">
                         <select className="bg-transparent text-white px-4 py-2 outline-none rounded-lg">
                           <option>All Assets</option>
                           <option>Images</option>
                           <option>Videos</option>
                           <option>Audio</option>
-                          <option>Text</option>
+                          <option>Documents</option>
                         </select>
                       </div>
                       
@@ -2253,7 +2189,7 @@ return (
                           };
                           fileInput.click();
                         }}
-                        className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                        className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300"
                       >
                         <Upload size={16} className="mr-2" />
                         Import Assets
@@ -2265,15 +2201,15 @@ return (
                   <div className="space-y-8">
                     {/* Text Content */}
                     {previews.text && (
-                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                              <FiFileText className="w-6 h-6 text-white" />
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                              <FiFileText className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-white">AI-Generated Copy</h3>
-                              <p className="text-slate-400">Created {new Date().toLocaleDateString()}</p>
+                              <h3 className="text-lg font-semibold text-white">Generated Copy</h3>
+                              <p className="text-slate-400 text-sm">Created {new Date().toLocaleDateString()}</p>
                             </div>
                           </div>
                           
@@ -2291,9 +2227,9 @@ return (
                                 document.body.removeChild(a);
                                 toast.success('Content downloaded');
                               }}
-                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                             >
-                              <FiDownload size={18} />
+                              <FiDownload size={16} />
                             </button>
                           </div>
                         </div>
@@ -2306,17 +2242,17 @@ return (
 
                     {/* Image Content */}
                     {previews.image && (
-                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300">
+                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
                         <div className="grid lg:grid-cols-2 gap-8 p-6">
                           {/* Original Image */}
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <h3 className="text-xl font-bold text-white">Original Product</h3>
-                                <p className="text-slate-400">Source image</p>
+                                <h3 className="text-lg font-semibold text-white">Source Image</h3>
+                                <p className="text-slate-400 text-sm">Original product photo</p>
                               </div>
                             </div>
-                            <div className="relative aspect-square rounded-xl overflow-hidden border border-slate-600/50">
+                            <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50">
                               <img 
                                 src={previews.sourceImage} 
                                 className="w-full h-full object-cover" 
@@ -2329,26 +2265,26 @@ return (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <h3 className="text-xl font-bold text-white">AI Enhanced</h3>
-                                <p className="text-slate-400">Professional transformation</p>
+                                <h3 className="text-lg font-semibold text-white">Enhanced Result</h3>
+                                <p className="text-slate-400 text-sm">AI-enhanced marketing asset</p>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <a
                                   href={previews.image}
                                   download={`enhanced_${Date.now()}.png`}
-                                  className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                                 >
-                                  <FiDownload size={18} />
+                                  <FiDownload size={16} />
                                 </a>
                                 <button
                                   onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
-                                  className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                                 >
-                                  <FiMaximize size={18} />
+                                  <FiMaximize size={16} />
                                 </button>
                               </div>
                             </div>
-                            <div className="relative aspect-square rounded-xl overflow-hidden border border-slate-600/50">
+                            <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50">
                               <img 
                                 src={previews.image} 
                                 className="w-full h-full object-cover" 
@@ -2356,12 +2292,12 @@ return (
                               />
                             </div>
                             {previews.metadata && (
-                              <div className="mt-4 p-4 rounded-xl bg-slate-600/30 border border-slate-500/30">
-                                <h4 className="text-white font-semibold mb-2">Generation Details</h4>
-                                <div className="space-y-1 text-sm text-slate-300">
-                                  <p>Prompt: {previews.metadata.prompt}</p>
-                                  <p>Seed: {previews.metadata.seed || 'random'}</p>
-                                  <p>Strength: {previews.metadata.image_strength}</p>
+                              <div className="mt-4 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                                <h4 className="text-white font-medium mb-2 text-sm">Generation Details</h4>
+                                <div className="space-y-1 text-xs text-slate-300">
+                                  <p><span className="text-slate-400">Prompt:</span> {previews.metadata.prompt}</p>
+                                  <p><span className="text-slate-400">Seed:</span> {previews.metadata.seed || 'Random'}</p>
+                                  <p><span className="text-slate-400">Strength:</span> {previews.metadata.image_strength}</p>
                                 </div>
                               </div>
                             )}
@@ -2372,42 +2308,42 @@ return (
 
                     {/* Video Content */}
                     {previews.video && (
-                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
                         <div className="flex items-start justify-between mb-6">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                              <FiVideo className="w-6 h-6 text-white" />
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                              <FiVideo className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-white">AI Video Commercial</h3>
-                              <p className="text-slate-400">Professional quality • Ready for all platforms</p>
+                              <h3 className="text-lg font-semibold text-white">Generated Video</h3>
+                              <p className="text-slate-400 text-sm">Professional commercial content</p>
                             </div>
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-lg border border-blue-500/30 text-sm font-medium">
-                              Premium Quality
+                            <div className="px-3 py-1 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30 text-xs font-medium">
+                              Professional Quality
                             </div>
                             <a
                               href={previews.video}
                               download={`video_${Date.now()}.mp4`}
-                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                             >
-                              <FiDownload size={18} />
+                              <FiDownload size={16} />
                             </a>
                             <button
                               onClick={() => setFullscreenPreview({ type: 'video', content: previews.video })}
-                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                             >
-                              <FiMaximize size={18} />
+                              <FiMaximize size={16} />
                             </button>
                           </div>
                         </div>
                         
-                        <div className="rounded-xl overflow-hidden border border-slate-600/50">
+                        <div className="rounded-lg overflow-hidden border border-slate-600/50">
                           <video
                             controls
-                            className="w-full rounded-xl"
+                            className="w-full rounded-lg"
                             playsInline
                             webkit-playsinline="true"
                             muted
@@ -2420,23 +2356,23 @@ return (
                         
                         <div className="mt-4 text-center">
                           <p className="text-xs text-slate-400 mb-2">
-                            If video doesn't play above, try these options:
+                            Alternative access options:
                           </p>
                           <div className="flex flex-col sm:flex-row gap-2 justify-center">
                             <a
                               href={previews.video}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-400 hover:text-blue-300 text-sm underline"
+                              className="text-indigo-400 hover:text-indigo-300 text-sm underline"
                             >
                               Open in new tab
                             </a>
                             <a
                               href={previews.video}
                               download={`video_${Date.now()}.mp4`}
-                              className="text-purple-400 hover:text-purple-300 text-sm underline"
+                              className="text-emerald-400 hover:text-emerald-300 text-sm underline"
                             >
-                              Download directly
+                              Direct download
                             </a>
                           </div>
                         </div>
@@ -2445,33 +2381,33 @@ return (
 
                     {/* Audio Content */}
                     {previews.audio && (
-                      <div className="group relative overflow-hidden rounded-2xl bg-slate-700/30 border border-slate-600/50 p-6 hover:border-slate-500/50 transition-all duration-300">
+                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
                         <div className="flex items-start justify-between mb-6">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
-                              <FiMic className="w-6 h-6 text-white" />
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                              <FiMic className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-white">AI Voiceover</h3>
-                              <p className="text-slate-400">Professional narration • Ready for video integration</p>
+                              <h3 className="text-lg font-semibold text-white">Generated Audio</h3>
+                              <p className="text-slate-400 text-sm">Professional voice synthesis</p>
                             </div>
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-lg border border-orange-500/30 text-sm font-medium">
+                            <div className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-lg border border-orange-500/30 text-xs font-medium">
                               Studio Quality
                             </div>
                             <a
                               href={previews.audio}
                               download={`audio_${Date.now()}.mp3`}
-                              className="p-3 rounded-xl bg-slate-600/50 hover:bg-slate-500/50 text-white transition-colors"
+                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
                             >
-                              <FiDownload size={18} />
+                              <FiDownload size={16} />
                             </a>
                           </div>
                         </div>
                         
-                        <div className="p-6 rounded-xl bg-slate-600/30 border border-slate-500/30">
+                        <div className="p-6 rounded-lg bg-slate-700/30 border border-slate-600/30">
                           {previews.audioElement}
                         </div>
                       </div>
@@ -2480,19 +2416,19 @@ return (
                     {/* Empty State */}
                     {!previews.text && !previews.image && !previews.video && !previews.audio && (
                       <div className="text-center py-16">
-                        <div className="w-24 h-24 mx-auto rounded-3xl bg-slate-700/50 flex items-center justify-center mb-6">
-                          <FiFolder className="w-12 h-12 text-slate-500" />
+                        <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-800/50 flex items-center justify-center mb-6">
+                          <FiFolder className="w-10 h-10 text-slate-500" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-4">Your creative library awaits</h3>
-                        <p className="text-slate-400 mb-8 max-w-md mx-auto text-lg">
-                          Start creating professional marketing assets with our AI-powered tools
+                        <h3 className="text-xl font-bold text-white mb-4">No assets created yet</h3>
+                        <p className="text-slate-400 mb-8 max-w-md mx-auto">
+                          Start creating professional marketing assets with our AI-powered campaign studio
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                           <button 
                             onClick={() => setActiveTab('generators')}
-                            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-semibold text-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
+                            className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 transform hover:scale-105"
                           >
-                            Start Creating
+                            Launch Campaign Studio
                           </button>
                           <button 
                             onClick={() => {
@@ -2507,10 +2443,10 @@ return (
                               };
                               fileInput.click();
                             }}
-                            className="px-8 py-4 bg-slate-700/50 hover:bg-slate-600/50 text-white rounded-2xl font-semibold text-lg border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300"
+                            className="px-8 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300"
                           >
-                            <Upload size={20} className="inline mr-2" />
-                            Import Files
+                            <Upload size={18} className="inline mr-2" />
+                            Import Existing Assets
                           </button>
                         </div>
                       </div>
