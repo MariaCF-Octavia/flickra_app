@@ -1579,6 +1579,7 @@ const planLimits = {
 // Demo Video Component Import (add this to your imports at the top)
 
 
+// Updated plan access logic and styling
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
@@ -1587,28 +1588,28 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
       title: "CREATIVE SUITE",
       items: [
         { id: 'generators', label: 'Campaign Studio', icon: <FiLayers size={18} />, description: 'Generate professional assets' },
-        { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true },
-        { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true },
+        { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true, requiredPlan: 'pro' },
+        { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true, requiredPlan: 'pro' },
       ]
     },
     {
       title: "ASSET MANAGEMENT", 
       items: [
         { id: 'library', label: 'Media Library', icon: <FiFolder size={18} />, description: 'Organize your assets' },
-        { id: 'analytics', label: 'Performance', icon: <FiBarChart2 size={18} />, description: 'Campaign insights', premium: true },
+        { id: 'analytics', label: 'Performance', icon: <FiBarChart2 size={18} />, description: 'Campaign insights', premium: true, requiredPlan: 'enterprise' },
       ]
     }
   ];
 
   return (
     <>
-      {/* Sidebar */}
-      <div className={`w-72 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
+      {/* Sidebar - FIXED: Added proper height and overflow for mobile scrolling */}
+      <div className={`w-72 flex flex-col fixed lg:relative z-40 transition-all duration-300 ${
         sidebarOpen ? 'left-0' : '-left-72 lg:left-0'
-      } bg-[#0f1419] border-r border-slate-800/50 top-0`}>
+      } bg-[#0f1419] border-r border-slate-800/50 top-0 h-full`}>
         
         {/* Header */}
-        <div className="p-6 border-b border-slate-800/50">
+        <div className="p-6 border-b border-slate-800/50 flex-shrink-0">
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
               <span className="text-white font-bold">CF</span>
@@ -1623,8 +1624,8 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           <div className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${
             userPlan === 'enterprise' 
               ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 border border-indigo-500/30' 
-              : userPlan === 'premium'
-              ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/30'
+              : userPlan === 'pro'
+              ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-purple-300 border border-purple-500/30'
               : 'bg-slate-800/50 text-slate-300 border border-slate-700/50'
           }`}>
             <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
@@ -1632,8 +1633,8 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-6">
+        {/* Navigation - FIXED: Added flex-1 and overflow-y-auto for proper scrolling */}
+        <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
           {navSections.map((section) => (
             <div key={section.title}>
               <h3 className="text-xs font-semibold uppercase mb-3 tracking-wider text-slate-500">
@@ -1642,7 +1643,9 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
               <div className="space-y-1">
                 {section.items.map((item) => {
                   const isActive = activeTab === item.id;
-                  const isAvailable = !item.premium || ['premium', 'enterprise'].includes(userPlan);
+                  const isAvailable = !item.premium || 
+                    (item.requiredPlan === 'pro' && ['pro', 'enterprise'].includes(userPlan)) ||
+                    (item.requiredPlan === 'enterprise' && userPlan === 'enterprise');
                   
                   return (
                     <button
@@ -1679,9 +1682,9 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
                             }`}>
                               {item.label}
                             </h4>
-                            {item.premium && !['premium', 'enterprise'].includes(userPlan) && (
-                              <div className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded">
-                                Pro
+                            {item.premium && !isAvailable && (
+                              <div className="text-xs px-2 py-0.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 rounded border border-purple-500/30">
+                                Upgrade
                               </div>
                             )}
                           </div>
@@ -1700,8 +1703,8 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           ))}
         </nav>
 
-        {/* Usage Display */}
-        <div className="p-4 border-t border-slate-800/50">
+        {/* Usage Display - FIXED: flex-shrink-0 to prevent compression */}
+        <div className="p-4 border-t border-slate-800/50 flex-shrink-0">
           <div className="relative overflow-hidden rounded-lg bg-slate-800/30 p-4 border border-slate-700/30">
             <div className="relative">
               <div className="flex items-center space-x-3 mb-3">
@@ -1744,8 +1747,8 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           </div>
         </div>
 
-        {/* Account Actions */}
-        <div className="p-4 border-t border-slate-800/50 space-y-1">
+        {/* Account Actions - FIXED: flex-shrink-0 to prevent compression */}
+        <div className="p-4 border-t border-slate-800/50 space-y-1 flex-shrink-0">
           <button 
             onClick={() => navigate('/settings')}
             className="w-full flex items-center space-x-3 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
@@ -1781,133 +1784,19 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
   );
 };
 
-// Professional Modal Component
-const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto">
-        <div className="bg-[#0f1419] border border-slate-700/50 rounded-2xl shadow-2xl">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
-            <div>
-              <h2 className="text-xl font-bold text-white">{title}</h2>
-              <p className="text-slate-400 text-sm mt-1">{subtitle}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
-            >
-              <FiX size={20} />
-            </button>
-          </div>
-          
-          {/* Content */}
-          <div className="p-6">
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Enterprise ContentGenerator with professional styling
-const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = false }) => {
-  return (
-    <div className={isModal ? "space-y-6" : ""}>
-      {/* Professional form styling for modal */}
-      <div className="space-y-6">
-        <ContentGenerator
-          type={type}
-          remaining={remaining}
-          onGenerate={onGenerate}
-          className="enterprise-generator"
-          darkMode={true}
-        />
-      </div>
-      
-      {/* Add custom styles */}
-      <style jsx>{`
-        .enterprise-generator textarea {
-          background: rgba(30, 41, 59, 0.5) !important;
-          border: 1px solid rgba(71, 85, 105, 0.3) !important;
-          border-radius: 12px !important;
-          padding: 16px !important;
-          color: white !important;
-          font-size: 14px !important;
-          line-height: 1.5 !important;
-          transition: all 0.2s ease !important;
-        }
-        
-        .enterprise-generator textarea:focus {
-          background: rgba(30, 41, 59, 0.8) !important;
-          border-color: rgba(99, 102, 241, 0.5) !important;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
-          outline: none !important;
-        }
-        
-        .enterprise-generator input[type="file"] + div {
-          background: rgba(30, 41, 59, 0.3) !important;
-          border: 2px dashed rgba(71, 85, 105, 0.4) !important;
-          border-radius: 12px !important;
-          padding: 24px !important;
-          transition: all 0.2s ease !important;
-        }
-        
-        .enterprise-generator input[type="file"] + div:hover {
-          background: rgba(30, 41, 59, 0.5) !important;
-          border-color: rgba(99, 102, 241, 0.4) !important;
-        }
-        
-        .enterprise-generator button[type="submit"] {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
-          border: none !important;
-          border-radius: 12px !important;
-          padding: 16px 24px !important;
-          font-weight: 600 !important;
-          font-size: 14px !important;
-          transition: all 0.2s ease !important;
-        }
-        
-        .enterprise-generator button[type="submit"]:hover:not(:disabled) {
-          background: linear-gradient(135deg, #5b59ed, #7c3aed) !important;
-          transform: translateY(-1px) !important;
-          box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25) !important;
-        }
-        
-        .enterprise-generator select {
-          background: rgba(30, 41, 59, 0.5) !important;
-          border: 1px solid rgba(71, 85, 105, 0.3) !important;
-          border-radius: 8px !important;
-          color: white !important;
-          padding: 8px 12px !important;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-// Updated Professional Generator Card with clean launch buttons
+// Updated Professional Generator Card with unified color scheme and plan restrictions
 const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
+  // UPDATED: Unified color scheme - all using indigo/purple variations for premium consistency
   const typeConfig = {
     text: {
       title: 'Copy Generation',
       subtitle: 'Professional marketing copy',
       description: 'Generate compelling headlines, product descriptions, and marketing content optimized for conversion.',
       icon: <FiFileText size={20} />,
-      gradient: 'from-blue-500 to-cyan-500',
-      borderGradient: 'from-blue-500/20 to-cyan-500/20',
+      gradient: 'from-indigo-500 to-indigo-600',
+      borderGradient: 'from-indigo-500/20 to-indigo-600/20',
       capability: 'AI-powered copywriting',
       modalTitle: 'AI Copy Generation',
       modalSubtitle: 'Create professional marketing copy that converts'
@@ -1921,15 +1810,15 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       borderGradient: 'from-indigo-500/20 to-purple-600/20',
       capability: 'Product image transformation',
       modalTitle: 'AI Image Enhancement',
-      modalSubtitle: 'Transform product photos into professional marketing assets'
+      modalSubtitle: 'Upload your product photo and optional style reference. Tag both images in your prompt: "Professional @product shot in elegant @style setting"'
     },
     video: {
       title: 'Video Production',
       subtitle: 'Dynamic commercial content',
       description: 'Create engaging video advertisements from static images with professional motion and transitions.',
       icon: <FiVideo size={20} />,
-      gradient: 'from-emerald-500 to-teal-600',
-      borderGradient: 'from-emerald-500/20 to-teal-600/20',
+      gradient: 'from-purple-500 to-purple-600',
+      borderGradient: 'from-purple-500/20 to-purple-600/20',
       capability: 'Video generation & editing',
       modalTitle: 'AI Video Production',
       modalSubtitle: 'Create dynamic commercials from product images'
@@ -1939,8 +1828,8 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       subtitle: 'Professional narration',
       description: 'Generate high-quality voiceovers and narration using advanced AI voice synthesis technology.',
       icon: <FiMic size={20} />,
-      gradient: 'from-orange-500 to-red-500',
-      borderGradient: 'from-orange-500/20 to-red-500/20',
+      gradient: 'from-purple-600 to-pink-600',
+      borderGradient: 'from-purple-600/20 to-pink-600/20',
       capability: 'AI voice generation',
       modalTitle: 'AI Voice Synthesis',
       modalSubtitle: 'Generate professional narration and voiceovers'
@@ -1951,13 +1840,18 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
 
   const handleLaunch = () => {
     if (remaining <= 0 && userPlan !== 'enterprise') {
-      // Could show upgrade modal or error
       return;
     }
     setIsModalOpen(true);
   };
 
   const handleGenerate = async (content) => {
+    // UPDATED: Check keyframes restriction for starter plan
+    if (type === 'video' && content.videoMode === 'keyframes' && userPlan === 'starter') {
+      // Return error or show upgrade prompt
+      return { success: false, error: 'Keyframes mode requires Pro plan or higher' };
+    }
+    
     const result = await onGenerate(content);
     if (result?.success) {
       setIsModalOpen(false);
@@ -2045,6 +1939,7 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
           remaining={remaining}
           onGenerate={handleGenerate}
           isModal={true}
+          userPlan={userPlan}
         />
       </ProfessionalModal>
     </>
