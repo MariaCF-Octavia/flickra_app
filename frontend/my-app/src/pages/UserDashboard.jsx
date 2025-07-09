@@ -1579,7 +1579,6 @@ const planLimits = {
 // Demo Video Component Import (add this to your imports at the top)
 
 
-// Add these states with your other useState declarations in UserDashboard main component
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
@@ -1782,7 +1781,124 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
   );
 };
 
+// Professional Modal Component
+const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto">
+        <div className="bg-[#0f1419] border border-slate-700/50 rounded-2xl shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
+            <div>
+              <h2 className="text-xl font-bold text-white">{title}</h2>
+              <p className="text-slate-400 text-sm mt-1">{subtitle}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+            >
+              <FiX size={20} />
+            </button>
+          </div>
+          
+          {/* Content */}
+          <div className="p-6">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enterprise ContentGenerator with professional styling
+const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = false }) => {
+  return (
+    <div className={isModal ? "space-y-6" : ""}>
+      {/* Professional form styling for modal */}
+      <div className="space-y-6">
+        <ContentGenerator
+          type={type}
+          remaining={remaining}
+          onGenerate={onGenerate}
+          className="enterprise-generator"
+          darkMode={true}
+        />
+      </div>
+      
+      {/* Add custom styles */}
+      <style jsx>{`
+        .enterprise-generator textarea {
+          background: rgba(30, 41, 59, 0.5) !important;
+          border: 1px solid rgba(71, 85, 105, 0.3) !important;
+          border-radius: 12px !important;
+          padding: 16px !important;
+          color: white !important;
+          font-size: 14px !important;
+          line-height: 1.5 !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .enterprise-generator textarea:focus {
+          background: rgba(30, 41, 59, 0.8) !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+          outline: none !important;
+        }
+        
+        .enterprise-generator input[type="file"] + div {
+          background: rgba(30, 41, 59, 0.3) !important;
+          border: 2px dashed rgba(71, 85, 105, 0.4) !important;
+          border-radius: 12px !important;
+          padding: 24px !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .enterprise-generator input[type="file"] + div:hover {
+          background: rgba(30, 41, 59, 0.5) !important;
+          border-color: rgba(99, 102, 241, 0.4) !important;
+        }
+        
+        .enterprise-generator button[type="submit"] {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+          border: none !important;
+          border-radius: 12px !important;
+          padding: 16px 24px !important;
+          font-weight: 600 !important;
+          font-size: 14px !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .enterprise-generator button[type="submit"]:hover:not(:disabled) {
+          background: linear-gradient(135deg, #5b59ed, #7c3aed) !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25) !important;
+        }
+        
+        .enterprise-generator select {
+          background: rgba(30, 41, 59, 0.5) !important;
+          border: 1px solid rgba(71, 85, 105, 0.3) !important;
+          border-radius: 8px !important;
+          color: white !important;
+          padding: 8px 12px !important;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// Updated Professional Generator Card with clean launch buttons
 const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const typeConfig = {
     text: {
@@ -1792,7 +1908,9 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiFileText size={20} />,
       gradient: 'from-blue-500 to-cyan-500',
       borderGradient: 'from-blue-500/20 to-cyan-500/20',
-      capability: 'AI-powered copywriting'
+      capability: 'AI-powered copywriting',
+      modalTitle: 'AI Copy Generation',
+      modalSubtitle: 'Create professional marketing copy that converts'
     },
     image: {
       title: 'Image Enhancement',
@@ -1801,7 +1919,9 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiImage size={20} />,
       gradient: 'from-indigo-500 to-purple-600',
       borderGradient: 'from-indigo-500/20 to-purple-600/20',
-      capability: 'Product image transformation'
+      capability: 'Product image transformation',
+      modalTitle: 'AI Image Enhancement',
+      modalSubtitle: 'Transform product photos into professional marketing assets'
     },
     video: {
       title: 'Video Production',
@@ -1810,7 +1930,9 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiVideo size={20} />,
       gradient: 'from-emerald-500 to-teal-600',
       borderGradient: 'from-emerald-500/20 to-teal-600/20',
-      capability: 'Video generation & editing'
+      capability: 'Video generation & editing',
+      modalTitle: 'AI Video Production',
+      modalSubtitle: 'Create dynamic commercials from product images'
     },
     tts: {
       title: 'Voice Synthesis',
@@ -1819,68 +1941,113 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiMic size={20} />,
       gradient: 'from-orange-500 to-red-500',
       borderGradient: 'from-orange-500/20 to-red-500/20',
-      capability: 'AI voice generation'
+      capability: 'AI voice generation',
+      modalTitle: 'AI Voice Synthesis',
+      modalSubtitle: 'Generate professional narration and voiceovers'
     }
   };
 
   const config = typeConfig[type];
 
+  const handleLaunch = () => {
+    if (remaining <= 0 && userPlan !== 'enterprise') {
+      // Could show upgrade modal or error
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleGenerate = async (content) => {
+    const result = await onGenerate(content);
+    if (result?.success) {
+      setIsModalOpen(false);
+    }
+    return result;
+  };
+
   return (
-    <div className="group relative">
-      {/* Main Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-slate-800/50">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center justify-center shadow-lg`}>
-                <div className="text-white">{config.icon}</div>
+    <>
+      <div className="group relative">
+        {/* Main Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
+          
+          {/* Header */}
+          <div className="p-6 border-b border-slate-800/50">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center justify-center shadow-lg`}>
+                  <div className="text-white">{config.icon}</div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-1">{config.title}</h3>
+                  <p className="text-slate-400 text-sm">{config.subtitle}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-1">{config.title}</h3>
-                <p className="text-slate-400 text-sm">{config.subtitle}</p>
+              
+              {/* Credits Display */}
+              <div className="text-right">
+                <div className={`inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
+                  <span className="text-white font-medium text-sm">
+                    {userPlan === 'enterprise' ? '∞' : remaining}
+                  </span>
+                  <span className="text-slate-400 ml-1 text-xs">
+                    {userPlan === 'enterprise' ? '' : 'credits'}
+                  </span>
+                </div>
               </div>
-            </div>
-            
-            {/* Credits Display */}
-            <div className="text-right">
-              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
-                <span className="text-white font-medium text-sm">
-                  {userPlan === 'enterprise' ? '∞' : remaining}
-                </span>
-                <span className="text-slate-400 ml-1 text-xs">
-                  {userPlan === 'enterprise' ? '' : 'credits'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          {/* Description */}
-          <p className="text-slate-300 leading-relaxed mb-6">{config.description}</p>
-
-          {/* Capability Badge */}
-          <div className="mb-6">
-            <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
-              <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
-              <span className="text-slate-300 text-xs font-medium">{config.capability}</span>
             </div>
           </div>
 
-          {/* Action Button */}
-          <ContentGenerator
-            type={type}
-            remaining={remaining}
-            onGenerate={onGenerate}
-            className="w-full"
-            darkMode={true}
-          />
+          {/* Content */}
+          <div className="p-6">
+            {/* Description */}
+            <p className="text-slate-300 leading-relaxed mb-6">{config.description}</p>
+
+            {/* Capability Badge */}
+            <div className="mb-6">
+              <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
+                <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+                <span className="text-slate-300 text-xs font-medium">{config.capability}</span>
+              </div>
+            </div>
+
+            {/* Clean Launch Button */}
+            <button
+              onClick={handleLaunch}
+              disabled={remaining <= 0 && userPlan !== 'enterprise'}
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center space-x-3 ${
+                remaining <= 0 && userPlan !== 'enterprise'
+                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  : `bg-gradient-to-r ${config.gradient} hover:shadow-lg hover:shadow-indigo-500/25 transform hover:scale-[1.02] active:scale-[0.98]`
+              }`}
+            >
+              <div className="text-white">{config.icon}</div>
+              <span>
+                {remaining <= 0 && userPlan !== 'enterprise' 
+                  ? 'No Credits Remaining' 
+                  : `Launch ${config.title}`
+                }
+              </span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Professional Modal */}
+      <ProfessionalModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={config.modalTitle}
+        subtitle={config.modalSubtitle}
+      >
+        <EnterpriseContentGenerator
+          type={type}
+          remaining={remaining}
+          onGenerate={handleGenerate}
+          isModal={true}
+        />
+      </ProfessionalModal>
+    </>
   );
 };
 
