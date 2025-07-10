@@ -1848,7 +1848,6 @@ const planLimits = {
 
 
 
-
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
@@ -2105,6 +2104,48 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
         />
       </div>
       
+      {/* Enhanced Runway References Description */}
+      {type === 'video' && (
+        <div className="mt-6 p-6 rounded-xl bg-gradient-to-r from-slate-800/30 to-slate-700/30 border border-slate-600/30">
+          <h4 className="text-white font-semibold mb-3 flex items-center">
+            <FiInfo className="w-4 h-4 mr-2 text-blue-400" />
+            Runway Image References Guide
+          </h4>
+          <div className="space-y-3 text-sm text-slate-300">
+            <p className="leading-relaxed">
+              When using Runway's image enhancement feature, you can reference multiple images by tagging them with <code className="px-2 py-1 bg-slate-900/50 rounded text-blue-300">@</code> followed by descriptive text:
+            </p>
+            <div className="bg-slate-900/40 p-4 rounded-lg border border-slate-600/20">
+              <p className="text-slate-200 font-medium mb-2">Example format:</p>
+              <code className="text-green-300">
+                @main_product sleek smartphone in studio lighting
+                @background modern minimalist office environment
+                @style cinematic commercial photography with depth of field
+              </code>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="space-y-2">
+                <h5 className="text-white font-medium text-xs uppercase tracking-wide">Best Practices:</h5>
+                <ul className="space-y-1 text-xs text-slate-400">
+                  <li>• Use clear, descriptive labels after @</li>
+                  <li>• Include lighting, mood, and style details</li>
+                  <li>• Reference specific camera angles or compositions</li>
+                  <li>• Mention brand guidelines or aesthetic preferences</li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <h5 className="text-white font-medium text-xs uppercase tracking-wide">Tag Examples:</h5>
+                <ul className="space-y-1 text-xs text-slate-400">
+                  <li>• <code className="text-blue-300">@product</code> <code className="text-slate-300">luxury watch macro detail</code></li>
+                  <li>• <code className="text-blue-300">@environment</code> <code className="text-slate-300">premium retail showroom</code></li>
+                  <li>• <code className="text-blue-300">@mood</code> <code className="text-slate-300">sophisticated professional tone</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Add custom styles */}
       <style jsx>{`
         .enterprise-generator textarea {
@@ -2166,7 +2207,7 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
   );
 };
 
-// Updated Professional Generator Card with clean launch buttons
+// Updated Professional Generator Card with PREMIUM LIGHTING EFFECTS
 const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -2178,6 +2219,7 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiFileText size={20} />,
       gradient: 'from-blue-500 to-cyan-500',
       borderGradient: 'from-blue-500/20 to-cyan-500/20',
+      glowColor: 'shadow-blue-500/20',
       capability: 'AI-powered copywriting',
       modalTitle: 'AI Copy Generation',
       modalSubtitle: 'Create professional marketing copy that converts'
@@ -2189,6 +2231,7 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiImage size={20} />,
       gradient: 'from-indigo-500 to-purple-600',
       borderGradient: 'from-indigo-500/20 to-purple-600/20',
+      glowColor: 'shadow-indigo-500/20',
       capability: 'Product image transformation',
       modalTitle: 'AI Image Enhancement',
       modalSubtitle: 'Transform product photos into professional marketing assets'
@@ -2200,6 +2243,7 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiVideo size={20} />,
       gradient: 'from-emerald-500 to-teal-600',
       borderGradient: 'from-emerald-500/20 to-teal-600/20',
+      glowColor: 'shadow-emerald-500/20',
       capability: 'Video generation & editing',
       modalTitle: 'AI Video Production',
       modalSubtitle: 'Create dynamic commercials from product images'
@@ -2211,6 +2255,7 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
       icon: <FiMic size={20} />,
       gradient: 'from-orange-500 to-red-500',
       borderGradient: 'from-orange-500/20 to-red-500/20',
+      glowColor: 'shadow-orange-500/20',
       capability: 'AI voice generation',
       modalTitle: 'AI Voice Synthesis',
       modalSubtitle: 'Generate professional narration and voiceovers'
@@ -2221,7 +2266,6 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
 
   const handleLaunch = () => {
     if (remaining <= 0 && userPlan !== 'enterprise') {
-      // Could show upgrade modal or error
       return;
     }
     setIsModalOpen(true);
@@ -2238,25 +2282,31 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
   return (
     <>
       <div className="group relative">
-        {/* Main Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
+        {/* Premium Lighting Effects - Outer Glow */}
+        <div className={`absolute -inset-0.5 bg-gradient-to-r ${config.gradient} rounded-2xl blur opacity-20 group-hover:opacity-40 transition-all duration-500`}></div>
+        
+        {/* Main Card with Enhanced Shadows */}
+        <div className={`relative overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 hover:border-slate-700/50 transition-all duration-500 hover:transform hover:scale-[1.02] shadow-xl ${config.glowColor} hover:shadow-2xl group-hover:${config.glowColor.replace('/20', '/30')}`}>
           
-          {/* Header */}
-          <div className="p-6 border-b border-slate-800/50">
+          {/* Subtle Inner Glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-transparent pointer-events-none"></div>
+          
+          {/* Header with Enhanced Styling */}
+          <div className="p-6 border-b border-slate-800/50 relative">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center justify-center shadow-lg`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
                   <div className="text-white">{config.icon}</div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">{config.title}</h3>
+                  <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-white group-hover:to-slate-200 transition-all duration-300">{config.title}</h3>
                   <p className="text-slate-400 text-sm">{config.subtitle}</p>
                 </div>
               </div>
               
-              {/* Credits Display */}
+              {/* Credits Display with Glow */}
               <div className="text-right">
-                <div className={`inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
+                <div className={`inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r ${config.borderGradient} border border-slate-600/30 shadow-lg hover:shadow-xl transition-all duration-300`}>
                   <span className="text-white font-medium text-sm">
                     {userPlan === 'enterprise' ? '∞' : remaining}
                   </span>
@@ -2268,31 +2318,34 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="p-6">
+          {/* Content with Enhanced Spacing */}
+          <div className="p-6 relative">
             {/* Description */}
             <p className="text-slate-300 leading-relaxed mb-6">{config.description}</p>
 
-            {/* Capability Badge */}
+            {/* Capability Badge with Premium Styling */}
             <div className="mb-6">
-              <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r ${config.borderGradient} border border-slate-600/30`}>
-                <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+              <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r ${config.borderGradient} border border-slate-600/30 shadow-md hover:shadow-lg transition-all duration-300`}>
+                <div className="w-2 h-2 rounded-full bg-current mr-2 animate-pulse"></div>
                 <span className="text-slate-300 text-xs font-medium">{config.capability}</span>
               </div>
             </div>
 
-            {/* Clean Launch Button */}
+            {/* Premium Launch Button with Enhanced Effects */}
             <button
               onClick={handleLaunch}
               disabled={remaining <= 0 && userPlan !== 'enterprise'}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center space-x-3 ${
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-500 flex items-center justify-center space-x-3 relative overflow-hidden ${
                 remaining <= 0 && userPlan !== 'enterprise'
                   ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                  : `bg-gradient-to-r ${config.gradient} hover:shadow-lg hover:shadow-indigo-500/25 transform hover:scale-[1.02] active:scale-[0.98]`
+                  : `bg-gradient-to-r ${config.gradient} hover:shadow-2xl ${config.glowColor} hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5`
               }`}
             >
-              <div className="text-white">{config.icon}</div>
-              <span>
+              {/* Button Shine Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+              
+              <div className="text-white relative z-10">{config.icon}</div>
+              <span className="relative z-10">
                 {remaining <= 0 && userPlan !== 'enterprise' 
                   ? 'No Credits Remaining' 
                   : `Launch ${config.title}`
@@ -2300,6 +2353,9 @@ const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) =>
               </span>
             </button>
           </div>
+          
+          {/* Subtle Border Highlight */}
+          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${config.gradient} opacity-0 group-hover:opacity-10 transition-all duration-500 pointer-events-none`}></div>
         </div>
       </div>
 
@@ -2340,7 +2396,7 @@ return (
       />
     )}
 
-    {/* Professional Header */}
+    {/* Professional Header - REMOVED DUPLICATE LOGO */}
     <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10 bg-[#0f1419]/90 backdrop-blur-xl border-slate-800/50">
       <div className="flex items-center space-x-4">
         <button 
@@ -2351,15 +2407,7 @@ return (
           {sidebarOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
         </button>
         
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CF</span>
-          </div>
-          <div>
-            <div className="font-semibold text-white">CF Studio</div>
-            <div className="text-xs text-slate-400">Creative AI Platform</div>
-          </div>
-        </div>
+        {/* Removed duplicate CF Studio logo/branding from header since it's already in sidebar */}
       </div>
       
       <div className="flex items-center space-x-4">
@@ -2442,47 +2490,56 @@ return (
                   </div>
                 </div>
 
-                {/* Professional Stats */}
+                {/* Professional Stats with Premium Lighting */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                        <FiZap className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">98%</div>
-                        <div className="text-slate-400 text-sm">Cost Reduction</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <FiClock className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">10x</div>
-                        <div className="text-slate-400 text-sm">Faster Creation</div>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+                    <div className="relative bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6 hover:border-slate-700/50 transition-all duration-300 shadow-lg hover:shadow-blue-500/10">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                          <FiZap className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-white">98%</div>
+                          <div className="text-slate-400 text-sm">Cost Reduction</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
-                        <FiTrendingUp className="w-6 h-6 text-white" />
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+                    <div className="relative bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6 hover:border-slate-700/50 transition-all duration-300 shadow-lg hover:shadow-emerald-500/10">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                          <FiClock className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-white">10x</div>
+                          <div className="text-slate-400 text-sm">Faster Creation</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-white">$5000+</div>
-                        <div className="text-slate-400 text-sm">Campaign Value</div>
+                    </div>
+                  </div>
+                  
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+                    <div className="relative bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6 hover:border-slate-700/50 transition-all duration-300 shadow-lg hover:shadow-indigo-500/10">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                          <FiTrendingUp className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-white">$5000+</div>
+                          <div className="text-slate-400 text-sm">Campaign Value</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Professional Generator Grid */}
+              {/* Professional Generator Grid with Premium Effects */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <ProfessionalGeneratorCard 
                   type="image" 
@@ -2517,24 +2574,27 @@ return (
         {activeTab === 'editor' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h2 className="text-2xl font-bold text-white mb-2">Advanced Image Editor</h2>
-                      <p className="text-slate-400">Professional image editing and transformation tools</p>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-15 group-hover:opacity-25 transition-all duration-500"></div>
+                <div className="relative rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden shadow-xl hover:shadow-blue-500/10 transition-all duration-500">
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Advanced Image Editor</h2>
+                        <p className="text-slate-400">Professional image editing and transformation tools</p>
+                      </div>
+                      <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-lg border border-blue-500/30 shadow-lg">
+                        Professional Tools
+                      </div>
                     </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 rounded-lg border border-blue-500/30">
-                      Professional Tools
-                    </div>
+                    <CloudinaryEditor 
+                      darkMode={true}
+                      userPlan={userPlan}
+                      onImageEdit={(editedImage) => {
+                        console.log('Image edited:', editedImage);
+                      }}
+                    />
                   </div>
-                  <CloudinaryEditor 
-                    darkMode={true}
-                    userPlan={userPlan}
-                    onImageEdit={(editedImage) => {
-                      console.log('Image edited:', editedImage);
-                    }}
-                  />
                 </div>
               </div>
             </div>
@@ -2545,18 +2605,21 @@ return (
         {activeTab === 'ffmpeg' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h2 className="text-2xl font-bold text-white mb-2">Media Production Suite</h2>
-                      <p className="text-slate-400">Professional video editing and audio processing</p>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl blur opacity-15 group-hover:opacity-25 transition-all duration-500"></div>
+                <div className="relative rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden shadow-xl hover:shadow-emerald-500/10 transition-all duration-500">
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Media Production Suite</h2>
+                        <p className="text-slate-400">Professional video editing and audio processing</p>
+                      </div>
+                      <div className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30 shadow-lg">
+                        Server Processing
+                      </div>
                     </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30">
-                      Server Processing
-                    </div>
+                    <BackendFFmpeg darkMode={true} />
                   </div>
-                  <BackendFFmpeg darkMode={true} />
                 </div>
               </div>
             </div>
@@ -2567,21 +2630,24 @@ return (
         {activeTab === 'analytics' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
-                <div className="p-16 text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-slate-800/50">
-                    <FiBarChart2 className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-white">
-                    Performance Analytics
-                  </h3>
-                  <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                    Advanced campaign performance tracking and ROI analytics coming soon
-                  </p>
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 text-sm font-medium rounded-lg border border-indigo-500/30">
-                      Enterprise Feature
-                    </span>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-15 group-hover:opacity-25 transition-all duration-500"></div>
+                <div className="relative rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden shadow-xl hover:shadow-indigo-500/10 transition-all duration-500">
+                  <div className="p-16 text-center">
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-slate-800/50 shadow-lg">
+                      <FiBarChart2 className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-white">
+                      Performance Analytics
+                    </h3>
+                    <p className="text-slate-400 mb-8 max-w-md mx-auto">
+                      Advanced campaign performance tracking and ROI analytics coming soon
+                    </p>
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 text-indigo-300 text-sm font-medium rounded-lg border border-indigo-500/30 shadow-lg">
+                        Enterprise Feature
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2593,301 +2659,314 @@ return (
         {activeTab === 'library' && (
           <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
-              <div className="rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden">
-                <div className="p-8">
-                  {/* Header */}
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 space-y-4 lg:space-y-0">
-                    <div>
-                      <h2 className="text-2xl font-bold text-white mb-2">Media Library</h2>
-                      <p className="text-slate-400">Organize and manage your creative assets</p>
-                    </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center bg-slate-800/50 rounded-lg p-1">
-                        <select className="bg-transparent text-white px-4 py-2 outline-none rounded-lg">
-                          <option>All Assets</option>
-                          <option>Images</option>
-                          <option>Videos</option>
-                          <option>Audio</option>
-                          <option>Documents</option>
-                        </select>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-slate-600 to-slate-500 rounded-2xl blur opacity-10 group-hover:opacity-20 transition-all duration-500"></div>
+                <div className="relative rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden shadow-xl hover:shadow-slate-500/5 transition-all duration-500">
+                  <div className="p-8">
+                    {/* Header */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 space-y-4 lg:space-y-0">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Media Library</h2>
+                        <p className="text-slate-400">Organize and manage your creative assets</p>
                       </div>
                       
-                      <button 
-                        onClick={() => {
-                          const fileInput = document.createElement('input');
-                          fileInput.type = 'file';
-                          fileInput.multiple = true;
-                          fileInput.accept = 'image/*,video/*,audio/*';
-                          fileInput.onchange = (e) => {
-                            if (e.target.files && e.target.files.length > 0) {
-                              toast.success(`${e.target.files.length} file(s) uploaded successfully`);
-                            }
-                          };
-                          fileInput.click();
-                        }}
-                        className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300"
-                      >
-                        <Upload size={16} className="mr-2" />
-                        Import Assets
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Content Grid */}
-                  <div className="space-y-8">
-                    {/* Text Content */}
-                    {previews.text && (
-                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                              <FiFileText className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">Generated Copy</h3>
-                              <p className="text-slate-400 text-sm">Created {new Date().toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <button 
-                              onClick={() => {
-                                const blob = new Blob([previews.text], { type: 'text/plain' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `content_${Date.now()}.txt`;
-                                document.body.appendChild(a);
-                                a.click();
-                                URL.revokeObjectURL(url);
-                                document.body.removeChild(a);
-                                toast.success('Content downloaded');
-                              }}
-                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
-                            >
-                              <FiDownload size={16} />
-                            </button>
-                          </div>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center bg-slate-800/50 rounded-lg p-1 border border-slate-700/50">
+                          <select className="bg-transparent text-white px-4 py-2 outline-none rounded-lg">
+                            <option>All Assets</option>
+                            <option>Images</option>
+                            <option>Videos</option>
+                            <option>Audio</option>
+                            <option>Documents</option>
+                          </select>
                         </div>
                         
-                        <div className="prose prose-invert max-w-none">
-                          <ReactMarkdown>{previews.text}</ReactMarkdown>
-                        </div>
+                        <button 
+                          onClick={() => {
+                            const fileInput = document.createElement('input');
+                            fileInput.type = 'file';
+                            fileInput.multiple = true;
+                            fileInput.accept = 'image/*,video/*,audio/*';
+                            fileInput.onchange = (e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                toast.success(`${e.target.files.length} file(s) uploaded successfully`);
+                              }
+                            };
+                            fileInput.click();
+                          }}
+                          className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <Upload size={16} className="mr-2" />
+                          Import Assets
+                        </button>
                       </div>
-                    )}
-
-                    {/* Image Content */}
-                    {previews.image && (
-                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
-                        <div className="grid lg:grid-cols-2 gap-8 p-6">
-                          {/* Original Image */}
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h3 className="text-lg font-semibold text-white">Source Image</h3>
-                                <p className="text-slate-400 text-sm">Original product photo</p>
+                    </div>
+                    
+                    {/* Content Grid with Premium Effects */}
+                    <div className="space-y-8">
+                      {/* Text Content */}
+                      {previews.text && (
+                        <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300 shadow-lg hover:shadow-xl">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                          <div className="relative">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                                  <FiFileText className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">Generated Copy</h3>
+                                  <p className="text-slate-400 text-sm">Created {new Date().toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <button 
+                                  onClick={() => {
+                                    const blob = new Blob([previews.text], { type: 'text/plain' });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `content_${Date.now()}.txt`;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                    document.body.removeChild(a);
+                                    toast.success('Content downloaded');
+                                  }}
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
+                                >
+                                  <FiDownload size={16} />
+                                </button>
                               </div>
                             </div>
-                            <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50">
-                              <img 
-                                src={previews.sourceImage} 
-                                className="w-full h-full object-cover" 
-                                alt="Source content" 
-                              />
+                            
+                            <div className="prose prose-invert max-w-none">
+                              <ReactMarkdown>{previews.text}</ReactMarkdown>
                             </div>
                           </div>
+                        </div>
+                      )}
 
-                          {/* Enhanced Image */}
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h3 className="text-lg font-semibold text-white">Enhanced Result</h3>
-                                <p className="text-slate-400 text-sm">AI-enhanced marketing asset</p>
+                      {/* Image Content */}
+                      {previews.image && (
+                        <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300 shadow-lg hover:shadow-xl">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500/10 to-purple-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                          <div className="relative grid lg:grid-cols-2 gap-8 p-6">
+                            {/* Original Image */}
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">Source Image</h3>
+                                  <p className="text-slate-400 text-sm">Original product photo</p>
+                                </div>
                               </div>
+                              <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50 shadow-lg">
+                                <img 
+                                  src={previews.sourceImage} 
+                                  className="w-full h-full object-cover" 
+                                  alt="Source content" 
+                                />
+                              </div>
+                            </div>
+
+                            {/* Enhanced Image */}
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">Enhanced Result</h3>
+                                  <p className="text-slate-400 text-sm">AI-enhanced marketing asset</p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <a
+                                    href={previews.image}
+                                    download={`enhanced_${Date.now()}.png`}
+                                    className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
+                                  >
+                                    <FiDownload size={16} />
+                                  </a>
+                                  <button
+                                    onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
+                                    className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
+                                  >
+                                    <FiMaximize size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50 shadow-lg">
+                                <img 
+                                  src={previews.image} 
+                                  className="w-full h-full object-cover" 
+                                  alt="Enhanced content" 
+                                />
+                              </div>
+                              {previews.metadata && (
+                                <div className="mt-4 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30 shadow-md">
+                                  <h4 className="text-white font-medium mb-2 text-sm">Generation Details</h4>
+                                  <div className="space-y-1 text-xs text-slate-300">
+                                    <p><span className="text-slate-400">Prompt:</span> {previews.metadata.prompt}</p>
+                                    <p><span className="text-slate-400">Seed:</span> {previews.metadata.seed || 'Random'}</p>
+                                    <p><span className="text-slate-400">Strength:</span> {previews.metadata.image_strength}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Video Content */}
+                      {previews.video && (
+                        <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300 shadow-lg hover:shadow-xl">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/10 to-teal-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                          <div className="relative">
+                            <div className="flex items-start justify-between mb-6">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                                  <FiVideo className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">Generated Video</h3>
+                                  <p className="text-slate-400 text-sm">Professional commercial content</p>
+                                </div>
+                              </div>
+                              
                               <div className="flex items-center space-x-2">
+                                <div className="px-3 py-1 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30 text-xs font-medium shadow-md">
+                                  Professional Quality
+                                </div>
                                 <a
-                                  href={previews.image}
-                                  download={`enhanced_${Date.now()}.png`}
-                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
+                                  href={previews.video}
+                                  download={`video_${Date.now()}.mp4`}
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
                                 >
                                   <FiDownload size={16} />
                                 </a>
                                 <button
-                                  onClick={() => setFullscreenPreview({ type: 'image', content: previews.image })}
-                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
+                                  onClick={() => setFullscreenPreview({ type: 'video', content: previews.video })}
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
                                 >
                                   <FiMaximize size={16} />
                                 </button>
                               </div>
                             </div>
-                            <div className="relative aspect-square rounded-lg overflow-hidden border border-slate-600/50">
-                              <img 
-                                src={previews.image} 
-                                className="w-full h-full object-cover" 
-                                alt="Enhanced content" 
-                              />
+                            
+                            <div className="rounded-lg overflow-hidden border border-slate-600/50 shadow-lg">
+                              <video
+                                controls
+                                className="w-full rounded-lg"
+                                playsInline
+                                webkit-playsinline="true"
+                                muted
+                                preload="metadata"
+                              >
+                                <source src={previews.video} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
                             </div>
-                            {previews.metadata && (
-                              <div className="mt-4 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                                <h4 className="text-white font-medium mb-2 text-sm">Generation Details</h4>
-                                <div className="space-y-1 text-xs text-slate-300">
-                                  <p><span className="text-slate-400">Prompt:</span> {previews.metadata.prompt}</p>
-                                  <p><span className="text-slate-400">Seed:</span> {previews.metadata.seed || 'Random'}</p>
-                                  <p><span className="text-slate-400">Strength:</span> {previews.metadata.image_strength}</p>
-                                </div>
+                            
+                            <div className="mt-4 text-center">
+                              <p className="text-xs text-slate-400 mb-2">
+                                Alternative access options:
+                              </p>
+                              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                                <a
+                                  href={previews.video}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-indigo-400 hover:text-indigo-300 text-sm underline"
+                                >
+                                  Open in new tab
+                                </a>
+                                <a
+                                  href={previews.video}
+                                  download={`video_${Date.now()}.mp4`}
+                                  className="text-emerald-400 hover:text-emerald-300 text-sm underline"
+                                >
+                                  Direct download
+                                </a>
                               </div>
-                            )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Video Content */}
-                    {previews.video && (
-                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
-                        <div className="flex items-start justify-between mb-6">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
-                              <FiVideo className="w-5 h-5 text-white" />
+                      {/* Audio Content */}
+                      {previews.audio && (
+                        <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300 shadow-lg hover:shadow-xl">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                          <div className="relative">
+                            <div className="flex items-start justify-between mb-6">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
+                                  <FiMic className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">Generated Audio</h3>
+                                  <p className="text-slate-400 text-sm">Professional voice synthesis</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <div className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-lg border border-orange-500/30 text-xs font-medium shadow-md">
+                                  Studio Quality
+                                </div>
+                                <a
+                                  href={previews.audio}
+                                  download={`audio_${Date.now()}.mp3`}
+                                  className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
+                                >
+                                  <FiDownload size={16} />
+                                </a>
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">Generated Video</h3>
-                              <p className="text-slate-400 text-sm">Professional commercial content</p>
+                            
+                            <div className="p-6 rounded-lg bg-slate-700/30 border border-slate-600/30 shadow-md">
+                              {previews.audioElement}
                             </div>
                           </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-300 rounded-lg border border-emerald-500/30 text-xs font-medium">
-                              Professional Quality
-                            </div>
-                            <a
-                              href={previews.video}
-                              download={`video_${Date.now()}.mp4`}
-                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
+                        </div>
+                      )}
+
+                      {/* Empty State */}
+                      {!previews.text && !previews.image && !previews.video && !previews.audio && (
+                        <div className="text-center py-16">
+                          <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-800/50 flex items-center justify-center mb-6 shadow-lg">
+                            <FiFolder className="w-10 h-10 text-slate-500" />
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-4">No assets created yet</h3>
+                          <p className="text-slate-400 mb-8 max-w-md mx-auto">
+                            Start creating professional marketing assets with our AI-powered campaign studio
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button 
+                              onClick={() => setActiveTab('generators')}
+                              className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 transform hover:scale-105"
                             >
-                              <FiDownload size={16} />
-                            </a>
-                            <button
-                              onClick={() => setFullscreenPreview({ type: 'video', content: previews.video })}
-                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
+                              Launch Campaign Studio
+                            </button>
+                            <button 
+                              onClick={() => {
+                                const fileInput = document.createElement('input');
+                                fileInput.type = 'file';
+                                fileInput.multiple = true;
+                                fileInput.accept = 'image/*,video/*,audio/*';
+                                fileInput.onchange = (e) => {
+                                  if (e.target.files && e.target.files.length > 0) {
+                                    toast.success(`${e.target.files.length} file(s) uploaded`);
+                                  }
+                                };
+                                fileInput.click();
+                              }}
+                              className="px-8 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
                             >
-                              <FiMaximize size={16} />
+                              <Upload size={18} className="inline mr-2" />
+                              Import Existing Assets
                             </button>
                           </div>
                         </div>
-                        
-                        <div className="rounded-lg overflow-hidden border border-slate-600/50">
-                          <video
-                            controls
-                            className="w-full rounded-lg"
-                            playsInline
-                            webkit-playsinline="true"
-                            muted
-                            preload="metadata"
-                          >
-                            <source src={previews.video} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        </div>
-                        
-                        <div className="mt-4 text-center">
-                          <p className="text-xs text-slate-400 mb-2">
-                            Alternative access options:
-                          </p>
-                          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                            <a
-                              href={previews.video}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-indigo-400 hover:text-indigo-300 text-sm underline"
-                            >
-                              Open in new tab
-                            </a>
-                            <a
-                              href={previews.video}
-                              download={`video_${Date.now()}.mp4`}
-                              className="text-emerald-400 hover:text-emerald-300 text-sm underline"
-                            >
-                              Direct download
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Audio Content */}
-                    {previews.audio && (
-                      <div className="group relative overflow-hidden rounded-xl bg-slate-800/30 border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all duration-300">
-                        <div className="flex items-start justify-between mb-6">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
-                              <FiMic className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">Generated Audio</h3>
-                              <p className="text-slate-400 text-sm">Professional voice synthesis</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-lg border border-orange-500/30 text-xs font-medium">
-                              Studio Quality
-                            </div>
-                            <a
-                              href={previews.audio}
-                              download={`audio_${Date.now()}.mp3`}
-                              className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors"
-                            >
-                              <FiDownload size={16} />
-                            </a>
-                          </div>
-                        </div>
-                        
-                        <div className="p-6 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                          {previews.audioElement}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Empty State */}
-                    {!previews.text && !previews.image && !previews.video && !previews.audio && (
-                      <div className="text-center py-16">
-                        <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-800/50 flex items-center justify-center mb-6">
-                          <FiFolder className="w-10 h-10 text-slate-500" />
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-4">No assets created yet</h3>
-                        <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                          Start creating professional marketing assets with our AI-powered campaign studio
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                          <button 
-                            onClick={() => setActiveTab('generators')}
-                            className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 transform hover:scale-105"
-                          >
-                            Launch Campaign Studio
-                          </button>
-                          <button 
-                            onClick={() => {
-                              const fileInput = document.createElement('input');
-                              fileInput.type = 'file';
-                              fileInput.multiple = true;
-                              fileInput.accept = 'image/*,video/*,audio/*';
-                              fileInput.onchange = (e) => {
-                                if (e.target.files && e.target.files.length > 0) {
-                                  toast.success(`${e.target.files.length} file(s) uploaded`);
-                                }
-                              };
-                              fileInput.click();
-                            }}
-                            className="px-8 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border border-slate-600/50 hover:border-slate-500/50 transition-all duration-300"
-                          >
-                            <Upload size={18} className="inline mr-2" />
-                            Import Existing Assets
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
