@@ -22,6 +22,17 @@ const Signup = () => {
   const [signupMode, setSignupMode] = useState("paid"); // "paid" or "trial"
   const [affiliateCode, setAffiliateCode] = useState("");
 
+  // DEBUG: Check what Stripe key is actually loaded
+  useEffect(() => {
+    console.log("=== STRIPE DEBUG INFO ===");
+    console.log("VITE_STRIPE_PUBLIC_KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+    console.log("stripePublicKey variable:", stripePublicKey);
+    console.log("Does it start with pk_live?", stripePublicKey?.startsWith('pk_live'));
+    console.log("Does it start with pk_test?", stripePublicKey?.startsWith('pk_test'));
+    console.log("Backend URL:", backendUrl);
+    console.log("========================");
+  }, []);
+
   // Check URL parameters for mode AND affiliate code
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
