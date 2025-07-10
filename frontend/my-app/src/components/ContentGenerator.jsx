@@ -67,7 +67,7 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
             text: "Describe what you want to generate...",
             image: referenceFile 
                 ? "Describe your desired scene (e.g., 'luxury spa environment with candles and marble')"
-                : "Professional product photo (describe background/setting)",
+                : "Professional product photo (describe background/setting) make sure to @ both images",
             video: videoMode === 'keyframes' 
                 ? "Describe the transition between images (e.g., 'woman picks up sunscreen and applies it smoothly')"
                 : selectedModel === 'veo2'  // CHANGED: veo3 -> veo2, removed audio reference
