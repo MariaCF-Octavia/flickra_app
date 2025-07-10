@@ -228,7 +228,7 @@ const Signup = () => {
             username: username.trim(),
             plan: selectedPlan.toLowerCase()
           },
-          emailRedirectTo: `https://contentfactory.ai/signup?confirmed=true&plan=${selectedPlan.toLowerCase()}`
+          emailRedirectTo: `${window.location.origin}/dashboard?from=email-confirmation&plan=${selectedPlan.toLowerCase()}`
         }
       };
 
