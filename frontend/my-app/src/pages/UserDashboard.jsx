@@ -1872,9 +1872,9 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
   return (
     <>
       {/* Sidebar */}
-      <div className={`w-72 flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
+      <div className={`w-72 flex flex-col h-full fixed lg:relative z-40 transition-all duration-300 ${
         sidebarOpen ? 'left-0' : '-left-72 lg:left-0'
-      } bg-[#0f1419] border-r border-slate-800/50 top-0`}>
+      } bg-[#0f1419] border-r border-slate-800/50 top-0 overflow-y-auto overscroll-contain`}>
         
         {/* Header */}
         <div className="p-6 border-b border-slate-800/50">
@@ -1902,7 +1902,7 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-6">
+        <nav className="flex-1 p-4 space-y-6 overflow-y-auto min-h-0">
           {navSections.map((section) => (
             <div key={section.title}>
               <h3 className="text-xs font-semibold uppercase mb-3 tracking-wider text-slate-500">
