@@ -520,6 +520,85 @@ const pollSDXLResult = useCallback(async (generationId, accessToken) => {
   throw new Error('Image generation timed out');
 }, []);
 
+// ADD THIS NEW FUNCTION FOR JOB_ID POLLING
+const pollVideoStatusByJobId = useCallback(async (jobId, accessToken) => {
+  const maxAttempts = 60; // 10 minutes max
+  let attempts = 0;
+  
+  console.log(`🔄 Starting to poll video status for job_id: ${jobId}`);
+  
+  while (attempts < maxAttempts) {
+    try {
+      console.log(`📡 Polling attempt ${attempts + 1}/${maxAttempts} for job ${jobId}`);
+      
+      const response = await withRateLimit(async () => {
+        const response = await fetch(`${API_BASE}/video-status/${jobId}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.status === 429) {
+          throw new Error('Status 429');
+        }
+        
+        return response;
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`Video polling error: Status ${response.status}`, errorData);
+        throw new Error(errorData.error || `Status check failed (${response.status})`);
+      }
+      
+      const result = await response.json();
+      console.log(`📊 Job ${jobId} status: ${result.status}`);
+      
+      if (result.status === 'completed') {
+        console.log(`✅ Video job ${jobId} completed:`, result.video_url || result.supabase_url);
+        return {
+          video_url: result.video_url || result.supabase_url,
+          supabase_url: result.supabase_url,
+          permanent_url: result.supabase_url,
+          metadata: result.metadata,
+          api_provider: result.api_provider,
+          ...result
+        };
+      } 
+      else if (result.status === 'failed') {
+        console.error('Video job failed with server error:', result.error);
+        throw new Error(result.error || 'Video generation failed');
+      }
+      else if (result.status === 'not_found') {
+        throw new Error('Video job not found');
+      }
+      
+      // Still processing, wait before next attempt
+      await new Promise(resolve => setTimeout(resolve, 10000)); // 10 seconds
+      attempts++;
+      
+    } catch (error) {
+      console.error('Video job polling error:', error);
+      
+      // Handle rate limiting
+      if (error.message.includes('429') || error.message.includes('Status 429')) {
+        await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds for rate limit
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 10000)); // Regular wait
+      }
+      
+      attempts++;
+      
+      if (attempts >= maxAttempts) {
+        throw error;
+      }
+    }
+  }
+  
+  throw new Error('Video generation timed out after 10 minutes');
+}, []);
+
 // First, fix your API_BASE constant - remove the extra "http://"
 
 
@@ -1147,8 +1226,7 @@ const planLimits = {
         
         throw new Error(errorMessage);
       }
-        
-      debug.stage = 'process-response';
+       debug.stage = 'process-response';
       const contentType = response.headers.get('Content-Type') || '';
       let result = {};
       const previewUpdate = {};
@@ -1200,156 +1278,229 @@ const planLimits = {
           console.log(`✅ Video generation started with job_id: ${data.job_id}`);
           console.log('🔄 Video will be processed asynchronously');
           
-          // Return early for async processing - the ContentGenerator will handle polling
-          return {
-            success: true,
-            data: data,
-            preview: {},
-            contentType: type,
-            isAsync: true  // Flag to indicate async processing
-          };
-        }
-
-        // Legacy handling for immediate video URLs (if any)
-        let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
-        
-        // Get duration from response data
-        const videoDuration = data.duration || content.duration || 10;
-        
-        // TEMPORARY FIX: If we get a CloudFront URL, convert it to Supabase URL
-        if (videoUrl && videoUrl.includes('cloudfront.net')) {
-          console.log('⚠️ Got CloudFront URL, attempting to construct Supabase URL...');
-          
-          // Extract the task ID from the response or URL
-          const taskId = data.task_id || videoUrl.match(/([a-f0-9-]{36})/)?.[1];
-          
-          if (taskId) {
-            // Construct the Supabase URL based on your pattern from the logs
-            const supabaseUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
-            
-            console.log('🔧 Converted CloudFront URL to Supabase URL:', {
-              original: videoUrl,
-              converted: supabaseUrl,
-              taskId: taskId,
-              userId: user.id
-            });
-            
-            videoUrl = supabaseUrl;
-          }
-        }
-
-        // FIXED: Clean up video URL for mobile compatibility
-        if (videoUrl) {
-          // Remove trailing ? or & that cause mobile issues
-          videoUrl = videoUrl.replace(/[?&]$/, '');
-          
-          // Additional mobile-specific cleaning
-          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-          if (isMobile) {
-            console.log('📱 Mobile device detected - cleaning video URL for compatibility');
-            
-            try {
-              const urlObj = new URL(videoUrl);
-              // Reconstruct clean URL without problematic query parameters
-              videoUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-              console.log('📱 Cleaned video URL for mobile:', videoUrl);
-            } catch (urlError) {
-              console.error('📱 URL cleaning failed, using original:', urlError);
-            }
-          }
-          
-          console.log('🧹 Final cleaned video URL:', videoUrl);
-        }
-        
-        console.log('Video response data:', {
-          supabase_url: data.supabase_url,
-          video_url: data.video_url,
-          permanent_url: data.permanent_url,
-          task_id: data.task_id,
-          job_id: data.job_id,  // UPDATED: Also log job_id
-          duration: videoDuration,
-          finalUrl: videoUrl,
-          isCloudFront: videoUrl?.includes('cloudfront.net'),
-          isSupabase: videoUrl?.includes('supabase.co')
-        });
-
-        if (data.task_id && !videoUrl) {
+          // START POLLING FOR THE ASYNC JOB
           try {
-            console.log(`Polling for video result with task ID: ${data.task_id}`);
-            const pollResult = await pollVideoStatus(data.task_id, session.access_token);
+            console.log(`🔄 Starting polling for job_id: ${data.job_id}`);
             
-            // FIXED: Prefer permanent URLs from polling result
-            videoUrl = pollResult.supabase_url || pollResult.permanent_url || pollResult.video_url || pollResult.url;
+            // Start polling in the background
+            const pollResult = await pollVideoStatusByJobId(data.job_id, session.access_token);
             
-            // Apply the same CloudFront to Supabase conversion for polling results
-            if (videoUrl && videoUrl.includes('cloudfront.net')) {
-              const taskId = data.task_id;
-              videoUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
-              console.log('🔧 Converted polling CloudFront URL to Supabase URL:', videoUrl);
-            }
+            if (pollResult && pollResult.video_url) {
+              // Clean up video URL for mobile compatibility
+              let videoUrl = pollResult.video_url;
+              
+              // Apply the same CloudFront to Supabase conversion if needed
+              if (videoUrl && videoUrl.includes('cloudfront.net')) {
+                const taskId = data.job_id;
+                videoUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
+                console.log('🔧 Converted CloudFront URL to Supabase URL:', videoUrl);
+              }
 
-            // FIXED: Clean polling URLs too
-            if (videoUrl) {
-              videoUrl = videoUrl.replace(/[?&]$/, '');
-              console.log('🧹 Cleaned polling video URL:', videoUrl);
+              // Clean polling URLs
+              if (videoUrl) {
+                videoUrl = videoUrl.replace(/[?&]$/, '');
+                
+                // Additional mobile-specific cleaning
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                  console.log('📱 Mobile device detected - cleaning video URL for compatibility');
+                  
+                  try {
+                    const urlObj = new URL(videoUrl);
+                    // Reconstruct clean URL without problematic query parameters
+                    videoUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+                    console.log('📱 Cleaned video URL for mobile:', videoUrl);
+                  } catch (urlError) {
+                    console.error('📱 URL cleaning failed, using original:', urlError);
+                  }
+                }
+                
+                console.log('🧹 Cleaned polling video URL:', videoUrl);
+              }
+
+              // Update previews with completed video
+              const videoDuration = pollResult.metadata?.duration || data.duration || 10;
+              
+              previewUpdate.video = videoUrl;
+              previewUpdate.videoElement = {
+                type: 'video',
+                url: videoUrl,
+                id: `video_${Date.now()}`,
+                downloadUrl: videoUrl,
+                duration: videoDuration,
+                metadata: {
+                  duration: videoDuration,
+                  model: pollResult.metadata?.model || data.model,
+                  ratio: pollResult.metadata?.ratio || data.ratio,
+                  videoMode: pollResult.metadata?.video_mode || data.videoMode,
+                  api_provider: pollResult.api_provider || data.api_provider
+                }
+              };
+              
+              // Update the result object
+              Object.assign(result, {
+                video_url: videoUrl,
+                supabase_url: videoUrl,
+                permanent_url: videoUrl,
+                duration: videoDuration
+              });
+              
+              console.log('✅ Async video generation completed:', videoUrl);
+              
+              // Clear file inputs after successful generation
+              setFileKey(Date.now().toString());
+              
+            } else {
+              throw new Error('Polling completed but no video URL received');
             }
-            
-            console.log('Polling result URLs:', {
-              supabase_url: pollResult.supabase_url,
-              video_url: pollResult.video_url,
-              permanent_url: pollResult.permanent_url,
-              finalUrl: videoUrl
-            });
             
           } catch (pollError) {
-            console.error('Video polling failed:', pollError);
-            throw new Error(`Video generation processing error: ${pollError.message}`);
+            console.error('❌ Video polling failed:', pollError);
+            throw new Error(`Video generation failed: ${pollError.message}`);
           }
         }
-
-        if (!videoUrl) {
-          console.error('Video generation completed but no URL received', data);
-          throw new Error("No video URL received from server");
-        }
-
-        // FIXED: Better URL validation
-        try {
-          const urlObj = new URL(videoUrl);
-          console.log('Using video URL:', videoUrl);
+        // Legacy handling for immediate video URLs (if any)
+        else {
+          let videoUrl = data.supabase_url || data.permanent_url || data.video_url || data.url;
           
-          // Check if it's a Supabase URL (preferred) or other valid URL
-          if (videoUrl.includes('supabase.co')) {
-            console.log('✅ Using permanent Supabase URL - should work on mobile');
-          } else if (videoUrl.includes('cloudfront.net')) {
-            console.log('⚠️ Using temporary CloudFront URL - may not work on mobile');
-          } else {
-            console.log('ℹ️ Using other video URL:', urlObj.hostname);
+          // Get duration from response data
+          const videoDuration = data.duration || content.duration || 10;
+          
+          // TEMPORARY FIX: If we get a CloudFront URL, convert it to Supabase URL
+          if (videoUrl && videoUrl.includes('cloudfront.net')) {
+            console.log('⚠️ Got CloudFront URL, attempting to construct Supabase URL...');
+            
+            // Extract the task ID from the response or URL
+            const taskId = data.task_id || videoUrl.match(/([a-f0-9-]{36})/)?.[1];
+            
+            if (taskId) {
+              // Construct the Supabase URL based on your pattern from the logs
+              const supabaseUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
+              
+              console.log('🔧 Converted CloudFront URL to Supabase URL:', {
+                original: videoUrl,
+                converted: supabaseUrl,
+                taskId: taskId,
+                userId: user.id
+              });
+              
+              videoUrl = supabaseUrl;
+            }
+          }
+
+          // FIXED: Clean up video URL for mobile compatibility
+          if (videoUrl) {
+            // Remove trailing ? or & that cause mobile issues
+            videoUrl = videoUrl.replace(/[?&]$/, '');
+            
+            // Additional mobile-specific cleaning
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+              console.log('📱 Mobile device detected - cleaning video URL for compatibility');
+              
+              try {
+                const urlObj = new URL(videoUrl);
+                // Reconstruct clean URL without problematic query parameters
+                videoUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+                console.log('📱 Cleaned video URL for mobile:', videoUrl);
+              } catch (urlError) {
+                console.error('📱 URL cleaning failed, using original:', urlError);
+              }
+            }
+            
+            console.log('🧹 Final cleaned video URL:', videoUrl);
           }
           
-        } catch (urlError) {
-          console.error('Invalid video URL received:', videoUrl);
-          throw new Error('Server returned invalid video URL');
-        }
-
-        // FIXED: Add error handling for video loading WITH DURATION
-        previewUpdate.video = videoUrl;
-        previewUpdate.videoElement = {
-          type: 'video',
-          url: videoUrl,
-          id: `video_${Date.now()}`,
-          downloadUrl: videoUrl,
-          duration: videoDuration,
-          metadata: {
+          console.log('Video response data:', {
+            supabase_url: data.supabase_url,
+            video_url: data.video_url,
+            permanent_url: data.permanent_url,
+            task_id: data.task_id,
+            job_id: data.job_id,
             duration: videoDuration,
-            model: data.model || content.model,
-            ratio: data.ratio || content.ratio,
-            videoMode: data.video_mode || content.videoMode,
-            api_provider: data.api_provider  // UPDATED: Include api_provider from response
+            finalUrl: videoUrl,
+            isCloudFront: videoUrl?.includes('cloudfront.net'),
+            isSupabase: videoUrl?.includes('supabase.co')
+          });
+
+          if (data.task_id && !videoUrl) {
+            try {
+              console.log(`Polling for video result with task ID: ${data.task_id}`);
+              const pollResult = await pollVideoStatus(data.task_id, session.access_token);
+              
+              // FIXED: Prefer permanent URLs from polling result
+              videoUrl = pollResult.supabase_url || pollResult.permanent_url || pollResult.video_url || pollResult.url;
+              
+              // Apply the same CloudFront to Supabase conversion for polling results
+              if (videoUrl && videoUrl.includes('cloudfront.net')) {
+                const taskId = data.task_id;
+                videoUrl = `https://afyuizwemllouyulpkir.supabase.co/storage/v1/object/public/videos/videos/${user.id}/${taskId}.mp4`;
+                console.log('🔧 Converted polling CloudFront URL to Supabase URL:', videoUrl);
+              }
+
+              // FIXED: Clean polling URLs too
+              if (videoUrl) {
+                videoUrl = videoUrl.replace(/[?&]$/, '');
+                console.log('🧹 Cleaned polling video URL:', videoUrl);
+              }
+              
+              console.log('Polling result URLs:', {
+                supabase_url: pollResult.supabase_url,
+                video_url: pollResult.video_url,
+                permanent_url: pollResult.permanent_url,
+                finalUrl: videoUrl
+              });
+              
+            } catch (pollError) {
+              console.error('Video polling failed:', pollError);
+              throw new Error(`Video generation processing error: ${pollError.message}`);
+            }
           }
-        };
-          
-        // FIXED: Clear file inputs after successful generation
-        setFileKey(Date.now().toString());
+
+          if (!videoUrl) {
+            console.error('Video generation completed but no URL received', data);
+            throw new Error("No video URL received from server");
+          }
+
+          // FIXED: Better URL validation
+          try {
+            const urlObj = new URL(videoUrl);
+            console.log('Using video URL:', videoUrl);
+            
+            // Check if it's a Supabase URL (preferred) or other valid URL
+            if (videoUrl.includes('supabase.co')) {
+              console.log('✅ Using permanent Supabase URL - should work on mobile');
+            } else if (videoUrl.includes('cloudfront.net')) {
+              console.log('⚠️ Using temporary CloudFront URL - may not work on mobile');
+            } else {
+              console.log('ℹ️ Using other video URL:', urlObj.hostname);
+            }
+            
+          } catch (urlError) {
+            console.error('Invalid video URL received:', videoUrl);
+            throw new Error('Server returned invalid video URL');
+          }
+
+          // FIXED: Add error handling for video loading WITH DURATION
+          previewUpdate.video = videoUrl;
+          previewUpdate.videoElement = {
+            type: 'video',
+            url: videoUrl,
+            id: `video_${Date.now()}`,
+            downloadUrl: videoUrl,
+            duration: videoDuration,
+            metadata: {
+              duration: videoDuration,
+              model: data.model || content.model,
+              ratio: data.ratio || content.ratio,
+              videoMode: data.video_mode || content.videoMode,
+              api_provider: data.api_provider
+            }
+          };
+            
+          // FIXED: Clear file inputs after successful generation
+          setFileKey(Date.now().toString());
+        }
       }
       else if (type === 'image') {
         if (!contentType.includes('application/json')) {
@@ -1541,7 +1692,7 @@ const planLimits = {
         break;
       case 'video':
         const duration = content.duration || 10;
-        const modelType = content.model === 'veo2' ? 'Premium' : 'Standard';  // UPDATED: Show model type in error
+        const modelType = content.model === 'veo2' ? 'Premium' : 'Standard';
         toast.error(`${duration}s ${modelType} video generation failed: ${userMessage}`);
         break; 
       case 'tts':
