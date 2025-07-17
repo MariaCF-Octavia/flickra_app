@@ -6,8 +6,8 @@ import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, A
 // Your imported assets (keeping all original imports + new ones)
 import loreadpink from "../assets/lorealpinkad.png";
 import keresteorg from "../assets/keresteorg.jpg";
-import kerestead from "../assets/kerestead.png";
-import thalgo from "../assets/thalgoorog.jpg";
+import kerestead from "../assets/kerestead.jpg";
+import thalgo from "../assets/thalgoorg.jpg";
 import thalgoad from "../assets/thalgo2ad.png";
 import daeorg from "../assets/daeorg.jpg";
 import dae from"../assets/daead2.png";
