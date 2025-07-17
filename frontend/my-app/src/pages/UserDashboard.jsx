@@ -61,10 +61,70 @@ const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
   );
 };
 
-// Enterprise ContentGenerator with professional styling
-const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = false, userPlan }) => {
+
+// Updated EnterpriseContentGenerator component
+const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = false }) => {
+  const config = typeConfig[type];
+  
   return (
     <div className={isModal ? "space-y-6" : ""}>
+      {/* Instructions Section - Only show for image and video */}
+      {(type === 'image' || type === 'video') && config.instructions && (
+        <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-slate-800/30 to-slate-700/30 border border-slate-600/30">
+          <h4 className="text-white font-semibold mb-4 flex items-center">
+            <FiInfo className="w-4 h-4 mr-2 text-blue-400" />
+            {config.instructions.title}
+          </h4>
+          
+          {/* Image Enhancement Instructions */}
+          {type === 'image' && (
+            <div className="space-y-4">
+              {config.instructions.steps.map((step, index) => (
+                <div key={index} className="space-y-2">
+                  <h5 className="text-white font-medium text-sm">
+                    Step {index + 1}: {step.title}
+                  </h5>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Video Production Instructions */}
+          {type === 'video' && (
+            <div className="space-y-4">
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                {config.instructions.description}
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {config.instructions.options.map((option, index) => (
+                  <div key={index} className="p-4 rounded-lg bg-slate-900/40 border border-slate-600/20">
+                    <h6 className="text-white font-medium text-sm mb-3">{option.type}</h6>
+                    <ul className="space-y-1">
+                      {option.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="text-slate-400 text-xs flex items-start">
+                          <span className="text-emerald-400 mr-2">•</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-blue-300 text-sm">
+                  <strong>Important:</strong> {config.instructions.finalStep}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Professional form styling for modal */}
       <div className="space-y-6">
         <ContentGenerator
@@ -73,9 +133,10 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
           onGenerate={onGenerate}
           className="enterprise-generator"
           darkMode={true}
-          userPlan={userPlan}
         />
       </div>
+      
+      {/* Remove the old Runway References Guide since it was incorrectly placed on video */}
       
       {/* Add custom styles */}
       <style jsx>{`
@@ -121,7 +182,7 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
         }
         
         .enterprise-generator button[type="submit"]:hover:not(:disabled) {
-          background: linear-gradient(135deg,rgb(38, 38, 58), #7c3aed) !important;
+          background: linear-gradient(135deg, #5b59ed, #7c3aed) !important;
           transform: translateY(-1px) !important;
           box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25) !important;
         }
@@ -2211,56 +2272,99 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
 const ProfessionalGeneratorCard = ({ type, remaining, onGenerate, userPlan }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const typeConfig = {
-    text: {
-      title: 'Copy Generation',
-      subtitle: 'Professional marketing copy',
-      description: 'Generate compelling headlines, product descriptions, and marketing content optimized for conversion.',
-      icon: <FiFileText size={20} />,
-      gradient: 'from-blue-500 to-cyan-500',
-      borderGradient: 'from-blue-500/20 to-cyan-500/20',
-      glowColor: 'shadow-blue-500/20',
-      capability: 'AI-powered copywriting',
-      modalTitle: 'AI Copy Generation',
-      modalSubtitle: 'Create professional marketing copy that converts'
-    },
-    image: {
-      title: 'Image Enhancement',
-      subtitle: 'Professional product photography',
-      description: 'Transform product photos into polished marketing visuals with advanced AI styling and background enhancement.',
-      icon: <FiImage size={20} />,
-      gradient: 'from-indigo-500 to-purple-600',
-      borderGradient: 'from-indigo-500/20 to-purple-600/20',
-      glowColor: 'shadow-indigo-500/20',
-      capability: 'Product image transformation',
-      modalTitle: 'AI Image Enhancement',
-      modalSubtitle: 'Transform product photos into professional marketing assets'
-    },
-    video: {
-      title: 'Video Production',
-      subtitle: 'Dynamic commercial content',
-      description: 'Create engaging video advertisements from static images with professional motion and transitions.',
-      icon: <FiVideo size={20} />,
-      gradient: 'from-emerald-500 to-teal-600',
-      borderGradient: 'from-emerald-500/20 to-teal-600/20',
-      glowColor: 'shadow-emerald-500/20',
-      capability: 'Video generation & editing',
-      modalTitle: 'AI Video Production',
-      modalSubtitle: 'Create dynamic commercials from product images'
-    },
-    tts: {
-      title: 'Voice Synthesis',
-      subtitle: 'Professional narration',
-      description: 'Generate high-quality voiceovers and narration using advanced AI voice synthesis technology.',
-      icon: <FiMic size={20} />,
-      gradient: 'from-orange-500 to-red-500',
-      borderGradient: 'from-orange-500/20 to-red-500/20',
-      glowColor: 'shadow-orange-500/20',
-      capability: 'AI voice generation',
-      modalTitle: 'AI Voice Synthesis',
-      modalSubtitle: 'Generate professional narration and voiceovers'
+// Updated typeConfig with clear instructions
+const typeConfig = {
+  text: {
+    title: 'Copy Generation',
+    subtitle: 'Professional marketing copy',
+    description: 'Generate compelling headlines, product descriptions, and marketing content optimized for conversion.',
+    icon: <FiFileText size={20} />,
+    gradient: 'from-blue-500 to-cyan-500',
+    borderGradient: 'from-blue-500/20 to-cyan-500/20',
+    glowColor: 'shadow-blue-500/20',
+    capability: 'AI-powered copywriting',
+    modalTitle: 'AI Copy Generation',
+    modalSubtitle: 'Create professional marketing copy that converts'
+  },
+  image: {
+    title: 'Image Enhancement',
+    subtitle: 'Professional product photography',
+    description: 'Transform product photos into polished marketing visuals with advanced AI styling and background enhancement.',
+    icon: <FiImage size={20} />,
+    gradient: 'from-indigo-500 to-purple-600',
+    borderGradient: 'from-indigo-500/20 to-purple-600/20',
+    glowColor: 'shadow-indigo-500/20',
+    capability: 'Product image transformation',
+    modalTitle: 'AI Image Enhancement',
+    modalSubtitle: 'Transform product photos into professional marketing assets',
+    instructions: {
+      title: 'How It Works',
+      steps: [
+        {
+          title: 'Upload Your Product Image',
+          description: 'Upload a clear photo of your product, storefront, or brand asset. This will be your base image that gets enhanced.'
+        },
+        {
+          title: 'Add Style Reference',
+          description: 'Upload a second image that represents the style, mood, or aesthetic you want. This inspiration image guides the AI on lighting, colors, and overall feel. Tag both images with descriptive text to help the AI understand your vision.'
+        },
+        {
+          title: 'Generate & Save',
+          description: 'The AI will enhance your product image using the style reference as inspiration. Your enhanced image will automatically save to your Media Library for easy access.'
+        }
+      ]
     }
-  };
+  },
+  video: {
+    title: 'Video Production',
+    subtitle: 'Dynamic commercial content',
+    description: 'Create engaging video advertisements from static images with professional motion and transitions.',
+    icon: <FiVideo size={20} />,
+    gradient: 'from-emerald-500 to-teal-600',
+    borderGradient: 'from-emerald-500/20 to-teal-600/20',
+    glowColor: 'shadow-emerald-500/20',
+    capability: 'Video generation & editing',
+    modalTitle: 'AI Video Production',
+    modalSubtitle: 'Create dynamic commercials from product images',
+    instructions: {
+      title: 'How It Works',
+      description: 'Create engaging video content from your images with two quality options.',
+      options: [
+        {
+          type: 'Standard (Keyframes)',
+          features: [
+            'Upload two images to create smooth transitions between scenes',
+            'Perfect for before/after reveals, product showcases, or storytelling',
+            'AI creates fluid motion between your two images',
+            'Fast processing, reliable results'
+          ]
+        },
+        {
+          type: 'Premium (High Quality)',
+          features: [
+            'Upload a single base image and transform it into dynamic video',
+            'Superior quality with enhanced details and smoother motion',
+            'Faster processing time',
+            'Ideal for hero videos and premium marketing content'
+          ]
+        }
+      ],
+      finalStep: 'Your video will automatically save to your Media Library once processing is complete.'
+    }
+  },
+  tts: {
+    title: 'Voice Synthesis',
+    subtitle: 'Professional narration',
+    description: 'Generate high-quality voiceovers and narration using advanced AI voice synthesis technology.',
+    icon: <FiMic size={20} />,
+    gradient: 'from-orange-500 to-red-500',
+    borderGradient: 'from-orange-500/20 to-red-500/20',
+    glowColor: 'shadow-orange-500/20',
+    capability: 'AI voice generation',
+    modalTitle: 'AI Voice Synthesis',
+    modalSubtitle: 'Generate professional narration and voiceovers'
+  }
+}
 
   const config = typeConfig[type];
 
