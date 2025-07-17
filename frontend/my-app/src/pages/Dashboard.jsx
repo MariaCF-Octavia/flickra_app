@@ -3,8 +3,19 @@ import { Link } from 'react-router-dom';
 import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, ArrowRight, 
          Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp, Menu, X } from 'lucide-react';
 
-// Your imported assets (keeping all original imports)
-import waterad from "../assets/water ad.webp";
+// Your imported assets (keeping all original imports + new ones)
+import loreadpink from "../assets/lorealpinkad.png";
+import keresteorg from "../assets/keresteorg.jpg";
+import kerestead from "../assets/kerestead.png";
+import thalgo from "../assets/thalgoorog.jpg";
+import thalgoad from "../assets/thalgo2ad.png";
+import daeorg from "../assets/daeorg.jpg";
+import dae from"../assets/daead2.png";
+import anemone from"../assets/anemonecf.webp";
+import anemonelo from "../assets/anemonelotion.webp";
+import estrella from "../assets/estrellacf.webp";
+import lofbergs from "../assets/löfbergs.png";
+import celsius from "../assets/celsiusafter.webp";
 import curologyimg from "../assets/curologyimg.jpg";
 import spacurology from "../assets/spa.jpg"; 
 import curology from "../assets/cfcurologyad (2).mp4";
@@ -13,7 +24,7 @@ import adForCf1 from "../assets/lorealad.mp4";
 import adForCf4 from "../assets/AdForCf4.mp4";
 import phone from "../assets/phonead.jpg";
 import CFDemoUse from "../assets/CFDemoUse.mp4";
-import fendiad from "../assets/fendiadCf.mp4";
+// Removed fendiad import as requested
 import DemoVideo from "../components/DemoVideo.jsx";
 import givenchyperfume from "../assets/givenchyperfume.jpg";
 import perfumestand from "../assets/perfumestand.jpg";
@@ -42,7 +53,7 @@ const HomeDashboard = () => {
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
   
-  // REORDERED: Curology → YSL → Givenchy → iPhone → Versace → Standalone ads
+  // UPDATED: Added new transformations and removed Fendi
   const transformations = [
     // 1. Curology (Original → Reference → Results)
     {
@@ -98,6 +109,43 @@ const HomeDashboard = () => {
       category: 'Beauty & Skincare',
       hasReference: true
     },
+    // NEW TRANSFORMATIONS - Added your new .org/.ad pairs
+    // 7. Kereste (Original → Results)
+    {
+      before: { type: 'image', src: keresteorg, alt: 'Kereste Product Original' },
+      during: { type: 'image', src: keresteorg, alt: 'Kereste Product Original' },
+      after: { type: 'image', src: kerestead, alt: 'Kereste Campaign Results' },
+      title: 'Kereste Brand Campaign',
+      category: 'Lifestyle',
+      hasReference: false
+    },
+    // 8. Thalgo (Original → Results)
+    {
+      before: { type: 'image', src: thalgo, alt: 'Thalgo Product Original' },
+      during: { type: 'image', src: thalgo, alt: 'Thalgo Product Original' },
+      after: { type: 'image', src: thalgoad, alt: 'Thalgo Campaign Results' },
+      title: 'Thalgo Beauty Campaign',
+      category: 'Beauty & Skincare',
+      hasReference: false
+    },
+    // 9. Dae (Original → Results)
+    {
+      before: { type: 'image', src: daeorg, alt: 'Dae Product Original' },
+      during: { type: 'image', src: daeorg, alt: 'Dae Product Original' },
+      after: { type: 'image', src: dae, alt: 'Dae Campaign Results' },
+      title: 'Dae Haircare Campaign',
+      category: 'Beauty & Haircare',
+      hasReference: false
+    },
+    // 10. Anemone (Original → Results)
+    {
+      before: { type: 'image', src: anemone, alt: 'Anemone Product Original' },
+      during: { type: 'image', src: anemone, alt: 'Anemone Product Original' },
+      after: { type: 'image', src: anemonelo, alt: 'Anemone Campaign Results' },
+      title: 'Anemone Skincare Campaign',
+      category: 'Beauty & Skincare',
+      hasReference: false
+    },
     // Standalone ads - just show once as they are
     {
       before: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
@@ -115,20 +163,37 @@ const HomeDashboard = () => {
       category: 'Video',
       hasReference: false
     },
+    // NEW STANDALONE ADS
     {
-      before: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
-      during: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
-      after: { type: 'video', src: fendiad, alt: 'Fendi Luxury Campaign' },
-      title: 'Fendi Luxury Campaign',
-      category: 'Video',
+      before: { type: 'image', src: estrella, alt: 'Estrella Brand Campaign' },
+      during: { type: 'image', src: estrella, alt: 'Estrella Brand Campaign' },
+      after: { type: 'image', src: estrella, alt: 'Estrella Brand Campaign' },
+      title: 'Estrella Brand Campaign',
+      category: 'Lifestyle',
       hasReference: false
     },
     {
-      before: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
-      during: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
-      after: { type: 'image', src: waterad, alt: 'Water Brand Campaign' },
-      title: 'Water Brand Campaign',
-      category: 'Image',
+      before: { type: 'image', src: lofbergs, alt: 'Löfbergs Coffee Campaign' },
+      during: { type: 'image', src: lofbergs, alt: 'Löfbergs Coffee Campaign' },
+      after: { type: 'image', src: lofbergs, alt: 'Löfbergs Coffee Campaign' },
+      title: 'Löfbergs Coffee Campaign',
+      category: 'Food & Beverage',
+      hasReference: false
+    },
+    {
+      before: { type: 'image', src: celsius, alt: 'Celsius Energy Campaign' },
+      during: { type: 'image', src: celsius, alt: 'Celsius Energy Campaign' },
+      after: { type: 'image', src: celsius, alt: 'Celsius Energy Campaign' },
+      title: 'Celsius Energy Campaign',
+      category: 'Food & Beverage',
+      hasReference: false
+    },
+    {
+      before: { type: 'image', src: loreadpink, alt: 'L\'Oreal Pink Campaign' },
+      during: { type: 'image', src: loreadpink, alt: 'L\'Oreal Pink Campaign' },
+      after: { type: 'image', src: loreadpink, alt: 'L\'Oreal Pink Campaign' },
+      title: 'L\'Oreal Pink Campaign',
+      category: 'Beauty',
       hasReference: false
     }
   ];
@@ -198,18 +263,25 @@ const HomeDashboard = () => {
     }
   ];
 
-  // UPDATED: Added YSL and Versace results to showcase
+  // UPDATED: Added new showcase ads and removed Fendi
   const showcaseAds = [
     { type: 'video', src: givenchy, title: 'Givenchy Luxury Campaign', category: 'Beauty' },
     { type: 'video', src: curology, title: 'Curology Skincare Campaign', category: 'Beauty' },
     { type: 'video', src: adForCf4, title: 'Premium Fashion Campaign', category: 'Fashion' },
-    { type: 'video', src: adForCf1, title: 'Water Brand Campaign', category: 'Lifestyle' },
-    { type: 'video', src: fendiad, title: 'Fendi Luxury Campaign', category: 'Luxury' },
+    { type: 'video', src: adForCf1, title: 'Premium Ad Campaign', category: 'Lifestyle' },
     { type: 'image', src: phone, title: 'iPhone Professional Ad', category: 'Technology' },
     { type: 'image', src: ysladcf, title: 'YSL Luxury Campaign', category: 'Beauty' },
     { type: 'image', src: versacead, title: 'Versace Premium Campaign', category: 'Fashion' },
     { type: 'image', src: ordinaryad, title: 'The Ordinary Skincare Campaign', category: 'Beauty' },
-    { type: 'image', src: waterad, title: 'Water Brand Campaign', category: 'Lifestyle' }
+    // NEW SHOWCASE ADS
+    { type: 'image', src: kerestead, title: 'Kereste Brand Campaign', category: 'Lifestyle' },
+    { type: 'image', src: thalgoad, title: 'Thalgo Beauty Campaign', category: 'Beauty' },
+    { type: 'image', src: dae, title: 'Dae Haircare Campaign', category: 'Beauty' },
+    { type: 'image', src: anemonelo, title: 'Anemone Skincare Campaign', category: 'Beauty' },
+    { type: 'image', src: estrella, title: 'Estrella Brand Campaign', category: 'Lifestyle' },
+    { type: 'image', src: lofbergs, title: 'Löfbergs Coffee Campaign', category: 'Food & Beverage' },
+    { type: 'image', src: celsius, title: 'Celsius Energy Campaign', category: 'Food & Beverage' },
+    { type: 'image', src: loreadpink, title: 'L\'Oreal Pink Campaign', category: 'Beauty' }
   ];
 
  const pricingTiers = [
@@ -716,9 +788,7 @@ const HomeDashboard = () => {
                                 muted
                                 playsInline
                                 preload="metadata"
-                                className={`w-full h-full ${
-                                  transformation.before.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
-                                }`}
+                                className="w-full h-full object-cover"
                                 onLoadedData={() => console.log(`Video loaded: ${transformation.before.alt}`)}
                               />
                             ) : (
@@ -778,9 +848,7 @@ const HomeDashboard = () => {
                                 muted
                                 playsInline
                                 preload="auto"
-                                className={`w-full h-full ${
-                                  transformation.during.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
-                                }`}
+                                className="w-full h-full object-cover"
                               />
                             ) : (
                               <img 
@@ -817,9 +885,7 @@ const HomeDashboard = () => {
                                 muted
                                 playsInline
                                 preload="auto"
-                                className={`w-full h-full ${
-                                  transformation.after.src.includes('fendi') ? 'object-contain bg-black' : 'object-cover'
-                                }`}
+                                className="w-full h-full object-cover"
                                 onLoadedData={() => {
                                   setVideoLoaded(prev => ({ ...prev, [`after-${index}`]: true }));
                                   console.log(`Video loaded: ${transformation.after.alt}`);
@@ -1003,9 +1069,7 @@ const HomeDashboard = () => {
                     </div>
                     <video 
                       src={ad.src}
-                      className={`w-full h-full transform group-hover:scale-105 transition-transform duration-700 ${
-                        ad.src === fendiad ? 'object-contain bg-black' : 'object-cover'
-                      }`}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                       muted
                       loop
                       playsInline
