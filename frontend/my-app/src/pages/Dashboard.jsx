@@ -20,11 +20,10 @@ import curologyimg from "../assets/curologyimg.jpg";
 import spacurology from "../assets/spa.jpg"; 
 import curology from "../assets/cfcurologyad (2).mp4";
 import givenchy from "../assets/givechy vid ad.mp4";
-import adForCf1 from "../assets/lorealad.mp4";
+import haya from "../assets/hayacf.webp";
 import adForCf4 from "../assets/AdForCf4.mp4";
 import phone from "../assets/phonead.jpg";
-import CFDemoUse from "../assets/CFDemoUse.mp4";
-// Removed fendiad import as requested
+import CFDemoUse from "../assets/CFDemoUse.mp4"
 import DemoVideo from "../components/DemoVideo.jsx";
 import givenchyperfume from "../assets/givenchyperfume.jpg";
 import perfumestand from "../assets/perfumestand.jpg";
@@ -53,7 +52,7 @@ const HomeDashboard = () => {
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
   
-  // UPDATED: Added new transformations and removed Fendi
+  // FIXED: Corrected .org/.ad pairs to show as proper before/after transformations
   const transformations = [
     // 1. Curology (Original → Reference → Results)
     {
@@ -109,7 +108,7 @@ const HomeDashboard = () => {
       category: 'Beauty & Skincare',
       hasReference: true
     },
-    // NEW TRANSFORMATIONS - Added your new .org/.ad pairs
+    // FIXED: NEW .org/.ad TRANSFORMATIONS - Now properly showing as before/after pairs
     // 7. Kereste (Original → Results)
     {
       before: { type: 'image', src: keresteorg, alt: 'Kereste Product Original' },
@@ -117,7 +116,7 @@ const HomeDashboard = () => {
       after: { type: 'image', src: kerestead, alt: 'Kereste Campaign Results' },
       title: 'Kereste Brand Campaign',
       category: 'Lifestyle',
-      hasReference: false
+      hasReference: true  // CHANGED: Now shows as proper transformation
     },
     // 8. Thalgo (Original → Results)
     {
@@ -126,7 +125,7 @@ const HomeDashboard = () => {
       after: { type: 'image', src: thalgoad, alt: 'Thalgo Campaign Results' },
       title: 'Thalgo Beauty Campaign',
       category: 'Beauty & Skincare',
-      hasReference: false
+      hasReference: true  // CHANGED: Now shows as proper transformation
     },
     // 9. Dae (Original → Results)
     {
@@ -135,7 +134,7 @@ const HomeDashboard = () => {
       after: { type: 'image', src: dae, alt: 'Dae Campaign Results' },
       title: 'Dae Haircare Campaign',
       category: 'Beauty & Haircare',
-      hasReference: false
+      hasReference: true  // CHANGED: Now shows as proper transformation
     },
     // 10. Anemone (Original → Results)
     {
@@ -144,15 +143,16 @@ const HomeDashboard = () => {
       after: { type: 'image', src: anemonelo, alt: 'Anemone Campaign Results' },
       title: 'Anemone Skincare Campaign',
       category: 'Beauty & Skincare',
-      hasReference: false
+      hasReference: true  // CHANGED: Now shows as proper transformation
     },
     // Standalone ads - just show once as they are
+    // REPLACED: Using haya instead of adForCf1
     {
-      before: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
-      during: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
-      after: { type: 'video', src: adForCf1, alt: 'Premium Ad Campaign' },
-      title: 'Premium Ad Campaign',
-      category: 'Video',
+      before: { type: 'image', src: haya, alt: 'Haya Brand Campaign' },
+      during: { type: 'image', src: haya, alt: 'Haya Brand Campaign' },
+      after: { type: 'image', src: haya, alt: 'Haya Brand Campaign' },
+      title: 'Haya Brand Campaign',
+      category: 'Lifestyle',
       hasReference: false
     },
     {
@@ -163,7 +163,7 @@ const HomeDashboard = () => {
       category: 'Video',
       hasReference: false
     },
-    // NEW STANDALONE ADS
+    // OTHER STANDALONE ADS
     {
       before: { type: 'image', src: estrella, alt: 'Estrella Brand Campaign' },
       during: { type: 'image', src: estrella, alt: 'Estrella Brand Campaign' },
