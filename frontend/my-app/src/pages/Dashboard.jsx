@@ -640,10 +640,10 @@ const HomeDashboard = () => {
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 leading-tight tracking-tight animate-fade-in-up animation-delay-200">
-                Replace Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">Ad Agency</span> 
-                <br />
-                with <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">AI</span>
-              </h1>
+  Turn Any Photo Into <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">$5,000</span> 
+  <br />
+  <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400">Commercials</span>
+</h1>
               
               {/* Mobile: Shorter description */}
               <p className="text-lg md:text-xl mb-4 md:mb-6 opacity-90 leading-relaxed animate-fade-in-up animation-delay-400 text-gray-300">
