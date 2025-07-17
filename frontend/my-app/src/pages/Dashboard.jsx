@@ -268,7 +268,7 @@ const HomeDashboard = () => {
     { type: 'video', src: givenchy, title: 'Givenchy Luxury Campaign', category: 'Beauty' },
     { type: 'video', src: curology, title: 'Curology Skincare Campaign', category: 'Beauty' },
     { type: 'video', src: adForCf4, title: 'Premium Fashion Campaign', category: 'Fashion' },
-    { type: 'video', src: adForCf1, title: 'Premium Ad Campaign', category: 'Lifestyle' },
+    { type: 'image', src: haya, title: 'Premium Ad Campaign', category: 'Lifestyle' },
     { type: 'image', src: phone, title: 'iPhone Professional Ad', category: 'Technology' },
     { type: 'image', src: ysladcf, title: 'YSL Luxury Campaign', category: 'Beauty' },
     { type: 'image', src: versacead, title: 'Versace Premium Campaign', category: 'Fashion' },
