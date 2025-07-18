@@ -1,10 +1,14 @@
- // Frontend Components
+// src/components/UpgradeModal.jsx
+import React, { useState, useEffect } from 'react';
+import { FiX, FiStar, FiCheck, FiCreditCard, FiZap, FiTool, FiHeadphones, FiAlertCircle } from 'react-icons/fi';
+import { toast } from 'react-hot-toast';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
 // Upgrade Plan Modal Component
-const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, userPlan }) => {
+export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, userPlan }) => {
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState([]);
-  const [selectedPlan, setSelectedPlan] = useState('professional');
 
   // Load available plans when modal opens
   useEffect(() => {
@@ -272,7 +276,7 @@ const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, userPlan })
 };
 
 // Upgrade Button Component for Sidebar
-const UpgradeButton = ({ userPlan, userEmail }) => {
+export const UpgradeButton = ({ userPlan, userEmail }) => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Only show for trial/free users
@@ -302,7 +306,7 @@ const UpgradeButton = ({ userPlan, userEmail }) => {
 };
 
 // Credits Exhausted Modal (when trial runs out)
-const CreditsExhaustedModal = ({ isOpen, onUpgrade, onClose }) => {
+export const CreditsExhaustedModal = ({ isOpen, onUpgrade, onClose }) => {
   if (!isOpen) return null;
 
   return (
@@ -341,7 +345,4 @@ const CreditsExhaustedModal = ({ isOpen, onUpgrade, onClose }) => {
       </div>
     </div>
   );
-};
-
-// Usage in your dashboard - add imports
-// import { FiX, FiStar, FiCheck, FiCreditCard, FiZap, FiTool, FiHeadphones, FiAlertCircle } from 'react-icons/fi';
+}; 
