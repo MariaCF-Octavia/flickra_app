@@ -19,7 +19,7 @@ import { RiMagicLine } from 'react-icons/ri'
 import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkles, Clock, Star, Zap } from 'lucide-react';
 import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
-import { UpgradeButton } from './UpgradeModal';
+import { UpgradeButton } from '../components/UpgradeModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
