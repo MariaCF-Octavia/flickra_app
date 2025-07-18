@@ -19,6 +19,7 @@ import { RiMagicLine } from 'react-icons/ri'
 import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkles, Clock, Star, Zap } from 'lucide-react';
 import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
+import { UpgradeButton } from './UpgradeModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
@@ -2122,8 +2123,7 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
             </div>
           ))}
         </nav>
-
-        {/* Usage Display */}
+ {/* Usage Display */}
         <div className="p-4 border-t border-slate-800/50">
           <div className="relative overflow-hidden rounded-lg bg-slate-800/30 p-4 border border-slate-700/30">
             <div className="relative">
@@ -2166,6 +2166,13 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
             </div>
           </div>
         </div>
+
+        {/* Upgrade Button for trial/free users */}
+        {['trial', 'free', 'trial_expired'].includes(userPlan?.toLowerCase()) && (
+          <div className="p-4 border-t border-slate-800/50">
+            <UpgradeButton userPlan={userPlan} userEmail={userEmail} />
+          </div>
+        )}
 
         {/* Account Actions */}
         <div className="p-4 border-t border-slate-800/50 space-y-1">
