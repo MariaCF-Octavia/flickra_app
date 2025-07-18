@@ -61,6 +61,99 @@ const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
   );
 };
 
+const typeConfig = {
+  text: {
+    title: 'Copy Generation',
+    subtitle: 'Professional marketing copy',
+    description: 'Generate compelling headlines, product descriptions, and marketing content optimized for conversion.',
+    icon: <FiFileText size={20} />,
+    gradient: 'from-blue-500 to-cyan-500',
+    borderGradient: 'from-blue-500/20 to-cyan-500/20',
+    glowColor: 'shadow-blue-500/20',
+    capability: 'AI-powered copywriting',
+    modalTitle: 'AI Copy Generation',
+    modalSubtitle: 'Create professional marketing copy that converts'
+  },
+  image: {
+    title: 'Image Enhancement',
+    subtitle: 'Professional product photography',
+    description: 'Transform product photos into polished marketing visuals with advanced AI styling and background enhancement.',
+    icon: <FiImage size={20} />,
+    gradient: 'from-indigo-500 to-purple-600',
+    borderGradient: 'from-indigo-500/20 to-purple-600/20',
+    glowColor: 'shadow-indigo-500/20',
+    capability: 'Product image transformation',
+    modalTitle: 'AI Image Enhancement',
+    modalSubtitle: 'Transform product photos into professional marketing assets',
+    instructions: {
+      title: 'How It Works',
+      steps: [
+        {
+          title: 'Upload Your Product Image',
+          description: 'Upload a clear photo of your product, storefront, or brand asset. This will be your base image that gets enhanced.'
+        },
+        {
+          title: 'Add Style Reference',
+          description: 'Upload a second image that represents the style, mood, or aesthetic you want. This inspiration image guides the AI on lighting, colors, and overall feel. Tag both images with descriptive text to help the AI understand your vision.'
+        },
+        {
+          title: 'Generate & Save',
+          description: 'The AI will enhance your product image using the style reference as inspiration. Your enhanced image will automatically save to your Media Library for easy access.'
+        }
+      ]
+    }
+  },
+  video: {
+    title: 'Video Production',
+    subtitle: 'Dynamic commercial content',
+    description: 'Create engaging video advertisements from static images with professional motion and transitions.',
+    icon: <FiVideo size={20} />,
+    gradient: 'from-emerald-500 to-teal-600',
+    borderGradient: 'from-emerald-500/20 to-teal-600/20',
+    glowColor: 'shadow-emerald-500/20',
+    capability: 'Video generation & editing',
+    modalTitle: 'AI Video Production',
+    modalSubtitle: 'Create dynamic commercials from product images',
+    instructions: {
+      title: 'How It Works',
+      description: 'Create engaging video content from your images with two quality options.',
+      options: [
+        {
+          type: 'Standard (Keyframes)',
+          features: [
+            'Upload two images to create smooth transitions between scenes',
+            'Perfect for before/after reveals, product showcases, or storytelling',
+            'AI creates fluid motion between your two images',
+            'Fast processing, reliable results'
+          ]
+        },
+        {
+          type: 'Premium (High Quality)',
+          features: [
+            'Upload a single base image and transform it into dynamic video',
+            'Superior quality with enhanced details and smoother motion',
+            'Faster processing time',
+            'Ideal for hero videos and premium marketing content'
+          ]
+        }
+      ],
+      finalStep: 'Your video will automatically save to your Media Library once processing is complete.'
+    }
+  },
+  tts: {
+    title: 'Voice Synthesis',
+    subtitle: 'Professional narration',
+    description: 'Generate high-quality voiceovers and narration using advanced AI voice synthesis technology.',
+    icon: <FiMic size={20} />,
+    gradient: 'from-orange-500 to-red-500',
+    borderGradient: 'from-orange-500/20 to-red-500/20',
+    glowColor: 'shadow-orange-500/20',
+    capability: 'AI voice generation',
+    modalTitle: 'AI Voice Synthesis',
+    modalSubtitle: 'Generate professional narration and voiceovers'
+  }
+};
+
 
 // Updated EnterpriseContentGenerator component
 const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = false }) => {
