@@ -1,7 +1,7 @@
 // src/components/UpgradeModal.jsx
 import React, { useState, useEffect } from 'react';
 import { FiX, FiStar, FiCheck, FiCreditCard, FiZap, FiTool, FiHeadphones, FiAlertCircle } from 'react-icons/fi';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
