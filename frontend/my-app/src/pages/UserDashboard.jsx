@@ -315,6 +315,7 @@ const UserDashboard = ({ debug = false }) => {
   const [activeTab, setActiveTab] = useState('generators');
   const [fullscreenPreview, setFullscreenPreview] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
+  const userEmail = currentUser?.email || '';
 
   const handleLogout = async () => {
     try {
