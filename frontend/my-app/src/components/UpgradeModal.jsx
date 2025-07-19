@@ -1,10 +1,17 @@
-// src/components/UpgradeModal.jsx - Replace your existing components with these
+// src/components/UpgradeModal.jsx - FIXED VERSION with correct auth
 
 import React, { useState, useEffect } from 'react';
 import { FiX, FiStar, FiCheck, FiCreditCard } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { createClient } from '@supabase/supabase-js';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
+
+// Initialize Supabase client
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 // Simplified Upgrade Plan Modal - Direct to Plans
 export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, userPlan }) => {
@@ -21,10 +28,17 @@ export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, user
 
   const loadUpgradePlans = async () => {
     try {
-      const token = localStorage.getItem('token');
+      // Get Supabase session token - CORRECT WAY
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast.error('Authentication required');
+        return;
+      }
+
       const response = await fetch(`${API_BASE}/upgrade-plans`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       });
       
@@ -32,7 +46,8 @@ export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, user
       if (response.ok) {
         setPlans(data.available_plans || []);
       } else {
-        toast.error('Failed to load upgrade plans');
+        toast.error(data.detail || 'Failed to load upgrade plans');
+        console.error('Upgrade plans error:', data);
       }
     } catch (error) {
       console.error('Error loading plans:', error);
@@ -43,12 +58,19 @@ export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, user
   const handleUpgrade = async (planId) => {
     setProcessingPlan(planId);
     try {
-      const token = localStorage.getItem('token');
+      // Get Supabase session token - CORRECT WAY
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast.error('Authentication required');
+        return;
+      }
+
       const response = await fetch(`${API_BASE}/create-upgrade-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           plan: planId
@@ -62,6 +84,7 @@ export const UpgradePlanModal = ({ isOpen, onClose, currentPlan, userEmail, user
         window.location.href = data.checkout_url;
       } else {
         toast.error(data.detail || 'Failed to create upgrade session');
+        console.error('Upgrade session error:', data);
       }
     } catch (error) {
       console.error('Upgrade error:', error);
@@ -284,7 +307,6 @@ export const CreditsExhaustedModal = ({ isOpen, onUpgrade, onClose }) => {
               >
                 Choose Plan
               </button>
-              
               <button
                 onClick={onClose}
                 className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
