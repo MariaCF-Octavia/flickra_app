@@ -2170,7 +2170,7 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
         {/* Upgrade Button for trial/free users */}
         {['trial', 'free', 'trial_expired'].includes(userPlan?.toLowerCase()) && (
           <div className="p-4 border-t border-slate-800/50">
-            <UpgradeButton userPlan={userPlan} userEmail={userEmail} />
+            <UpgradeButton userPlan={userPlan} userEmail={userEmail || ''} />
           </div>
         )}
 
