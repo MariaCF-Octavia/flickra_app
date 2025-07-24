@@ -28,7 +28,14 @@ const ProtectedRoute = ({ user, children }) => {
     const verifyUser = async () => {
       try {
         if (user) {
-          // 1. Check public users table
+          // ADMIN OVERRIDE - Skip database check for your email
+          if (user.email === 'mariasheikh0113@outlook.com') {
+            setIsValidUser(true);
+            setLoading(false);
+            return;
+          }
+
+          // 1. Check public users table for other users
           const { data, error } = await supabase
             .from('users')
             .select('plan')
@@ -168,4 +175,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App; 
