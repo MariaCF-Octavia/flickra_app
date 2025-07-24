@@ -293,7 +293,6 @@ const EnterpriseContentGenerator = ({ type, remaining, onGenerate, isModal = fal
   );
 };
 
-
 const UserDashboard = ({ debug = false }) => {
   const [userPlan, setUserPlan] = useState("basic");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -455,11 +454,18 @@ const UserDashboard = ({ debug = false }) => {
                 console.warn("Database assets fetch error:", assetsRes.error);
             }
 
-            const plan = (
-                user.user_metadata?.plan?.toLowerCase() || 
-                planRes.data?.plan?.toLowerCase() || 
-                "basic"
-            );
+            // ADMIN OVERRIDE - Check for your email first
+            let plan;
+            if (user.email === 'mariasheikh0113@outlook.com') {
+                plan = 'enterprise';
+                console.log("Admin override in UserDashboard: plan set to enterprise");
+            } else {
+                plan = (
+                    user.user_metadata?.plan?.toLowerCase() || 
+                    planRes.data?.plan?.toLowerCase() || 
+                    "basic"
+                );
+            }
             
             // Updated valid plans to match new pricing structure
             const validPlans = [
