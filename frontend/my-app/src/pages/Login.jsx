@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { LogIn, Mail, Lock, AlertCircle, CheckCircle } from "lucide-react";
@@ -54,8 +54,16 @@ const Login = () => {
       console.log("User details:", user);
       console.log("User plan from metadata:", user.user_metadata?.plan);
       
-      // 3. Get the plan from user metadata or default to 'free'
-      let userPlan = user.user_metadata?.plan?.toLowerCase() || 'free';
+      // ADMIN OVERRIDE - Check if this is your admin email
+      let userPlan;
+      if (user.email === 'mariasheikh0113@outlook.com') {
+        userPlan = 'enterprise';
+        console.log("Admin override: plan set to enterprise");
+      } else {
+        // 3. Get the plan from user metadata or default to 'free'
+        userPlan = user.user_metadata?.plan?.toLowerCase() || 'free';
+      }
+      
       console.log("Determined user plan:", userPlan);
       
       // 4. Updated valid plans to include new pricing structure
@@ -281,4 +289,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
