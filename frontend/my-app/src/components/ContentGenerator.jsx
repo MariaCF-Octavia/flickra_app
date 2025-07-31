@@ -1,4 +1,4 @@
- import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FiUploadCloud, FiImage, FiLayers, FiClock, FiPlay, FiZap, FiVideo, FiMusic, FiStar} from 'react-icons/fi';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -1031,44 +1031,51 @@ const ContentGenerator = ({ type, remaining, onGenerate, debug, className, darkM
 
                 {/* Duration Selector for Video - More Compact */}
                 {type === 'video' && (
-                    <div className="space-y-2">
-                        <div className={`text-xs font-medium ${
-                            darkMode ? 'text-gray-200' : 'text-gray-700'
-                        }`}>
-                            Duration
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setDuration(5)}
-                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                                    duration === 5
-                                        ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
-                                        : (darkMode 
-                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
-                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
-                                }`}
-                            >
-                                <FiClock className="w-3 h-3" />
-                                5s
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setDuration(10)}
-                                className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                                    duration === 10
-                                        ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
-                                        : (darkMode 
-                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
-                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
-                                }`}
-                            >
-                                <FiZap className="w-3 h-3" />
-                                10s
-                            </button>
-                        </div>
-                    </div>
-                )}
+  <div className="space-y-2">
+    <div className={`text-xs font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+      Duration
+    </div>
+    <div className="grid grid-cols-2 gap-2">
+      {/* 5s Button (always available) */}
+      <button
+        type="button"
+        onClick={() => setDuration(5)}
+        className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+          duration === 5
+            ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
+            : (darkMode 
+                ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
+        }`}
+      >
+        <FiClock className="w-3 h-3" />
+        5s
+      </button>
+
+      {/* 10s Button - Conditionally limited */}
+      <button
+        type="button"
+        onClick={() => {
+          if (selectedModel === 'veo2') {
+            setDuration(8); // Silently clamp to 8s for Veo2
+          } else {
+            setDuration(10);
+          }
+        }}
+        className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+          duration === (selectedModel === 'veo2' ? 8 : 10)
+            ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-600 text-white'
+            : (darkMode 
+                ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' 
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50')
+        }`}
+      >
+        <FiZap className="w-3 h-3" />
+        {selectedModel === 'veo2' ? "8s" : "10s"} {/* Show 8s when Veo2 is active */}
+      </button>
+    </div>
+  </div>
+)}
 
                 {/* Compact Textarea */}
                 <textarea
