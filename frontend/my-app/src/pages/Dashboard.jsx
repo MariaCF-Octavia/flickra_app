@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Image, Mic, Music, Edit, Share, ChevronRight, BarChart3, Check, ArrowRight, 
          Star, XCircle, Shield, Sparkles, Globe, Clock, Film, Zap, ArrowDown, DollarSign, TrendingUp, Menu, X } from 'lucide-react';
@@ -23,8 +23,6 @@ import givenchy from "../assets/givechy vid ad.mp4";
 import haya from "../assets/hayacf.webp";
 import adForCf4 from "../assets/AdForCf4.mp4";
 import phone from "../assets/phonead.jpg";
-import CFDemoUse from "../assets/CFDemoUse.mp4"
-import DemoVideo from "../components/DemoVideo.jsx";
 import givenchyperfume from "../assets/givenchyperfume.jpg";
 import perfumestand from "../assets/perfumestand.jpg";
 import iphone16 from "../assets/iphone16.jpeg";
@@ -39,7 +37,6 @@ import ordinaryad from "../assets/ordinaryad2.png";
 const HomeDashboard = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
-  const [showDemoVideo, setShowDemoVideo] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTransformation, setActiveTransformation] = useState(0);
   const [transformationPhase, setTransformationPhase] = useState('before');
@@ -528,14 +525,6 @@ const HomeDashboard = () => {
 
   return (
     <div className={`min-h-screen ${themeStyles.bg} ${themeStyles.text} font-sans relative overflow-x-hidden`}>
-      <DemoVideo 
-        isOpen={showDemoVideo}
-        onClose={() => setShowDemoVideo(false)}
-        title="CF Studio Tutorial"
-        description="Complete walkthrough of our AI marketing tools and features"
-        videoUrl={CFDemoUse}
-      />
-
       {/* Enhanced background effects */}
       <div className="fixed inset-0 overflow-hidden z-0">
         <div className="absolute top-0 -left-40 w-96 h-96 bg-purple-700/20 rounded-full filter blur-3xl opacity-40 animate-blob"></div>
@@ -665,18 +654,9 @@ const HomeDashboard = () => {
               
               {/* UPDATED CTA Buttons - Start Creating Today goes to trial */}
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 animate-fade-in-up animation-delay-600">
-                <Link to="/signup?mode=trial" className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-base md:text-lg`}>
+                <Link to="/signup?mode=trial" className={`px-8 py-4 rounded-full ${themeStyles.button} text-white font-medium text-center shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all text-lg md:text-xl`}>
                   Start Creating Today
                 </Link>
-                <button 
-                  onClick={() => setShowDemoVideo(true)}
-                  className={`px-6 md:px-8 py-3 md:py-4 rounded-full ${themeStyles.buttonSecondary} transition-colors text-center group text-base md:text-lg`}
-                >
-                  <span className="inline-flex items-center">
-                    <Play className="mr-2 w-4 md:w-5 h-4 md:h-5 group-hover:scale-110 transition-transform" />
-                    Watch Demo
-                  </span>
-                </button>
               </div>
 
               {/* Trust indicators - Hidden on mobile to reduce clutter */}
@@ -1213,13 +1193,6 @@ const HomeDashboard = () => {
                 <Link to="/signup?mode=trial" className="px-8 py-4 rounded-full bg-white text-purple-700 font-medium hover:shadow-lg hover:shadow-purple-700/20 transition-all text-center">
                   Start Creating Now
                 </Link>
-                <button 
-                  onClick={() => setShowDemoVideo(true)}
-                  className="px-8 py-4 rounded-full border border-white/30 text-white hover:bg-white/10 transition-all text-center flex items-center justify-center"
-                >
-                  <Play className="mr-2 w-4 h-4" />
-                  Watch Demo Video
-                </button>
               </div>
             </div>
           </div>
@@ -1269,14 +1242,6 @@ const HomeDashboard = () => {
                     className="text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     Pricing
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setShowDemoVideo(true)}
-                    className="text-gray-400 hover:text-purple-400 transition-colors"
-                  >
-                    Demo
                   </button>
                 </li>
               </ul>
@@ -1442,4 +1407,4 @@ const HomeDashboard = () => {
   );
 };
 
-export default HomeDashboard; 
+export default HomeDashboard;
