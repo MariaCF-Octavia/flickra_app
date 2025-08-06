@@ -20,6 +20,7 @@ import { Settings, ChevronRight, Upload, Info, HelpCircle, Book, Layout, Sparkle
 import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
 import { UpgradeButton } from '../components/UpgradeModal';
+import GenerateBackground from "../components/GenerateBackground.jsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
@@ -2009,7 +2010,6 @@ const planLimits = {
 // Demo Video Component Import (add this to your imports at the top)
 
 
-
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
@@ -2018,6 +2018,13 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
       title: "CREATIVE SUITE",
       items: [
         { id: 'generators', label: 'Campaign Studio', icon: <FiLayers size={18} />, description: 'Generate professional assets' },
+        { 
+          id: 'creative-studio', 
+          label: 'Creative Studio', 
+          icon: <RiMagicLine size={18} />, 
+          description: 'AI background & try-on tools',
+          indent: true
+        },
         { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true },
         { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true },
       ]
@@ -2090,6 +2097,8 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
                       }}
                       disabled={!isAvailable}
                       className={`w-full group relative overflow-hidden rounded-lg p-3 transition-all duration-200 ${
+                        item.indent ? 'ml-4' : ''
+                      } ${
                         isActive 
                           ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-indigo-500/30' 
                           : isAvailable
@@ -2217,6 +2226,9 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
     </>
   );
 };
+
+// Professional Modal Component
+
 
 // Professional Modal Component
 const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
