@@ -6,6 +6,7 @@ import {
   FiCheck, FiClock, FiAlertCircle, FiRefreshCw, FiEye 
 } from 'react-icons/fi';
 import { RiMagicLine } from 'react-icons/ri';
+import supabase from "../supabaseClient";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
