@@ -2009,6 +2009,8 @@ const planLimits = {
 // Add this state with your other useState declarations
 // Demo Video Component Import (add this to your imports at the top)
 
+// ADD THIS IMPORT at the top of your UserDashboard.jsx file (with other imports):
+
 
 const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
@@ -2083,56 +2085,58 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
                   const isAvailable = !item.premium || ['premium', 'enterprise'].includes(userPlan);
                   
                   return (
-                    <button
+                    <div
                       key={item.id}
-                      onClick={() => {
-                        if (item.id === 'profile') {
-                          navigate('/profile');
-                        } else if (item.id === 'settings') {
-                          navigate('/settings');
-                        } else {
-                          setActiveTab(item.id);
-                        }
-                        setSidebarOpen(false);
-                      }}
-                      disabled={!isAvailable}
-                      className={`w-full group relative overflow-hidden rounded-lg p-3 transition-all duration-200 ${
-                        item.indent ? 'ml-4' : ''
-                      } ${
-                        isActive 
-                          ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-indigo-500/30' 
-                          : isAvailable
-                          ? 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
-                          : 'opacity-50 cursor-not-allowed border border-transparent'
-                      }`}
+                      className={`${item.indent ? 'ml-4' : ''}`}
                     >
-                      <div className="relative flex items-center space-x-3">
-                        <div className={`flex-shrink-0 transition-colors ${
-                          isActive ? 'text-indigo-300' : 'text-slate-400 group-hover:text-slate-300'
-                        }`}>
-                          {item.icon}
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center justify-between">
-                            <h4 className={`font-medium ${
-                              isActive ? 'text-white' : 'text-slate-200 group-hover:text-white'
-                            }`}>
-                              {item.label}
-                            </h4>
-                            {item.premium && !['premium', 'enterprise'].includes(userPlan) && (
-                              <div className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded">
-                                Pro
-                              </div>
-                            )}
-                          </div>
-                          <p className={`text-xs mt-0.5 ${
-                            isActive ? 'text-indigo-200' : 'text-slate-500 group-hover:text-slate-400'
+                      <button
+                        onClick={() => {
+                          if (item.id === 'profile') {
+                            navigate('/profile');
+                          } else if (item.id === 'settings') {
+                            navigate('/settings');
+                          } else {
+                            setActiveTab(item.id);
+                          }
+                          setSidebarOpen(false);
+                        }}
+                        disabled={!isAvailable}
+                        className={`w-full group relative overflow-hidden rounded-lg p-3 transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-indigo-500/30' 
+                            : isAvailable
+                            ? 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
+                            : 'opacity-50 cursor-not-allowed border border-transparent'
+                        }`}
+                      >
+                        <div className="relative flex items-center space-x-3">
+                          <div className={`flex-shrink-0 transition-colors ${
+                            isActive ? 'text-indigo-300' : 'text-slate-400 group-hover:text-slate-300'
                           }`}>
-                            {item.description}
-                          </p>
+                            {item.icon}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="flex items-center justify-between">
+                              <h4 className={`font-medium ${
+                                isActive ? 'text-white' : 'text-slate-200 group-hover:text-white'
+                              }`}>
+                                {item.label}
+                              </h4>
+                              {item.premium && !['premium', 'enterprise'].includes(userPlan) && (
+                                <div className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded">
+                                  Pro
+                                </div>
+                              )}
+                            </div>
+                            <p className={`text-xs mt-0.5 ${
+                              isActive ? 'text-indigo-200' : 'text-slate-500 group-hover:text-slate-400'
+                            }`}>
+                              {item.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -2226,9 +2230,6 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
     </>
   );
 };
-
-// Professional Modal Component
-
 
 // Professional Modal Component
 const ProfessionalModal = ({ isOpen, onClose, title, subtitle, children }) => {
@@ -2672,6 +2673,20 @@ return (
                 />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Creative Studio - NEW SECTION */}
+        {activeTab === 'creative-studio' && (
+          <div className="px-6 py-8">
+            <GenerateBackground 
+              userPlan={userPlan}
+              usage={usage}
+              onUsageUpdate={() => {
+                // Refresh usage data after generation
+                window.location.reload();
+              }}
+            />
           </div>
         )}
 
