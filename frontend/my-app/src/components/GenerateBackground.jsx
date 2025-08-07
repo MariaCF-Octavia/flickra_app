@@ -1,4 +1,5 @@
-// components/GenerateBackground.jsx - FIXED VERSION
+ // components/GenerateBackground.jsx - FIXED VERSION
+// components/GenerateBackground.jsx - TARGETED FIX
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { 
@@ -43,12 +44,11 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     };
   }, []);
 
-  // Token retrieval function with better error handling
+  // Token retrieval function
   const getAuthToken = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.access_token) {
-        console.log('🔑 Got token from Supabase session');
         return session.access_token;
       }
 
@@ -65,12 +65,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           try {
             const parsed = JSON.parse(stored);
             if (parsed.access_token) {
-              console.log(`🔑 Got token from localStorage key: ${key}`);
               return parsed.access_token;
             }
           } catch {
             if (stored.length > 20) {
-              console.log(`🔑 Got raw token from localStorage key: ${key}`);
               return stored;
             }
           }
@@ -79,7 +77,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        console.log('🔑 User found but no token - attempting refresh');
         const { data: { session: newSession }, error } = await supabase.auth.refreshSession();
         if (newSession?.access_token && !error) {
           return newSession.access_token;
@@ -93,44 +90,14 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     }
   };
 
-  // Enhanced style options with better descriptions
+  // Style options
   const styleOptions = [
-    { 
-      value: 'professional', 
-      label: 'Professional', 
-      description: 'Clean, business-focused environments perfect for corporate presentations',
-      icon: '💼'
-    },
-    { 
-      value: 'lifestyle', 
-      label: 'Lifestyle', 
-      description: 'Natural, everyday settings that show products in real-life contexts',
-      icon: '🏠'
-    },
-    { 
-      value: 'studio', 
-      label: 'Studio', 
-      description: 'Minimalist studio setups with professional lighting and clean aesthetics',
-      icon: '📸'
-    },
-    { 
-      value: 'artistic', 
-      label: 'Artistic', 
-      description: 'Creative, visually striking environments with unique artistic appeal',
-      icon: '🎨'
-    },
-    { 
-      value: 'minimal', 
-      label: 'Minimal', 
-      description: 'Simple, uncluttered backgrounds that highlight your product',
-      icon: '✨'
-    },
-    { 
-      value: 'creative', 
-      label: 'Creative', 
-      description: 'Bold, imaginative settings designed for standout marketing campaigns',
-      icon: '🚀'
-    }
+    { value: 'professional', label: 'Professional', description: 'Clean, business-focused environments', icon: '💼' },
+    { value: 'lifestyle', label: 'Lifestyle', description: 'Natural, everyday settings', icon: '🏠' },
+    { value: 'studio', label: 'Studio', description: 'Minimalist studio setups', icon: '📸' },
+    { value: 'artistic', label: 'Artistic', description: 'Creative, visually striking environments', icon: '🎨' },
+    { value: 'minimal', label: 'Minimal', description: 'Simple, uncluttered backgrounds', icon: '✨' },
+    { value: 'creative', label: 'Creative', description: 'Bold, imaginative settings', icon: '🚀' }
   ];
 
   // Resolution options
@@ -140,7 +107,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     { value: '1920x1080', label: '1920×1080', description: 'Full HD - High-resolution for print, large displays, professional marketing' }
   ];
 
-  // Example prompts for inspiration
+  // Example prompts
   const examplePrompts = [
     "Modern minimalist kitchen with marble countertops and warm natural lighting",
     "Cozy living room with soft throw pillows and golden hour sunlight streaming through windows",
@@ -174,7 +141,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     reader.readAsDataURL(file);
   }, []);
 
-  // Upload image to get URL
+  // Upload image to Supabase
   const uploadImageToSupabase = async (file) => {
     try {
       const fileName = `temp/${Date.now()}_${file.name}`;
@@ -195,12 +162,9 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     }
   };
 
-  // Poll for generation status with better state management
+  // FIXED: Enhanced polling with better URL extraction
   const pollGenerationStatus = useCallback(async (jobId) => {
-    // Don't poll if component is unmounted
-    if (!componentMounted.current) {
-      return;
-    }
+    if (!componentMounted.current) return;
 
     try {
       const token = await getAuthToken();
@@ -213,8 +177,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.error('Authentication failed during status check');
-          // Don't redirect, just show error
           if (componentMounted.current) {
             toast.error('Session expired. Please refresh and try again.');
             setIsGenerating(false);
@@ -226,80 +188,77 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       }
 
       const data = await response.json();
-      console.log('📊 Status response:', data);
+      console.log('Status response:', data);
       
-      // Only update state if component is still mounted
-      if (!componentMounted.current) {
-        return;
-      }
+      if (!componentMounted.current) return;
       
       setGenerationStatus(data.status);
 
       if (data.status === 'completed') {
         let imageUrl = null;
         
-        // Try multiple fields for the image URL
-        if (data.image_url) {
-          imageUrl = data.image_url;
-          console.log('✅ Got image URL from image_url field:', imageUrl);
-        } else if (data.result_url) {
+        // CRITICAL FIX: Based on your backend logs, the image is stored in 'result_url' field
+        // Your backend logs show: "Updated with result_url column"
+        if (data.result_url) {
           imageUrl = data.result_url;
-          console.log('✅ Got image URL from result_url field:', imageUrl);
-        } else if (data.metadata?.final_image_url) {
-          imageUrl = data.metadata.final_image_url;
-          console.log('✅ Got image URL from metadata:', imageUrl);
-        } else if (data.url) {
+          console.log('✅ Found image URL in result_url:', imageUrl);
+        } 
+        // Fallback checks for other possible fields
+        else if (data.image_url) {
+          imageUrl = data.image_url;
+          console.log('✅ Found image URL in image_url:', imageUrl);
+        }
+        // Check if the URL is in the Supabase storage format (from your logs)
+        else if (data.url && data.url.includes('supabase.co/storage')) {
           imageUrl = data.url;
-          console.log('✅ Got image URL from url field:', imageUrl);
-        } else {
-          // Check for any field that looks like a URL
-          const urlFields = ['final_url', 'generated_url', 'output_url', 'file_url'];
-          for (const field of urlFields) {
-            if (data[field] && typeof data[field] === 'string' && data[field].includes('http')) {
-              imageUrl = data[field];
-              console.log(`✅ Got image URL from ${field}:`, imageUrl);
+          console.log('✅ Found Supabase storage URL:', imageUrl);
+        }
+        // Check metadata
+        else if (data.metadata?.final_image_url) {
+          imageUrl = data.metadata.final_image_url;
+          console.log('✅ Found image URL in metadata:', imageUrl);
+        }
+        // Last resort: search all fields for Supabase URLs
+        else {
+          const allFields = Object.keys(data);
+          for (const field of allFields) {
+            const value = data[field];
+            if (typeof value === 'string' && value.includes('supabase.co/storage')) {
+              imageUrl = value;
+              console.log(`✅ Found Supabase URL in field '${field}':`, imageUrl);
               break;
             }
           }
         }
 
         if (imageUrl && componentMounted.current) {
-          // Validate the image URL before setting it
-          const img = new Image();
-          img.onload = () => {
-            if (componentMounted.current) {
-              setGeneratedImage(imageUrl);
-              setIsGenerating(false);
-              
-              // Show success with generation type info
-              const generationType = data.metadata?.generation_type || 'unknown';
-              if (generationType === 'scene_generation') {
-                toast.success('🎨 Scene created successfully! Your product now has a beautiful new environment.');
-              } else {
-                toast.success('✂️ Background removed successfully! Clean product image ready.');
-              }
-              
-              if (onUsageUpdate) {
-                onUsageUpdate();
-              }
-            }
-          };
+          // Clean up the URL - remove any query parameters that might break it
+          if (imageUrl.endsWith('?')) {
+            imageUrl = imageUrl.slice(0, -1);
+          }
           
-          img.onerror = () => {
-            console.error('Generated image URL is not valid:', imageUrl);
-            if (componentMounted.current) {
-              toast.error('Generated image could not be loaded. Please try again.');
-              setIsGenerating(false);
-              setGenerationStatus('failed');
-            }
-          };
+          console.log('Final image URL:', imageUrl);
           
-          img.src = imageUrl;
+          // Set the image immediately - don't wait for validation
+          setGeneratedImage(imageUrl);
+          setIsGenerating(false);
           
-          // Clear polling interval
+          // Clear polling
           if (pollInterval.current) {
             clearInterval(pollInterval.current);
             pollInterval.current = null;
+          }
+          
+          // Show success message
+          const generationType = data.metadata?.generation_type || 'unknown';
+          if (generationType === 'scene_generation' || prompt.trim()) {
+            toast.success('🎨 Scene created successfully! Your product now has a beautiful new environment.');
+          } else {
+            toast.success('✂️ Background removed successfully! Clean product image ready.');
+          }
+          
+          if (onUsageUpdate) {
+            onUsageUpdate();
           }
         } else {
           console.error('❌ No valid image URL found in response:', data);
@@ -328,19 +287,17 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       }
     } catch (error) {
       console.error('Status check error:', error);
-      if (componentMounted.current) {
-        // Don't show error for every poll attempt, only if it's a persistent issue
+      if (componentMounted.current && !error.message.includes('Failed to fetch')) {
         if (error.message.includes('Authentication') || error.message.includes('token')) {
           toast.error('Session expired. Please refresh and try again.');
           setIsGenerating(false);
           setGenerationStatus('failed');
         }
-        // Don't show network errors as they might be temporary
       }
     }
-  }, [onUsageUpdate]);
+  }, [onUsageUpdate, prompt]);
 
-  // Start background generation with better error handling
+  // Start background generation
   const handleGenerate = async () => {
     if (!selectedImage) {
       toast.error('Please select a product image');
@@ -353,24 +310,22 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       return;
     }
 
-    // Clear any previous results
+    // Clear previous results
     setGeneratedImage(null);
     setJobId(null);
     setGenerationStatus(null);
     setIsGenerating(true);
     
     try {
-      // Upload image first
+      // Upload image
       setGenerationStatus('uploading');
       const imageUrl = await uploadImageToSupabase(selectedImage);
       
-      if (!componentMounted.current) {
-        return; // Component unmounted during upload
-      }
+      if (!componentMounted.current) return;
       
       const token = await getAuthToken();
       
-      console.log('🚀 Starting creative studio processing with prompt:', prompt);
+      console.log('🚀 Starting generation with prompt:', prompt);
       
       setGenerationStatus('processing');
       
@@ -383,8 +338,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         resolution
       };
       
-      console.log('📤 Sending request:', requestBody);
-      
       const response = await fetch(`${API_BASE}/api/generate-background`, {
         method: 'POST',
         headers: {
@@ -394,9 +347,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         body: JSON.stringify(requestBody)
       });
 
-      if (!componentMounted.current) {
-        return; // Component unmounted during request
-      }
+      if (!componentMounted.current) return;
 
       if (!response.ok) {
         let errorMessage = `Request failed with status ${response.status}`;
@@ -427,25 +378,18 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       
       toast.success('🎨 Creative studio processing started! This may take 30-60 seconds...');
       
-      // Start polling for status
-      const startPolling = () => {
-        if (!componentMounted.current) return;
-        
-        pollGenerationStatus(data.job_id);
-        pollInterval.current = setInterval(() => {
-          if (componentMounted.current) {
-            pollGenerationStatus(data.job_id);
-          } else {
-            // Component unmounted, clear interval
-            if (pollInterval.current) {
-              clearInterval(pollInterval.current);
-              pollInterval.current = null;
-            }
+      // Start polling - check immediately, then every 3 seconds
+      pollGenerationStatus(data.job_id);
+      pollInterval.current = setInterval(() => {
+        if (componentMounted.current) {
+          pollGenerationStatus(data.job_id);
+        } else {
+          if (pollInterval.current) {
+            clearInterval(pollInterval.current);
+            pollInterval.current = null;
           }
-        }, 3000); // Poll every 3 seconds instead of 2 to reduce server load
-      };
-      
-      startPolling();
+        }
+      }, 3000);
 
     } catch (error) {
       console.error('Generation error:', error);
@@ -465,7 +409,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
   // Reset form
   const handleReset = () => {
-    // Clear polling interval first
     if (pollInterval.current) {
       clearInterval(pollInterval.current);
       pollInterval.current = null;
@@ -484,7 +427,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     setIsGenerating(false);
   };
 
-  // Enhanced status display
+  // Status display
   const StatusDisplay = () => {
     if (!generationStatus) return null;
 
@@ -550,141 +493,19 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           </button>
           
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
-              <RiPaletteLine className="text-indigo-400" />
-              <span>Creative Studio</span>
-            </h2>
-            <p className="text-slate-300">Professional product photography made simple with intelligent background processing</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Creative Studio</h2>
+            <p className="text-slate-300">Professional product photography made simple</p>
           </div>
 
-          <div className="space-y-6">
-            {/* What We Do Section */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-lg">🎯 What Creative Studio Does</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-800/50 rounded-xl p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FiScissors className="text-red-400" size={20} />
-                    <h4 className="font-semibold text-white">Smart Background Removal</h4>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-2">Automatically detects and removes existing backgrounds from your product images</p>
-                  <div className="bg-slate-700/30 rounded p-2 text-xs text-slate-400">
-                    <strong>When:</strong> Always happens first to ensure clean product isolation
-                  </div>
-                </div>
-                
-                <div className="bg-slate-800/50 rounded-xl p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FiPlus className="text-green-400" size={20} />
-                    <h4 className="font-semibold text-white">Scene Creation</h4>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-2">Generates photorealistic environments based on your description</p>
-                  <div className="bg-slate-700/30 rounded p-2 text-xs text-slate-400">
-                    <strong>When:</strong> After removal, when you provide a scene description
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Processing Flow */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-lg">🔄 How Processing Works</h3>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
-                  <div className="bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">1</div>
-                  <div>
-                    <p className="text-white font-medium">Background Analysis & Removal</p>
-                    <p className="text-slate-400 text-sm">System analyzes your image and intelligently removes the existing background, leaving just your product</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
-                  <div className="bg-purple-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">2</div>
-                  <div>
-                    <p className="text-white font-medium">Scene Generation (If Description Provided)</p>
-                    <p className="text-slate-400 text-sm">Creates a new photorealistic environment based on your text description</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
-                  <div className="bg-green-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">3</div>
-                  <div>
-                    <p className="text-white font-medium">Smart Product Placement</p>
-                    <p className="text-slate-400 text-sm">Intelligently positions your product in the new scene with proper lighting, shadows, and perspective</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Two Modes */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-lg">📸 Two Creation Modes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border border-slate-600 rounded-xl p-4">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <FiScissors className="text-orange-400" />
-                    <h4 className="font-semibold text-white">Background Removal Only</h4>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-3">Perfect when you want a clean product cutout for your own designs</p>
-                  <div className="bg-slate-800/50 rounded p-3">
-                    <p className="text-slate-400 text-xs"><strong>Result:</strong> Transparent PNG with just your product</p>
-                    <p className="text-slate-400 text-xs"><strong>Best for:</strong> Design templates, product catalogs, custom layouts</p>
-                  </div>
-                </div>
-                
-                <div className="border border-slate-600 rounded-xl p-4">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <RiSparklingFill className="text-purple-400" />
-                    <h4 className="font-semibold text-white">Complete Scene Creation</h4>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-3">Creates stunning product photography with custom environments</p>
-                  <div className="bg-slate-800/50 rounded p-3">
-                    <p className="text-slate-400 text-xs"><strong>Result:</strong> Professional product photo in custom scene</p>
-                    <p className="text-slate-400 text-xs"><strong>Best for:</strong> Marketing, e-commerce, social media, advertising</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Advanced Options Explained */}
-            <div>
-              <h3 className="font-semibold text-white mb-4 text-lg">⚙️ Processing Options Explained</h3>
-              <div className="space-y-3">
-                <div className="bg-slate-800/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FiScissors className="text-blue-400" size={16} />
-                    <span className="text-white font-medium">Smart Background Removal</span>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-2">Uses advanced image analysis to automatically detect and remove existing backgrounds</p>
-                  <div className="text-xs text-slate-400 space-y-1">
-                    <p><strong>✓ Enabled:</strong> Removes background first, then adds new scene (recommended)</p>
-                    <p><strong>✗ Disabled:</strong> Overlays new background without removing existing one (may look unnatural)</p>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-800/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FiLayers className="text-green-400" size={16} />
-                    <span className="text-white font-medium">Intelligent Positioning</span>
-                  </div>
-                  <p className="text-slate-300 text-sm mb-2">Automatically determines the best placement, size, and angle for your product</p>
-                  <div className="text-xs text-slate-400 space-y-1">
-                    <p><strong>✓ Enabled:</strong> System chooses optimal product placement and perspective (recommended)</p>
-                    <p><strong>✗ Disabled:</strong> Product stays in original position (may not fit scene naturally)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          <div className="space-y-4">
             <div className="bg-slate-800/30 rounded-lg p-4">
-              <h4 className="font-medium text-white mb-2">💡 Pro Tips for Best Results:</h4>
-              <ul className="text-slate-300 text-sm space-y-1">
-                <li>• <strong>Image Quality:</strong> Use high-resolution images with clear, defined edges</li>
-                <li>• <strong>Lighting Details:</strong> Specify lighting in descriptions ("soft morning light", "dramatic shadows")</li>
-                <li>• <strong>Material Mentions:</strong> Include surface materials ("marble counter", "wooden table", "concrete floor")</li>
-                <li>• <strong>Mood Setting:</strong> Add atmosphere descriptors ("cozy", "modern", "luxurious", "minimalist")</li>
-                <li>• <strong>Specific Scenes:</strong> Be detailed rather than vague ("rustic kitchen with warm lighting" vs "nice background")</li>
-              </ul>
+              <h3 className="font-medium text-white mb-2">How it works:</h3>
+              <ol className="text-slate-300 text-sm space-y-1">
+                <li>1. Upload your product image</li>
+                <li>2. Describe your desired scene (optional)</li>
+                <li>3. Choose style and settings</li>
+                <li>4. Generate your professional photo</li>
+              </ol>
             </div>
           </div>
         </div>
@@ -694,7 +515,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Enhanced Header */}
+      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -720,33 +541,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           </button>
         </div>
 
-        {/* Enhanced feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-            <div className="flex items-center space-x-2 mb-2">
-              <FiScissors className="text-red-400" size={16} />
-              <span className="text-white font-medium">Smart Removal</span>
-            </div>
-            <p className="text-slate-400 text-sm">Automatically detects and removes existing backgrounds with precision</p>
-          </div>
-          
-          <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-            <div className="flex items-center space-x-2 mb-2">
-              <FiCamera className="text-blue-400" size={16} />
-              <span className="text-white font-medium">Scene Creation</span>
-            </div>
-            <p className="text-slate-400 text-sm">Generates photorealistic environments from your descriptions</p>
-          </div>
-          
-          <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-            <div className="flex items-center space-x-2 mb-2">
-              <RiSparklingFill className="text-purple-400" size={16} />
-              <span className="text-white font-medium">Professional Results</span>
-            </div>
-            <p className="text-slate-400 text-sm">Studio-quality images with proper lighting and positioning</p>
-          </div>
-        </div>
-
         {/* Processing Mode Indicator */}
         <div className="mb-6 p-4 bg-slate-800/20 rounded-xl border border-slate-700/30">
           <div className="flex items-center space-x-3">
@@ -769,12 +563,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
               )}
             </div>
           </div>
-          <p className="text-slate-500 text-xs mt-2">
-            {prompt.trim() 
-              ? "Your product will be placed in a custom scene based on your description" 
-              : "Currently: Remove background only • Add scene description for full creative processing"
-            }
-          </p>
         </div>
 
         {/* Credits display */}
@@ -849,15 +637,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   >
                     <FiX size={16} />
                   </button>
-                  <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur rounded px-2 py-1 text-xs text-white">
-                    ✂️ Background will be removed automatically
-                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Enhanced Background Prompt */}
+          {/* Scene Description */}
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="relative bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-2xl p-6 hover:border-slate-700/50 transition-all duration-300">
@@ -867,16 +652,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">Optional</span>
               </h3>
               
-              <div className="mb-3 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
-                <p className="text-slate-300 text-sm">
-                  <strong>Leave empty</strong> for background removal only, or <strong>describe a scene</strong> to create a custom environment for your product.
-                </p>
-              </div>
-              
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe the environment you want... Examples: 'modern kitchen with marble countertops', 'cozy living room with natural lighting', 'professional office setting'"
+                placeholder="Describe the environment you want... Examples: 'modern kitchen with marble countertops', 'cozy living room with natural lighting'"
                 className="w-full h-24 bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none"
                 maxLength={500}
               />
@@ -908,14 +687,11 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
             </div>
           </div>
 
-          {/* Enhanced Style & Settings */}
+          {/* Style & Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Style Selection */}
             <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-4">
-              <h4 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
-                <span>3. Choose Style</span>
-                {!prompt.trim() && <span className="text-xs bg-slate-600 text-slate-300 px-2 py-1 rounded">Removal only</span>}
-              </h4>
+              <h4 className="text-lg font-semibold text-white mb-3">3. Choose Style</h4>
               <select
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
@@ -928,19 +704,11 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   </option>
                 ))}
               </select>
-              <p className="text-slate-400 text-xs mt-2">
-                {prompt.trim() 
-                  ? styleOptions.find(o => o.value === style)?.description
-                  : "Add scene description to enable style selection"
-                }
-              </p>
             </div>
 
             {/* Resolution Selection */}
             <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-4">
-              <h4 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
-                <span>4. Output Size</span>
-              </h4>
+              <h4 className="text-lg font-semibold text-white mb-3">4. Output Size</h4>
               <select
                 value={resolution}
                 onChange={(e) => setResolution(e.target.value)}
@@ -952,13 +720,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   </option>
                 ))}
               </select>
-              <p className="text-slate-400 text-xs mt-2">
-                {resolutionOptions.find(o => o.value === resolution)?.description}
-              </p>
             </div>
           </div>
 
-          {/* Enhanced Advanced Options */}
+          {/* Advanced Options */}
           <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-4">
             <h4 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
               <FiLayers size={16} />
@@ -974,10 +739,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 />
                 <div>
                   <span className="text-white font-medium">Smart Background Removal</span>
-                  <p className="text-slate-400 text-sm">Automatically detects and removes the existing background before processing</p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    <strong>Recommended:</strong> Ensures clean product isolation for better scene integration
-                  </p>
+                  <p className="text-slate-400 text-sm">Automatically detects and removes the existing background</p>
                 </div>
               </label>
               
@@ -997,15 +759,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                       : "Only available when creating custom scenes (add description above)"
                     }
                   </p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    <strong>When enabled:</strong> System handles sizing, rotation, and positioning for natural scene integration
-                  </p>
                 </div>
               </label>
             </div>
           </div>
 
-          {/* Enhanced Generate Button */}
+          {/* Generate Button */}
           <div className="relative">
             <button
               onClick={handleGenerate}
@@ -1029,18 +788,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 </>
               )}
             </button>
-            
-            {!isGenerating && !selectedImage && (
-              <div className="absolute inset-x-0 -bottom-8 text-center">
-                <p className="text-slate-400 text-sm">
-                  Upload an image to continue
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Right Panel - Enhanced Output */}
+        {/* Right Panel - Output */}
         <div className="space-y-6">
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -1083,6 +834,9 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                         console.error('Image load error:', e);
                         toast.error('Failed to load generated image');
                       }}
+                      onLoad={() => {
+                        console.log('✅ Image loaded successfully');
+                      }}
                     />
                     {/* Overlay with generation info */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -1103,9 +857,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                         ) : (
                           <FiScissors size={40} className="text-slate-500" />
                         )}
-                      </div>
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✨</span>
                       </div>
                     </div>
                     <div>
@@ -1149,32 +900,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   </div>
                 )}
               </div>
-
-              {/* Processing explanation */}
-              {!generatedImage && !isGenerating && (
-                <div className="mt-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
-                  <h4 className="text-white font-medium mb-2 flex items-center space-x-2">
-                    <span>🔄</span>
-                    <span>What happens when you create:</span>
-                  </h4>
-                  <div className="space-y-2 text-slate-400 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-orange-400">1.</span>
-                      <span>Smart background removal from your product image</span>
-                    </div>
-                    {prompt.trim() && (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-purple-400">2.</span>
-                        <span>Generate custom scene based on your description</span>
-                      </div>
-                    )}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-green-400">{prompt.trim() ? "3." : "2."}</span>
-                      <span>{prompt.trim() ? "Intelligent product placement with proper lighting" : "Clean product cutout ready for use"}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -1212,7 +937,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         </div>
       </div>
 
-      {/* Enhanced Fullscreen Modal */}
+      {/* Fullscreen Modal */}
       {fullscreenImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="relative max-w-7xl max-h-full">
