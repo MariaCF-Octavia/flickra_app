@@ -4,9 +4,9 @@ import { toast } from 'react-toastify';
 import { 
   FiImage, FiUpload, FiPlay, FiDownload, FiMaximize, FiX, 
   FiCheck, FiClock, FiAlertCircle, FiRefreshCw, FiEye, FiInfo,
-  FiZap, FiCamera, FiLayers
+  FiZap, FiCamera, FiLayers, FiScissors, FiPlus
 } from 'react-icons/fi';
-import { RiMagicLine, RiSparklingFill } from 'react-icons/ri';
+import { RiMagicLine, RiSparklingFill, RiPaletteLine } from 'react-icons/ri';
 import supabase from "../supabaseClient";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
@@ -85,56 +85,56 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     { 
       value: 'professional', 
       label: 'Professional', 
-      description: 'Clean, business-focused backgrounds perfect for corporate use',
+      description: 'Clean, business-focused environments perfect for corporate presentations',
       icon: '💼'
     },
     { 
       value: 'lifestyle', 
       label: 'Lifestyle', 
-      description: 'Natural, everyday environments that show products in real-life settings',
+      description: 'Natural, everyday settings that show products in real-life contexts',
       icon: '🏠'
     },
     { 
       value: 'studio', 
       label: 'Studio', 
-      description: 'Minimalist studio setups with professional lighting',
+      description: 'Minimalist studio setups with professional lighting and clean aesthetics',
       icon: '📸'
     },
     { 
       value: 'artistic', 
       label: 'Artistic', 
-      description: 'Creative, artistic environments with unique visual appeal',
+      description: 'Creative, visually striking environments with unique artistic appeal',
       icon: '🎨'
     },
     { 
       value: 'minimal', 
       label: 'Minimal', 
-      description: 'Simple, clean backgrounds that let your product shine',
+      description: 'Simple, uncluttered backgrounds that highlight your product',
       icon: '✨'
     },
     { 
       value: 'creative', 
       label: 'Creative', 
-      description: 'Bold, imaginative settings for standout marketing',
+      description: 'Bold, imaginative settings designed for standout marketing campaigns',
       icon: '🚀'
     }
   ];
 
   // Resolution options
   const resolutionOptions = [
-    { value: '1024x1024', label: '1024×1024', description: 'Square format - Perfect for social media' },
-    { value: '1280x720', label: '1280×720', description: 'Landscape HD - Great for websites' },
-    { value: '1920x1080', label: '1920×1080', description: 'Full HD - High-resolution marketing' }
+    { value: '1024x1024', label: '1024×1024', description: 'Square format - Perfect for Instagram, social media posts' },
+    { value: '1280x720', label: '1280×720', description: 'Landscape HD - Ideal for websites, presentations, YouTube thumbnails' },
+    { value: '1920x1080', label: '1920×1080', description: 'Full HD - High-resolution for print, large displays, professional marketing' }
   ];
 
   // Example prompts for inspiration
   const examplePrompts = [
-    "Modern minimalist kitchen with marble countertops and warm lighting",
-    "Cozy living room with soft pillows and natural sunlight",
-    "Professional office desk with plants and modern decor",
-    "Rustic wooden table in a sunlit garden setting",
-    "Elegant spa environment with natural textures and calm ambiance",
-    "Vibrant outdoor picnic scene with fresh grass and blue sky"
+    "Modern minimalist kitchen with marble countertops and warm natural lighting",
+    "Cozy living room with soft throw pillows and golden hour sunlight streaming through windows",
+    "Professional office desk with green plants and contemporary decor elements",
+    "Rustic wooden dining table in a bright, airy garden setting with soft shadows",
+    "Elegant spa environment with natural stone textures and calming ambient lighting",
+    "Vibrant outdoor picnic scene with fresh green grass and clear blue sky background"
   ];
 
   // File upload handler
@@ -236,9 +236,9 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           // Show success with generation type info
           const generationType = data.metadata?.generation_type || 'unknown';
           if (generationType === 'scene_generation') {
-            toast.success('🎨 AI scene generated successfully! Your product is now in a beautiful new environment.');
+            toast.success('🎨 Scene created successfully! Your product now has a beautiful new environment.');
           } else {
-            toast.success('✂️ Background removed successfully! Product is ready for new scenes.');
+            toast.success('✂️ Background removed successfully! Clean product image ready.');
           }
           
           if (onUsageUpdate) {
@@ -285,11 +285,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       return;
     }
 
-    if (!prompt.trim()) {
-      toast.error('Please enter a background description');
-      return;
-    }
-
     const remaining = usage?.remaining || 0;
     if (userPlan !== 'enterprise' && remaining <= 0) {
       toast.error('No credits remaining. Please upgrade your plan.');
@@ -304,7 +299,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       const imageUrl = await uploadImageToSupabase(selectedImage);
       const token = await getAuthToken();
       
-      console.log('🚀 Starting AI background generation with prompt:', prompt);
+      console.log('🚀 Starting creative studio processing with prompt:', prompt);
       
       const response = await fetch(`${API_BASE}/api/generate-background`, {
         method: 'POST',
@@ -337,7 +332,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       setJobId(data.job_id);
       setGenerationStatus('processing');
       
-      toast.success('🎨 AI background generation started! This may take 30-60 seconds...');
+      toast.success('🎨 Creative studio processing started! This may take 30-60 seconds...');
       
       pollGenerationStatus(data.job_id);
       pollInterval.current = setInterval(() => {
@@ -387,17 +382,17 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         icon: <FiUpload />, 
         text: 'Uploading your product image...', 
         color: 'text-blue-400',
-        description: 'Preparing your image for AI processing'
+        description: 'Preparing your image for creative processing'
       },
       processing: { 
         icon: <FiRefreshCw className="animate-spin" />, 
-        text: 'AI is creating your background...', 
+        text: 'Creating your perfect scene...', 
         color: 'text-indigo-400',
-        description: 'Our AI is analyzing your product and generating the perfect scene'
+        description: 'Analyzing your product and crafting the ideal background environment'
       },
       completed: { 
         icon: <FiCheck />, 
-        text: 'Generation complete!', 
+        text: 'Creation complete!', 
         color: 'text-green-400',
         description: 'Your professional product photo is ready!'
       },
@@ -435,7 +430,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div className="relative max-w-2xl w-full bg-slate-900 rounded-2xl border border-slate-700 p-6">
+        <div className="relative max-w-3xl w-full bg-slate-900 rounded-2xl border border-slate-700 p-6 max-h-[90vh] overflow-y-auto">
           <button
             onClick={() => setShowInfoModal(false)}
             className="absolute top-4 right-4 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors"
@@ -445,62 +440,139 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
-              <RiSparklingFill className="text-indigo-400" />
-              <span>AI Background Generation</span>
+              <RiPaletteLine className="text-indigo-400" />
+              <span>Creative Studio</span>
             </h2>
-            <p className="text-slate-300">Transform your product photos with AI-powered backgrounds</p>
+            <p className="text-slate-300">Professional product photography made simple with intelligent background processing</p>
           </div>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-                <FiCamera className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                <h3 className="font-semibold text-white mb-1">Smart Analysis</h3>
-                <p className="text-slate-400 text-sm">AI analyzes your product and automatically removes the background</p>
-              </div>
-              
-              <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-                <RiMagicLine className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                <h3 className="font-semibold text-white mb-1">Scene Generation</h3>
-                <p className="text-slate-400 text-sm">Creates photorealistic environments based on your description</p>
-              </div>
-              
-              <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-                <FiLayers className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                <h3 className="font-semibold text-white mb-1">Perfect Placement</h3>
-                <p className="text-slate-400 text-sm">Intelligently positions your product with proper lighting and shadows</p>
+            {/* What We Do Section */}
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-lg">🎯 What Creative Studio Does</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FiScissors className="text-red-400" size={20} />
+                    <h4 className="font-semibold text-white">Smart Background Removal</h4>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-2">Automatically detects and removes existing backgrounds from your product images</p>
+                  <div className="bg-slate-700/30 rounded p-2 text-xs text-slate-400">
+                    <strong>When:</strong> Always happens first to ensure clean product isolation
+                  </div>
+                </div>
+                
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FiPlus className="text-green-400" size={20} />
+                    <h4 className="font-semibold text-white">Scene Creation</h4>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-2">Generates photorealistic environments based on your description</p>
+                  <div className="bg-slate-700/30 rounded p-2 text-xs text-slate-400">
+                    <strong>When:</strong> After removal, when you provide a scene description
+                  </div>
+                </div>
               </div>
             </div>
 
+            {/* Processing Flow */}
             <div>
-              <h3 className="font-semibold text-white mb-3">How it works:</h3>
-              <ol className="space-y-2 text-slate-300">
-                <li className="flex items-start space-x-2">
-                  <span className="bg-indigo-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center mt-0.5">1</span>
-                  <span>Upload your product image (PNG, JPG up to 10MB)</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="bg-indigo-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center mt-0.5">2</span>
-                  <span>Describe the background scene you want in detail</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="bg-indigo-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center mt-0.5">3</span>
-                  <span>Choose your style and resolution preferences</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="bg-indigo-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center mt-0.5">4</span>
-                  <span>AI generates a professional scene with your product</span>
-                </li>
-              </ol>
+              <h3 className="font-semibold text-white mb-4 text-lg">🔄 How Processing Works</h3>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
+                  <div className="bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">1</div>
+                  <div>
+                    <p className="text-white font-medium">Background Analysis & Removal</p>
+                    <p className="text-slate-400 text-sm">System analyzes your image and intelligently removes the existing background, leaving just your product</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
+                  <div className="bg-purple-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">2</div>
+                  <div>
+                    <p className="text-white font-medium">Scene Generation (If Description Provided)</p>
+                    <p className="text-slate-400 text-sm">Creates a new photorealistic environment based on your text description</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
+                  <div className="bg-green-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center mt-0.5">3</div>
+                  <div>
+                    <p className="text-white font-medium">Smart Product Placement</p>
+                    <p className="text-slate-400 text-sm">Intelligently positions your product in the new scene with proper lighting, shadows, and perspective</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Two Modes */}
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-lg">📸 Two Creation Modes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border border-slate-600 rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <FiScissors className="text-orange-400" />
+                    <h4 className="font-semibold text-white">Background Removal Only</h4>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-3">Perfect when you want a clean product cutout for your own designs</p>
+                  <div className="bg-slate-800/50 rounded p-3">
+                    <p className="text-slate-400 text-xs"><strong>Result:</strong> Transparent PNG with just your product</p>
+                    <p className="text-slate-400 text-xs"><strong>Best for:</strong> Design templates, product catalogs, custom layouts</p>
+                  </div>
+                </div>
+                
+                <div className="border border-slate-600 rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <RiSparklingFill className="text-purple-400" />
+                    <h4 className="font-semibold text-white">Complete Scene Creation</h4>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-3">Creates stunning product photography with custom environments</p>
+                  <div className="bg-slate-800/50 rounded p-3">
+                    <p className="text-slate-400 text-xs"><strong>Result:</strong> Professional product photo in custom scene</p>
+                    <p className="text-slate-400 text-xs"><strong>Best for:</strong> Marketing, e-commerce, social media, advertising</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Options Explained */}
+            <div>
+              <h3 className="font-semibold text-white mb-4 text-lg">⚙️ Processing Options Explained</h3>
+              <div className="space-y-3">
+                <div className="bg-slate-800/30 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FiScissors className="text-blue-400" size={16} />
+                    <span className="text-white font-medium">Smart Background Removal</span>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-2">Uses advanced image analysis to automatically detect and remove existing backgrounds</p>
+                  <div className="text-xs text-slate-400 space-y-1">
+                    <p><strong>✓ Enabled:</strong> Removes background first, then adds new scene (recommended)</p>
+                    <p><strong>✗ Disabled:</strong> Overlays new background without removing existing one (may look unnatural)</p>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-800/30 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FiLayers className="text-green-400" size={16} />
+                    <span className="text-white font-medium">Intelligent Positioning</span>
+                  </div>
+                  <p className="text-slate-300 text-sm mb-2">Automatically determines the best placement, size, and angle for your product</p>
+                  <div className="text-xs text-slate-400 space-y-1">
+                    <p><strong>✓ Enabled:</strong> System chooses optimal product placement and perspective (recommended)</p>
+                    <p><strong>✗ Disabled:</strong> Product stays in original position (may not fit scene naturally)</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="bg-slate-800/30 rounded-lg p-4">
-              <h4 className="font-medium text-white mb-2">💡 Pro Tips:</h4>
+              <h4 className="font-medium text-white mb-2">💡 Pro Tips for Best Results:</h4>
               <ul className="text-slate-300 text-sm space-y-1">
-                <li>• Be specific in your descriptions (e.g., "marble kitchen counter with soft morning light")</li>
-                <li>• Use high-quality product images with clear edges for best results</li>
-                <li>• Different styles work better for different products - experiment!</li>
-                <li>• The AI can create both realistic and creative environments</li>
+                <li>• <strong>Image Quality:</strong> Use high-resolution images with clear, defined edges</li>
+                <li>• <strong>Lighting Details:</strong> Specify lighting in descriptions ("soft morning light", "dramatic shadows")</li>
+                <li>• <strong>Material Mentions:</strong> Include surface materials ("marble counter", "wooden table", "concrete floor")</li>
+                <li>• <strong>Mood Setting:</strong> Add atmosphere descriptors ("cozy", "modern", "luxurious", "minimalist")</li>
+                <li>• <strong>Specific Scenes:</strong> Be detailed rather than vague ("rustic kitchen with warm lighting" vs "nice background")</li>
               </ul>
             </div>
           </div>
@@ -516,14 +588,14 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <RiMagicLine className="w-6 h-6 text-white" />
+              <RiPaletteLine className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                AI Background Generator
+                Creative Studio
               </h1>
               <p className="text-lg text-slate-400">
-                Create stunning product photos with AI-generated scenes
+                Transform product photos with intelligent background processing
               </p>
             </div>
           </div>
@@ -541,27 +613,57 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
-              <FiZap className="text-yellow-400" size={16} />
-              <span className="text-white font-medium">AI-Powered</span>
+              <FiScissors className="text-red-400" size={16} />
+              <span className="text-white font-medium">Smart Removal</span>
             </div>
-            <p className="text-slate-400 text-sm">Advanced AI creates photorealistic scenes that perfectly match your product</p>
+            <p className="text-slate-400 text-sm">Automatically detects and removes existing backgrounds with precision</p>
           </div>
           
           <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
               <FiCamera className="text-blue-400" size={16} />
-              <span className="text-white font-medium">Professional Quality</span>
+              <span className="text-white font-medium">Scene Creation</span>
             </div>
-            <p className="text-slate-400 text-sm">Studio-grade results with proper lighting, shadows, and positioning</p>
+            <p className="text-slate-400 text-sm">Generates photorealistic environments from your descriptions</p>
           </div>
           
           <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
               <RiSparklingFill className="text-purple-400" size={16} />
-              <span className="text-white font-medium">Unlimited Creativity</span>
+              <span className="text-white font-medium">Professional Results</span>
             </div>
-            <p className="text-slate-400 text-sm">From minimalist studios to exotic locations - describe any scene</p>
+            <p className="text-slate-400 text-sm">Studio-quality images with proper lighting and positioning</p>
           </div>
+        </div>
+
+        {/* Processing Mode Indicator */}
+        <div className="mb-6 p-4 bg-slate-800/20 rounded-xl border border-slate-700/30">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <FiScissors className="text-orange-400" size={16} />
+              <span className="text-white text-sm font-medium">Background Removal: Always Active</span>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="flex items-center space-x-2">
+              {prompt.trim() ? (
+                <>
+                  <RiSparklingFill className="text-purple-400" size={16} />
+                  <span className="text-white text-sm font-medium">Scene Creation: Active</span>
+                </>
+              ) : (
+                <>
+                  <FiImage className="text-slate-500" size={16} />
+                  <span className="text-slate-400 text-sm">Scene Creation: Add description to activate</span>
+                </>
+              )}
+            </div>
+          </div>
+          <p className="text-slate-500 text-xs mt-2">
+            {prompt.trim() 
+              ? "Your product will be placed in a custom scene based on your description" 
+              : "Currently: Remove background only • Add scene description for full creative processing"
+            }
+          </p>
         </div>
 
         {/* Credits display */}
@@ -569,7 +671,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           <div className="px-4 py-2 bg-slate-800/50 backdrop-blur rounded-lg border border-slate-700/50">
             <span className="text-slate-300 text-sm font-medium">
               {userPlan === 'enterprise' 
-                ? '✨ Unlimited generations' 
+                ? '✨ Unlimited creations' 
                 : `🎯 ${usage?.remaining || 0} credits remaining`
               }
             </span>
@@ -581,7 +683,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
               className="flex items-center px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 text-white rounded-lg transition-colors"
             >
               <FiRefreshCw size={16} className="mr-2" />
-              New Generation
+              New Creation
             </button>
           )}
         </div>
@@ -617,7 +719,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   </div>
                   <div className="text-center">
                     <p className="text-white font-medium mb-1">Upload your product image</p>
-                    <p className="text-slate-400 text-sm">PNG, JPG up to 10MB • Best with clear backgrounds</p>
+                    <p className="text-slate-400 text-sm">PNG, JPG up to 10MB • Background will be automatically removed</p>
                   </div>
                 </button>
               ) : (
@@ -636,6 +738,9 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   >
                     <FiX size={16} />
                   </button>
+                  <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur rounded px-2 py-1 text-xs text-white">
+                    ✂️ Background will be removed automatically
+                  </div>
                 </div>
               )}
             </div>
@@ -648,12 +753,19 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
                 <RiMagicLine size={20} />
                 <span>2. Describe Your Scene</span>
+                <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">Optional</span>
               </h3>
+              
+              <div className="mb-3 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
+                <p className="text-slate-300 text-sm">
+                  <strong>Leave empty</strong> for background removal only, or <strong>describe a scene</strong> to create a custom environment for your product.
+                </p>
+              </div>
               
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe the background scene in detail... Be specific about lighting, materials, and atmosphere for best results!"
+                placeholder="Describe the environment you want... Examples: 'modern kitchen with marble countertops', 'cozy living room with natural lighting', 'professional office setting'"
                 className="w-full h-24 bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none"
                 maxLength={500}
               />
@@ -662,11 +774,14 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 <span className="text-slate-400 text-sm">
                   {prompt.length}/500 characters
                 </span>
+                <span className="text-slate-400 text-xs">
+                  {prompt.trim() ? "🎨 Scene creation mode" : "✂️ Background removal only"}
+                </span>
               </div>
 
               {/* Example prompts */}
               <div>
-                <p className="text-slate-400 text-sm mb-2">💡 Try these examples:</p>
+                <p className="text-slate-400 text-sm mb-2">💡 Scene ideas to try:</p>
                 <div className="grid grid-cols-1 gap-2">
                   {examplePrompts.slice(0, 3).map((example, index) => (
                     <button
@@ -688,11 +803,13 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
             <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-4">
               <h4 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
                 <span>3. Choose Style</span>
+                {!prompt.trim() && <span className="text-xs bg-slate-600 text-slate-300 px-2 py-1 rounded">Removal only</span>}
               </h4>
               <select
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500/50"
+                disabled={!prompt.trim()}
+                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {styleOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -701,7 +818,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 ))}
               </select>
               <p className="text-slate-400 text-xs mt-2">
-                {styleOptions.find(o => o.value === style)?.description}
+                {prompt.trim() 
+                  ? styleOptions.find(o => o.value === style)?.description
+                  : "Add scene description to enable style selection"
+                }
               </p>
             </div>
 
@@ -743,7 +863,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 />
                 <div>
                   <span className="text-white font-medium">Smart Background Removal</span>
-                  <p className="text-slate-400 text-sm">AI automatically detects and removes the existing background</p>
+                  <p className="text-slate-400 text-sm">Automatically detects and removes the existing background before processing</p>
+                  <p className="text-slate-500 text-xs mt-1">
+                    <strong>Recommended:</strong> Ensures clean product isolation for better scene integration
+                  </p>
                 </div>
               </label>
               
@@ -752,11 +875,20 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   type="checkbox"
                   checked={autoPosition}
                   onChange={(e) => setAutoPosition(e.target.checked)}
-                  className="w-4 h-4 text-indigo-500 bg-slate-800 border-slate-600 rounded focus:ring-indigo-500 focus:ring-2 mt-1"
+                  disabled={!prompt.trim()}
+                  className="w-4 h-4 text-indigo-500 bg-slate-800 border-slate-600 rounded focus:ring-indigo-500 focus:ring-2 mt-1 disabled:opacity-50"
                 />
                 <div>
                   <span className="text-white font-medium">Intelligent Positioning</span>
-                  <p className="text-slate-400 text-sm">AI places your product optimally within the new scene</p>
+                  <p className="text-slate-400 text-sm">
+                    {prompt.trim() 
+                      ? "Automatically determines optimal product placement within the new scene"
+                      : "Only available when creating custom scenes (add description above)"
+                    }
+                  </p>
+                  <p className="text-slate-500 text-xs mt-1">
+                    <strong>When enabled:</strong> System handles sizing, rotation, and positioning for natural scene integration
+                  </p>
                 </div>
               </label>
             </div>
@@ -766,26 +898,31 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           <div className="relative">
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !selectedImage || !prompt.trim() || (userPlan !== 'enterprise' && (usage?.remaining || 0) <= 0)}
+              disabled={isGenerating || !selectedImage || (userPlan !== 'enterprise' && (usage?.remaining || 0) <= 0)}
               className="w-full py-5 px-6 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 disabled:from-slate-700 disabled:to-slate-600 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/25 disabled:hover:scale-100 disabled:hover:shadow-none flex items-center justify-center space-x-3 text-lg"
             >
               {isGenerating ? (
                 <>
                   <FiRefreshCw className="animate-spin" size={24} />
-                  <span>AI is Working...</span>
+                  <span>Creating...</span>
                 </>
               ) : (
                 <>
-                  <RiSparklingFill size={24} />
-                  <span>✨ Generate AI Background</span>
+                  {prompt.trim() ? <RiSparklingFill size={24} /> : <FiScissors size={24} />}
+                  <span>
+                    {prompt.trim() 
+                      ? "✨ Create Scene" 
+                      : "✂️ Remove Background"
+                    }
+                  </span>
                 </>
               )}
             </button>
             
-            {!isGenerating && (!selectedImage || !prompt.trim()) && (
+            {!isGenerating && !selectedImage && (
               <div className="absolute inset-x-0 -bottom-8 text-center">
                 <p className="text-slate-400 text-sm">
-                  {!selectedImage ? "Upload an image to continue" : "Add a description to generate"}
+                  Upload an image to continue
                 </p>
               </div>
             )}
@@ -800,7 +937,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
                   <FiEye size={20} />
-                  <span>AI Generated Result</span>
+                  <span>Creative Result</span>
                 </h3>
                 
                 {generatedImage && (
@@ -814,7 +951,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                     </button>
                     <a
                       href={generatedImage}
-                      download={`ai_background_${Date.now()}.jpg`}
+                      download={`creative_studio_${Date.now()}.jpg`}
                       className="p-2 bg-slate-700/50 hover:bg-slate-600/50 text-white rounded-lg transition-colors"
                       title="Download HD image"
                     >
@@ -829,7 +966,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   <div className="relative w-full h-full group">
                     <img
                       src={generatedImage}
-                      alt="AI generated background"
+                      alt="Creative studio result"
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         console.error('Image load error:', e);
@@ -839,7 +976,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                     {/* Overlay with generation info */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <div className="bg-white/90 backdrop-blur rounded-lg p-3 text-center">
-                        <p className="text-slate-800 font-medium">✨ AI Generated</p>
+                        <p className="text-slate-800 font-medium">✨ Created by Studio</p>
                         <p className="text-slate-600 text-sm">Click to view fullscreen</p>
                       </div>
                     </div>
@@ -850,15 +987,24 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                   <div className="text-center space-y-6 p-8">
                     <div className="relative">
                       <div className="w-20 h-20 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-4">
-                        <RiSparklingFill size={40} className="text-slate-500" />
+                        {prompt.trim() ? (
+                          <RiSparklingFill size={40} className="text-slate-500" />
+                        ) : (
+                          <FiScissors size={40} className="text-slate-500" />
+                        )}
                       </div>
                       <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">✨</span>
                       </div>
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-lg mb-2">Your AI masterpiece will appear here</p>
-                      <p className="text-slate-400 text-sm mb-4">Upload a product image and describe your dream background to get started</p>
+                      <p className="text-white font-semibold text-lg mb-2">Your creative result will appear here</p>
+                      <p className="text-slate-400 text-sm mb-4">
+                        {prompt.trim() 
+                          ? "Product will be placed in your custom scene"
+                          : "Background will be cleanly removed from your product"
+                        }
+                      </p>
                       
                       {/* Preview features */}
                       <div className="grid grid-cols-2 gap-3 text-xs">
@@ -871,8 +1017,17 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                           <div className="text-slate-300">30-60 seconds</div>
                         </div>
                         <div className="bg-slate-800/50 rounded-lg p-3">
-                          <RiMagicLine className="text-purple-400 mb-1 mx-auto" size={16} />
-                          <div className="text-slate-300">AI Powered</div>
+                          {prompt.trim() ? (
+                            <>
+                              <RiSparklingFill className="text-purple-400 mb-1 mx-auto" size={16} />
+                              <div className="text-slate-300">Scene Creation</div>
+                            </>
+                          ) : (
+                            <>
+                              <FiScissors className="text-orange-400 mb-1 mx-auto" size={16} />
+                              <div className="text-slate-300">Background Removal</div>
+                            </>
+                          )}
                         </div>
                         <div className="bg-slate-800/50 rounded-lg p-3">
                           <FiDownload className="text-green-400 mb-1 mx-auto" size={16} />
@@ -884,19 +1039,29 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                 )}
               </div>
 
-              {/* Generation tips */}
+              {/* Processing explanation */}
               {!generatedImage && !isGenerating && (
                 <div className="mt-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
                   <h4 className="text-white font-medium mb-2 flex items-center space-x-2">
-                    <span>💡</span>
-                    <span>Pro Tips for Better Results</span>
+                    <span>🔄</span>
+                    <span>What happens when you create:</span>
                   </h4>
-                  <ul className="text-slate-400 text-sm space-y-1">
-                    <li>• Use high-resolution product images with clear edges</li>
-                    <li>• Be specific about lighting (e.g., "soft morning light", "dramatic shadows")</li>
-                    <li>• Mention materials and textures (e.g., "marble counter", "wooden table")</li>
-                    <li>• Include mood descriptors (e.g., "cozy", "modern", "luxurious")</li>
-                  </ul>
+                  <div className="space-y-2 text-slate-400 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-orange-400">1.</span>
+                      <span>Smart background removal from your product image</span>
+                    </div>
+                    {prompt.trim() && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-purple-400">2.</span>
+                        <span>Generate custom scene based on your description</span>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-400">{prompt.trim() ? "3." : "2."}</span>
+                      <span>{prompt.trim() ? "Intelligent product placement with proper lighting" : "Clean product cutout ready for use"}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -907,20 +1072,24 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
             <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-4">
               <h4 className="text-white font-medium mb-3 flex items-center space-x-2">
                 <FiCheck className="text-green-400" />
-                <span>Generation Complete</span>
+                <span>Creation Complete</span>
               </h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-400">Style Used:</span>
-                  <p className="text-white capitalize">{style}</p>
+                  <span className="text-slate-400">Processing Type:</span>
+                  <p className="text-white">
+                    {prompt.trim() ? "Scene Creation" : "Background Removal"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-slate-400">Resolution:</span>
                   <p className="text-white">{resolution}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400">AI Model:</span>
-                  <p className="text-white">Claid v2 ✨</p>
+                  <span className="text-slate-400">Style Used:</span>
+                  <p className="text-white capitalize">
+                    {prompt.trim() ? style : "N/A"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-slate-400">Quality:</span>
@@ -939,7 +1108,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
             <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
               <a
                 href={fullscreenImage}
-                download={`ai_background_${Date.now()}.jpg`}
+                download={`creative_studio_${Date.now()}.jpg`}
                 className="p-3 bg-black/50 hover:bg-black/70 text-white rounded-lg transition-colors"
                 title="Download"
               >
@@ -955,11 +1124,11 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
             </div>
             <img
               src={fullscreenImage}
-              alt="AI generated background fullscreen"
+              alt="Creative studio result fullscreen"
               className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
             />
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur rounded-lg px-4 py-2">
-              <p className="text-white text-sm">✨ Generated with AI • Professional Quality</p>
+              <p className="text-white text-sm">✨ Created by Creative Studio • Professional Quality</p>
             </div>
           </div>
         </div>
