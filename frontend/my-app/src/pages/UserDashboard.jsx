@@ -2024,8 +2024,7 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           id: 'creative-studio', 
           label: 'Creative Studio', 
           icon: <RiMagicLine size={18} />, 
-          description: 'AI background & try-on tools',
-          indent: true
+          description: 'AI background & try-on tools'
         },
         { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true },
         { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true },
