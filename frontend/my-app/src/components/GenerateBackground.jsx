@@ -1,4 +1,4 @@
-// components/GenerateBackground.jsx
+ // components/GenerateBackground.jsx - FIXED VERSION
 import React, { useState, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { 
@@ -148,7 +148,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     }
   };
 
-  // FIXED: Poll for generation status with proper token handling
+  // FIXED: Poll for generation status with better URL extraction
   const pollGenerationStatus = useCallback(async (jobId) => {
     try {
       const token = await getAuthToken();
@@ -168,22 +168,66 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       }
 
       const data = await response.json();
+      console.log('📊 Status response:', data); // Debug log
+      
       setGenerationStatus(data.status);
 
-      if (data.status === 'completed' && data.image_url) {
-        setGeneratedImage(data.image_url);
-        setIsGenerating(false);
-        toast.success('Background generated successfully!');
+      if (data.status === 'completed') {
+        // FIXED: Try multiple ways to get the image URL
+        let imageUrl = null;
         
-        // Update usage
-        if (onUsageUpdate) {
-          onUsageUpdate();
+        // Method 1: Direct image_url field
+        if (data.image_url) {
+          imageUrl = data.image_url;
+          console.log('✅ Got image URL from image_url field:', imageUrl);
         }
-        
-        // Clear polling
-        if (pollInterval.current) {
-          clearInterval(pollInterval.current);
-          pollInterval.current = null;
+        // Method 2: result_url field  
+        else if (data.result_url) {
+          imageUrl = data.result_url;
+          console.log('✅ Got image URL from result_url field:', imageUrl);
+        }
+        // Method 3: Check metadata
+        else if (data.metadata?.final_image_url) {
+          imageUrl = data.metadata.final_image_url;
+          console.log('✅ Got image URL from metadata:', imageUrl);
+        }
+        // Method 4: Any URL-like field
+        else {
+          // Look for any field that looks like a URL
+          const urlFields = ['url', 'final_url', 'generated_url', 'output_url'];
+          for (const field of urlFields) {
+            if (data[field] && typeof data[field] === 'string' && data[field].includes('http')) {
+              imageUrl = data[field];
+              console.log(`✅ Got image URL from ${field}:`, imageUrl);
+              break;
+            }
+          }
+        }
+
+        if (imageUrl) {
+          setGeneratedImage(imageUrl);
+          setIsGenerating(false);
+          toast.success('Background generated successfully!');
+          
+          // Update usage
+          if (onUsageUpdate) {
+            onUsageUpdate();
+          }
+          
+          // Clear polling
+          if (pollInterval.current) {
+            clearInterval(pollInterval.current);
+            pollInterval.current = null;
+          }
+        } else {
+          console.error('❌ No image URL found in response:', data);
+          toast.error('Generation completed but no image URL found. Check console for details.');
+          setIsGenerating(false);
+          
+          if (pollInterval.current) {
+            clearInterval(pollInterval.current);
+            pollInterval.current = null;
+          }
         }
       } else if (data.status === 'failed') {
         setIsGenerating(false);
@@ -227,6 +271,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
     setIsGenerating(true);
     setGenerationStatus('uploading');
+    setGeneratedImage(null); // Clear previous result
     
     try {
       // Upload image first
@@ -264,12 +309,15 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       }
 
       const data = await response.json();
+      console.log('🎯 Generation started:', data);
+      
       setJobId(data.job_id);
       setGenerationStatus('processing');
       
       toast.success('Background generation started!');
       
-      // Start polling for status
+      // Start polling for status immediately, then every 2 seconds
+      pollGenerationStatus(data.job_id);
       pollInterval.current = setInterval(() => {
         pollGenerationStatus(data.job_id);
       }, 2000);
@@ -325,6 +373,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       <div className="flex items-center justify-center space-x-3 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
         <div className={config.color}>{config.icon}</div>
         <span className={`font-medium ${config.color}`}>{config.text}</span>
+        {/* ADDED: Show job ID for debugging */}
+        {jobId && (
+          <span className="text-slate-500 text-xs ml-2">
+            ID: {jobId.substring(0, 8)}...
+          </span>
+        )}
       </div>
     );
   };
@@ -555,7 +609,7 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                     </button>
                     <a
                       href={generatedImage}
-                      download={`background_${Date.now()}.jpg`}
+                      download={`background_${Date.now()}.png`}
                       className="p-2 bg-slate-700/50 hover:bg-slate-600/50 text-white rounded-lg transition-colors"
                       title="Download"
                     >
@@ -571,6 +625,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
                     src={generatedImage}
                     alt="Generated background"
                     className="w-full h-full object-contain"
+                    onError={(e) => {
+                      console.error('Image load error:', e);
+                      toast.error('Failed to load generated image');
+                    }}
                   />
                 ) : isGenerating ? (
                   <div className="text-center space-y-4">
@@ -615,4 +673,4 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
   );
 };
 
-export default GenerateBackground; 
+export default GenerateBackground;
