@@ -1,5 +1,5 @@
- // components/GenerateBackground.jsx - FIXED VERSION
-import React, { useState, useCallback, useRef } from 'react';
+// components/GenerateBackground.jsx - FIXED VERSION
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FiImage, FiUpload, FiPlay, FiDownload, FiMaximize, FiX, 
@@ -29,8 +29,21 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
   
   const fileInputRef = useRef(null);
   const pollInterval = useRef(null);
+  const componentMounted = useRef(true);
 
-  // Token retrieval function
+  // Cleanup on unmount
+  useEffect(() => {
+    componentMounted.current = true;
+    return () => {
+      componentMounted.current = false;
+      if (pollInterval.current) {
+        clearInterval(pollInterval.current);
+        pollInterval.current = null;
+      }
+    };
+  }, []);
+
+  // Token retrieval function with better error handling
   const getAuthToken = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -182,8 +195,13 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     }
   };
 
-  // Poll for generation status
+  // Poll for generation status with better state management
   const pollGenerationStatus = useCallback(async (jobId) => {
+    // Don't poll if component is unmounted
+    if (!componentMounted.current) {
+      return;
+    }
+
     try {
       const token = await getAuthToken();
       const response = await fetch(`${API_BASE}/background-status/${jobId}`, {
@@ -195,20 +213,32 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          toast.error('Authentication expired. Please refresh the page and try again.');
+          console.error('Authentication failed during status check');
+          // Don't redirect, just show error
+          if (componentMounted.current) {
+            toast.error('Session expired. Please refresh and try again.');
+            setIsGenerating(false);
+            setGenerationStatus('failed');
+          }
           return;
         }
-        throw new Error('Failed to check status');
+        throw new Error(`Status check failed: ${response.status}`);
       }
 
       const data = await response.json();
       console.log('📊 Status response:', data);
+      
+      // Only update state if component is still mounted
+      if (!componentMounted.current) {
+        return;
+      }
       
       setGenerationStatus(data.status);
 
       if (data.status === 'completed') {
         let imageUrl = null;
         
+        // Try multiple fields for the image URL
         if (data.image_url) {
           imageUrl = data.image_url;
           console.log('✅ Got image URL from image_url field:', imageUrl);
@@ -218,8 +248,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
         } else if (data.metadata?.final_image_url) {
           imageUrl = data.metadata.final_image_url;
           console.log('✅ Got image URL from metadata:', imageUrl);
+        } else if (data.url) {
+          imageUrl = data.url;
+          console.log('✅ Got image URL from url field:', imageUrl);
         } else {
-          const urlFields = ['url', 'final_url', 'generated_url', 'output_url'];
+          // Check for any field that looks like a URL
+          const urlFields = ['final_url', 'generated_url', 'output_url', 'file_url'];
           for (const field of urlFields) {
             if (data[field] && typeof data[field] === 'string' && data[field].includes('http')) {
               imageUrl = data[field];
@@ -229,30 +263,51 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           }
         }
 
-        if (imageUrl) {
-          setGeneratedImage(imageUrl);
-          setIsGenerating(false);
+        if (imageUrl && componentMounted.current) {
+          // Validate the image URL before setting it
+          const img = new Image();
+          img.onload = () => {
+            if (componentMounted.current) {
+              setGeneratedImage(imageUrl);
+              setIsGenerating(false);
+              
+              // Show success with generation type info
+              const generationType = data.metadata?.generation_type || 'unknown';
+              if (generationType === 'scene_generation') {
+                toast.success('🎨 Scene created successfully! Your product now has a beautiful new environment.');
+              } else {
+                toast.success('✂️ Background removed successfully! Clean product image ready.');
+              }
+              
+              if (onUsageUpdate) {
+                onUsageUpdate();
+              }
+            }
+          };
           
-          // Show success with generation type info
-          const generationType = data.metadata?.generation_type || 'unknown';
-          if (generationType === 'scene_generation') {
-            toast.success('🎨 Scene created successfully! Your product now has a beautiful new environment.');
-          } else {
-            toast.success('✂️ Background removed successfully! Clean product image ready.');
-          }
+          img.onerror = () => {
+            console.error('Generated image URL is not valid:', imageUrl);
+            if (componentMounted.current) {
+              toast.error('Generated image could not be loaded. Please try again.');
+              setIsGenerating(false);
+              setGenerationStatus('failed');
+            }
+          };
           
-          if (onUsageUpdate) {
-            onUsageUpdate();
-          }
+          img.src = imageUrl;
           
+          // Clear polling interval
           if (pollInterval.current) {
             clearInterval(pollInterval.current);
             pollInterval.current = null;
           }
         } else {
-          console.error('❌ No image URL found in response:', data);
-          toast.error('Generation completed but no image URL found. Check console for details.');
-          setIsGenerating(false);
+          console.error('❌ No valid image URL found in response:', data);
+          if (componentMounted.current) {
+            toast.error('Generation completed but no image was returned. Please try again.');
+            setIsGenerating(false);
+            setGenerationStatus('failed');
+          }
           
           if (pollInterval.current) {
             clearInterval(pollInterval.current);
@@ -260,8 +315,11 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           }
         }
       } else if (data.status === 'failed') {
-        setIsGenerating(false);
-        toast.error(data.error || 'Background generation failed');
+        if (componentMounted.current) {
+          setIsGenerating(false);
+          setGenerationStatus('failed');
+          toast.error(data.error || 'Background generation failed. Please try again.');
+        }
         
         if (pollInterval.current) {
           clearInterval(pollInterval.current);
@@ -270,15 +328,19 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       }
     } catch (error) {
       console.error('Status check error:', error);
-      if (error.message.includes('Authentication') || error.message.includes('token')) {
-        toast.error('Authentication expired. Please refresh the page and try again.');
-      } else {
-        toast.error('Failed to check generation status');
+      if (componentMounted.current) {
+        // Don't show error for every poll attempt, only if it's a persistent issue
+        if (error.message.includes('Authentication') || error.message.includes('token')) {
+          toast.error('Session expired. Please refresh and try again.');
+          setIsGenerating(false);
+          setGenerationStatus('failed');
+        }
+        // Don't show network errors as they might be temporary
       }
     }
   }, [onUsageUpdate]);
 
-  // Start background generation
+  // Start background generation with better error handling
   const handleGenerate = async () => {
     if (!selectedImage) {
       toast.error('Please select a product image');
@@ -291,15 +353,37 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       return;
     }
 
-    setIsGenerating(true);
-    setGenerationStatus('uploading');
+    // Clear any previous results
     setGeneratedImage(null);
+    setJobId(null);
+    setGenerationStatus(null);
+    setIsGenerating(true);
     
     try {
+      // Upload image first
+      setGenerationStatus('uploading');
       const imageUrl = await uploadImageToSupabase(selectedImage);
+      
+      if (!componentMounted.current) {
+        return; // Component unmounted during upload
+      }
+      
       const token = await getAuthToken();
       
       console.log('🚀 Starting creative studio processing with prompt:', prompt);
+      
+      setGenerationStatus('processing');
+      
+      const requestBody = {
+        imageUrl,
+        prompt: prompt.trim(),
+        style,
+        removeBackground,
+        autoPosition,
+        resolution
+      };
+      
+      console.log('📤 Sending request:', requestBody);
       
       const response = await fetch(`${API_BASE}/api/generate-background`, {
         method: 'POST',
@@ -307,54 +391,86 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          imageUrl,
-          prompt: prompt.trim(),
-          style,
-          removeBackground,
-          autoPosition,
-          resolution
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      if (!componentMounted.current) {
+        return; // Component unmounted during request
+      }
+
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication expired. Please refresh the page and log in again.');
+        let errorMessage = `Request failed with status ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail?.message || errorData.message || errorMessage;
+        } catch (e) {
+          console.warn('Could not parse error response:', e);
         }
         
-        const errorData = await response.json();
-        throw new Error(errorData.detail?.message || `Request failed with status ${response.status}`);
+        if (response.status === 401) {
+          errorMessage = 'Session expired. Please refresh the page and log in again.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       console.log('🎯 Generation started:', data);
+      
+      if (!data.job_id) {
+        throw new Error('No job ID returned from server');
+      }
       
       setJobId(data.job_id);
       setGenerationStatus('processing');
       
       toast.success('🎨 Creative studio processing started! This may take 30-60 seconds...');
       
-      pollGenerationStatus(data.job_id);
-      pollInterval.current = setInterval(() => {
+      // Start polling for status
+      const startPolling = () => {
+        if (!componentMounted.current) return;
+        
         pollGenerationStatus(data.job_id);
-      }, 2000);
+        pollInterval.current = setInterval(() => {
+          if (componentMounted.current) {
+            pollGenerationStatus(data.job_id);
+          } else {
+            // Component unmounted, clear interval
+            if (pollInterval.current) {
+              clearInterval(pollInterval.current);
+              pollInterval.current = null;
+            }
+          }
+        }, 3000); // Poll every 3 seconds instead of 2 to reduce server load
+      };
+      
+      startPolling();
 
     } catch (error) {
       console.error('Generation error:', error);
       
-      if (error.message.includes('Authentication') || error.message.includes('token')) {
-        toast.error('Please refresh the page and log in again.');
-      } else {
-        toast.error(error.message || 'Failed to start generation');
+      if (componentMounted.current) {
+        setIsGenerating(false);
+        setGenerationStatus('failed');
+        
+        if (error.message.includes('Session expired') || error.message.includes('Authentication')) {
+          toast.error('Please refresh the page and log in again.');
+        } else {
+          toast.error(error.message || 'Failed to start generation. Please try again.');
+        }
       }
-      
-      setIsGenerating(false);
-      setGenerationStatus(null);
     }
   };
 
   // Reset form
   const handleReset = () => {
+    // Clear polling interval first
+    if (pollInterval.current) {
+      clearInterval(pollInterval.current);
+      pollInterval.current = null;
+    }
+    
     setSelectedImage(null);
     setSelectedImagePreview(null);
     setPrompt('');
@@ -366,11 +482,6 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     setJobId(null);
     setGenerationStatus(null);
     setIsGenerating(false);
-    
-    if (pollInterval.current) {
-      clearInterval(pollInterval.current);
-      pollInterval.current = null;
-    }
   };
 
   // Enhanced status display
