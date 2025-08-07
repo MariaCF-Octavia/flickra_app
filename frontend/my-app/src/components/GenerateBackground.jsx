@@ -28,6 +28,61 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
   const fileInputRef = useRef(null);
   const pollInterval = useRef(null);
 
+  // FIXED: Robust token retrieval function
+  const getAuthToken = async () => {
+    try {
+      // Method 1: Get token from Supabase session (most reliable)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        console.log('🔑 Got token from Supabase session');
+        return session.access_token;
+      }
+
+      // Method 2: Try different localStorage keys
+      const tokenKeys = [
+        'sb-afyuizwemllouyulpkir-auth-token',
+        'supabase.auth.token', 
+        'sb-access-token',
+        'supabase-auth-token'
+      ];
+      
+      for (const key of tokenKeys) {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            // If it's a JSON object, parse it
+            const parsed = JSON.parse(stored);
+            if (parsed.access_token) {
+              console.log(`🔑 Got token from localStorage key: ${key}`);
+              return parsed.access_token;
+            }
+          } catch {
+            // If not JSON, check if it's a raw token
+            if (stored.length > 20) { // Tokens are usually longer than 20 chars
+              console.log(`🔑 Got raw token from localStorage key: ${key}`);
+              return stored;
+            }
+          }
+        }
+      }
+
+      // Method 3: Check if user is authenticated but token is missing
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        console.log('🔑 User found but no token - attempting refresh');
+        const { data: { session: newSession }, error } = await supabase.auth.refreshSession();
+        if (newSession?.access_token && !error) {
+          return newSession.access_token;
+        }
+      }
+
+      throw new Error('No valid authentication token found');
+    } catch (error) {
+      console.error('Token retrieval error:', error);
+      throw error;
+    }
+  };
+
   // Style options
   const styleOptions = [
     { value: 'professional', label: 'Professional', description: 'Clean, business-focused backgrounds' },
@@ -93,10 +148,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
     }
   };
 
-  // Poll for generation status
+  // FIXED: Poll for generation status with proper token handling
   const pollGenerationStatus = useCallback(async (jobId) => {
     try {
-      const token = localStorage.getItem('sb-access-token');
+      const token = await getAuthToken();
       const response = await fetch(`${API_BASE}/background-status/${jobId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -105,6 +160,10 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          toast.error('Authentication expired. Please refresh the page and try again.');
+          return;
+        }
         throw new Error('Failed to check status');
       }
 
@@ -138,11 +197,15 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       // Continue polling if still processing
     } catch (error) {
       console.error('Status check error:', error);
-      toast.error('Failed to check generation status');
+      if (error.message.includes('Authentication') || error.message.includes('token')) {
+        toast.error('Authentication expired. Please refresh the page and try again.');
+      } else {
+        toast.error('Failed to check generation status');
+      }
     }
   }, [onUsageUpdate]);
 
-  // Start background generation
+  // FIXED: Start background generation with proper token handling
   const handleGenerate = async () => {
     // Validation
     if (!selectedImage) {
@@ -169,8 +232,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       // Upload image first
       const imageUrl = await uploadImageToSupabase(selectedImage);
       
+      // FIXED: Get token properly
+      const token = await getAuthToken();
+      
+      console.log('🚀 Starting background generation with token:', token.substring(0, 20) + '...');
+      
       // Start generation
-      const token = localStorage.getItem('sb-access-token');
       const response = await fetch(`${API_BASE}/api/generate-background`, {
         method: 'POST',
         headers: {
@@ -188,8 +255,12 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and log in again.');
+        }
+        
         const errorData = await response.json();
-        throw new Error(errorData.detail?.message || 'Generation failed');
+        throw new Error(errorData.detail?.message || `Request failed with status ${response.status}`);
       }
 
       const data = await response.json();
@@ -205,7 +276,13 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
 
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error(error.message || 'Failed to start generation');
+      
+      if (error.message.includes('Authentication') || error.message.includes('token')) {
+        toast.error('Please refresh the page and log in again.');
+      } else {
+        toast.error(error.message || 'Failed to start generation');
+      }
+      
       setIsGenerating(false);
       setGenerationStatus(null);
     }
