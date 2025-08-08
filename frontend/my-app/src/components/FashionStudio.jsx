@@ -1,45 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 'react-icons/fi';
 
-
-const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
-  const [selectedModel, setSelectedModel] = useState(null);
-  const [clothingFile, setClothingFile] = useState(null);
-  const [clothingPreview, setClothingPreview] = useState(null);
-  const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedResult, setGeneratedResult] = useState(null);
-  const [models, setModels] = useState([]);
-  const [loadingModels, setLoadingModels] = useState(true);
-
   // Load available models
   useEffect(() => {
-    loadModels();
-  }, []);
-
-  const loadModels = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/fashion-studio/models', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setModels(data.models);
-        if (data.models.length > 0) {
-          setSelectedModel(data.models[0]);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load models:', error);
-      toast.error('Failed to load models');
-    } finally {
-      setLoadingModels(false);
+    // Set first sample model as default
+    if (sampleModels.length > 0) {
+      setSelectedModelImage(sampleModels[0].image);
+      setModelImagePreview(sampleModels[0].image);
     }
-  };
+  }, []);
 
   const handleClothingUpload = (event) => {
     const file = event.target.files[0];
@@ -47,13 +16,13 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please upload a valid image file');
+      console.log('Please upload a valid image file');
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image must be smaller than 10MB');
+      console.log('Image must be smaller than 10MB');
       return;
     }
 
@@ -67,15 +36,48 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     reader.readAsDataURL(file);
   };
 
+  const handleModelImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.log('Please upload a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      console.log('Image must be smaller than 10MB');
+      return;
+    }
+
+    setModelImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setModelImagePreview(e.target.result);
+      setSelectedModelImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const selectSampleModel = (model) => {
+    setSelectedModelImage(model.image);
+    setModelImagePreview(model.image);
+    setModelImageFile(null); // Clear uploaded file
+  };
+
   const handleTryOn = async () => {
-    if (!clothingFile || !selectedModel) {
-      toast.error('Please upload clothing and select a model');
+    if (!clothingFile || !selectedModelImage) {
+      console.log('Please upload clothing and select/upload a model image');
       return;
     }
 
     // Check credits
     if (userPlan !== 'enterprise' && usage <= 0) {
-      toast.error('No credits remaining');
+      console.log('No credits remaining');
       return;
     }
 
@@ -84,8 +86,24 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     try {
       const formData = new FormData();
       formData.append('clothing_image', clothingFile);
-      formData.append('model_id', selectedModel.id);
-      formData.append('prompt', prompt);
+      
+      // If user uploaded their own model image, use that; otherwise use selected sample
+      if (modelImageFile) {
+        formData.append('model_image', modelImageFile);
+      } else {
+        // Convert URL to blob for sample models
+        const response = await fetch(selectedModelImage);
+        const blob = await response.blob();
+        formData.append('model_image', blob, 'model.jpg');
+      }
+      
+      formData.append('category', 'auto'); // Let FASHN auto-detect
+      formData.append('mode', 'quality');
+      formData.append('garment_photo_type', 'flat-lay');
+      formData.append('num_samples', '1');
+      if (prompt) {
+        formData.append('prompt', prompt);
+      }
 
       const token = localStorage.getItem('token');
       const response = await fetch('/api/fashion-studio/try-on', {
@@ -103,11 +121,11 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
           image_url: data.image_url,
           task_id: data.task_id,
           metadata: data.metadata,
-          model: selectedModel,
+          model_image: selectedModelImage,
           clothing_filename: clothingFile.name
         });
         
-        toast.success('Fashion try-on completed!');
+        console.log('Fashion try-on completed!');
         
         // Update usage if callback provided
         if (onUsageUpdate) {
@@ -115,12 +133,12 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
         }
         
       } else {
-        throw new Error(data.detail || 'Try-on generation failed');
+        throw new Error(data.error || 'Try-on generation failed');
       }
       
     } catch (error) {
       console.error('Try-on generation failed:', error);
-      toast.error(error.message || 'Failed to generate try-on');
+      console.log(error.message || 'Failed to generate try-on');
     } finally {
       setIsGenerating(false);
     }
@@ -135,7 +153,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('Download started');
+    console.log('Download started');
   };
 
   const resetStudio = () => {
@@ -211,22 +229,57 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
           <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <FiUser className="mr-2" />
-              Select Model
+              Select or Upload Model
             </h3>
             
-            {loadingModels ? (
-              <div className="text-center py-8">
-                <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-slate-400">Loading models...</p>
+            {/* Upload Custom Model */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-300 mb-2">Upload Your Own Model Image</label>
+              <div className="border-2 border-dashed border-slate-600 hover:border-slate-500 rounded-lg p-4 text-center transition-all duration-300">
+                <input
+                  id="model-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleModelImageUpload}
+                  className="hidden"
+                />
+                <label htmlFor="model-upload" className="cursor-pointer block">
+                  <FiUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-white text-sm">Upload model photo</p>
+                  <p className="text-slate-400 text-xs">PNG, JPG up to 10MB</p>
+                </label>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {models.map((model) => (
+            </div>
+
+            {/* Current Model Preview */}
+            {modelImagePreview && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-300 mb-2">Current Model</label>
+                <div className="relative">
+                  <img 
+                    src={modelImagePreview} 
+                    alt="Selected model" 
+                    className="w-full h-48 object-cover rounded-lg border border-slate-600"
+                  />
+                  {modelImageFile && (
+                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                      Custom Upload
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Sample Models */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Or Choose Sample Model</label>
+              <div className="grid grid-cols-2 gap-3">
+                {sampleModels.map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => setSelectedModel(model)}
+                    onClick={() => selectSampleModel(model)}
                     className={`relative rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                      selectedModel?.id === model.id
+                      selectedModelImage === model.image && !modelImageFile
                         ? 'border-indigo-500 ring-2 ring-indigo-500/20'
                         : 'border-slate-600 hover:border-slate-500'
                     }`}
@@ -234,17 +287,16 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                     <img 
                       src={model.image} 
                       alt={model.name}
-                      className="w-full h-32 object-cover"
+                      className="w-full h-24 object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <p className="text-white text-sm font-medium truncate">{model.name}</p>
-                      <p className="text-slate-300 text-xs">{model.category}</p>
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <p className="text-white text-xs font-medium truncate">{model.name}</p>
                     </div>
                   </button>
                 ))}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Style Prompt */}
@@ -264,9 +316,9 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
           {/* Generate Button */}
           <button
             onClick={handleTryOn}
-            disabled={!clothingFile || !selectedModel || isGenerating || (userPlan !== 'enterprise' && usage <= 0)}
+            disabled={!clothingFile || !selectedModelImage || isGenerating || (userPlan !== 'enterprise' && usage <= 0)}
             className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center space-x-3 ${
-              isGenerating || !clothingFile || !selectedModel || (userPlan !== 'enterprise' && usage <= 0)
+              isGenerating || !clothingFile || !selectedModelImage || (userPlan !== 'enterprise' && usage <= 0)
                 ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 transform hover:scale-[1.02]'
             }`}
@@ -281,7 +333,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                 <FiZap className="w-5 h-5" />
                 <span>
                   {!clothingFile ? 'Upload clothing first' :
-                   !selectedModel ? 'Select a model' :
+                   !selectedModelImage ? 'Select or upload a model' :
                    userPlan !== 'enterprise' && usage <= 0 ? 'No credits remaining' :
                    'Generate Fashion Try-On'}
                 </span>
@@ -345,7 +397,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Model:</span>
-                      <span className="text-slate-200">{generatedResult.model.name}</span>
+                      <span className="text-slate-200">{modelImageFile ? 'Custom Upload' : 'Sample Model'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Clothing:</span>
@@ -425,6 +477,6 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
       </div>
     </div>
   );
-};
 
-export default FashionStudio; 
+
+export default FashionStudio;
