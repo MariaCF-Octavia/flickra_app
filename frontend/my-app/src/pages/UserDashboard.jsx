@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { UpgradeButton } from '../components/UpgradeModal';
 import GenerateBackground from "../components/GenerateBackground.jsx";
 import FashionStudio from '../components/FashionStudio';
+import toast from 'react-hot-toast';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
