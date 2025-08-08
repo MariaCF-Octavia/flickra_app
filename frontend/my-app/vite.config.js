@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
@@ -6,24 +6,7 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js'
   },
-  assetsInclude: ['**/*.mov', '**/*.mp4', '**/*.png'], // Added PNG support
-  resolve: {
-    alias: {
-      '@': '/src', // Add path alias for cleaner imports
-      '@assets': '/src/assets' // Specific alias for assets
-    }
-  },
-  optimizeDeps: {
-    include: ['react-hot-toast'] // Ensure proper dependency optimization
-  },
-  build: {
-    rollupOptions: {
-      external: ['react-hot-toast'], // Externalize to prevent build errors
-      output: {
-        assetFileNames: 'assets/[name].[hash].[ext]' // Better asset handling
-      }
-    }
-  },
+  assetsInclude: ['**/*.mov', '**/*.mp4'],
   server: {
     host: true,
     port: 5173,
@@ -46,4 +29,4 @@ export default defineConfig({
       },
     },
   },
-}); 
+});
