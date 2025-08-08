@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { UpgradeButton } from '../components/UpgradeModal';
 import GenerateBackground from "../components/GenerateBackground.jsx";
 import FashionStudio from '../components/FashionStudio.jsx';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
@@ -2681,7 +2681,13 @@ return (
             </div>
           </div>
         )}
+const UserDashboard = () => {
+  // Your existing component logic goes here...
 
+  return (
+    <div>
+      {/* Your existing JSX structure goes here */}
+      
         {/* Creative Studio - NEW SECTION */}
         {activeTab === 'creative-studio' && (
           <div className="px-6 py-8">
@@ -2838,7 +2844,11 @@ return (
                             fileInput.accept = 'image/*,video/*,audio/*';
                             fileInput.onchange = (e) => {
                               if (e.target.files && e.target.files.length > 0) {
-                                toast.success(`${e.target.files.length} file(s) uploaded successfully`);
+                                try {
+                                  toast.success(`${e.target.files.length} file(s) uploaded successfully`);
+                                } catch (error) {
+                                  console.log(`${e.target.files.length} file(s) uploaded successfully`);
+                                }
                               }
                             };
                             fileInput.click();
@@ -2881,7 +2891,11 @@ return (
                                     a.click();
                                     URL.revokeObjectURL(url);
                                     document.body.removeChild(a);
-                                    toast.success('Content downloaded');
+                                    try {
+                                      toast.success('Content downloaded');
+                                    } catch (error) {
+                                      console.log('Content downloaded');
+                                    }
                                   }}
                                   className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-white transition-colors shadow-md hover:shadow-lg"
                                 >
@@ -3102,7 +3116,11 @@ return (
                                 fileInput.accept = 'image/*,video/*,audio/*';
                                 fileInput.onchange = (e) => {
                                   if (e.target.files && e.target.files.length > 0) {
-                                    toast.success(`${e.target.files.length} file(s) uploaded`);
+                                    try {
+                                      toast.success(`${e.target.files.length} file(s) uploaded`);
+                                    } catch (error) {
+                                      console.log(`${e.target.files.length} file(s) uploaded`);
+                                    }
                                   }
                                 };
                                 fileInput.click();
@@ -3125,7 +3143,7 @@ return (
       </main>
     </div>
   </div>
-);
+  );
 };
 
 export default UserDashboard;
