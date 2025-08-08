@@ -21,6 +21,7 @@ import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
 import { UpgradeButton } from '../components/UpgradeModal';
 import GenerateBackground from "../components/GenerateBackground.jsx";
+import FashionStudio from '../components/FashionStudio';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
 
@@ -2026,6 +2027,12 @@ const DashboardSidebar = ({ userPlan, activeTab, setActiveTab, usage, planLimits
           icon: <RiMagicLine size={18} />, 
           description: 'AI background & try-on tools'
         },
+        { 
+          id: 'fashion-studio', 
+          label: 'Fashion Studio', 
+          icon: <FiUser size={18} />, 
+          description: 'Virtual model try-on for clothing'
+        },
         { id: 'editor', label: 'Image Editor', icon: <FiEdit size={18} />, description: 'Advanced editing tools', premium: true },
         { id: 'ffmpeg', label: 'Media Production', icon: <FiVideo size={18} />, description: 'Video & audio processing', premium: true },
       ]
@@ -2686,6 +2693,29 @@ return (
                 window.location.reload();
               }}
             />
+          </div>
+        )}
+
+        {/* Fashion Studio */}
+        {activeTab === 'fashion-studio' && (
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-15 group-hover:opacity-25 transition-all duration-500"></div>
+                <div className="relative rounded-2xl bg-slate-900/50 backdrop-blur border border-slate-800/50 overflow-hidden shadow-xl hover:shadow-indigo-500/10 transition-all duration-500">
+                  <div className="p-8">
+                    <FashionStudio 
+                      userPlan={userPlan}
+                      usage={planLimits[userPlan] - usage}
+                      onUsageUpdate={() => {
+                        // Refresh usage data after generation
+                        window.location.reload();
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
