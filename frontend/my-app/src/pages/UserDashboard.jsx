@@ -7,7 +7,6 @@ import UsageMeter from "../components/UsageMeter.jsx";
 import { loadStripe } from '@stripe/stripe-js';
 import { v4 as uuidv4 } from 'uuid';
 import { Bell, User, LogOut } from 'lucide-react';
-import { toast } from 'react-toastify';
 import DemoVideo from "../components/DemoVideo.jsx";
 import { 
     FiHome, FiFileText, FiImage, FiVideo, FiMic, FiEdit, 
@@ -21,7 +20,7 @@ import BackendFFmpeg from "../components/BackendFFmpeg.jsx";
 import { useNavigate } from 'react-router-dom';
 import { UpgradeButton } from '../components/UpgradeModal';
 import GenerateBackground from "../components/GenerateBackground.jsx";
-import FashionStudio from '../components/FashionStudio';
+import FashionStudio from '../components/FashionStudio.jsx';
 import toast from 'react-hot-toast';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://fastapi-app-production-ac48.up.railway.app';
