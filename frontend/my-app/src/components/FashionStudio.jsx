@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 'react-icons/fi';
-import { toast } from 'react-hot-toast';
+
 
 const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
   const [selectedModel, setSelectedModel] = useState(null);
