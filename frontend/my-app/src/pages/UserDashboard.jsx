@@ -2681,13 +2681,7 @@ return (
             </div>
           </div>
         )}
-const UserDashboard = () => {
-  // Your existing component logic goes here...
 
-  return (
-    <div>
-      {/* Your existing JSX structure goes here */}
-      
         {/* Creative Studio - NEW SECTION */}
         {activeTab === 'creative-studio' && (
           <div className="px-6 py-8">
@@ -3143,7 +3137,7 @@ const UserDashboard = () => {
       </main>
     </div>
   </div>
-  );
+);
 };
 
 export default UserDashboard;
