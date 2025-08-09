@@ -26,7 +26,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     {
       id: 'sample-3',
       name: 'Casual Female',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=600&fit=crop&crop=face'
+      image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-4',
@@ -36,7 +36,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     {
       id: 'sample-5',
       name: 'Fashion Female',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=face'
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-6',
@@ -46,12 +46,12 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     {
       id: 'sample-7',
       name: 'Trendy Female',
-      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop&crop=face'
+      image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-8',
       name: 'Sporty Male',
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=face'
+      image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=600&fit=crop&crop=face'
     }
   ];
 
@@ -327,28 +327,28 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
               </p>
             </div>
 
-            {/* Custom Model Description */}
+            {/* Style Instructions */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Or Describe Your Ideal Model
+                Style Instructions (Optional)
               </label>
               <div className="space-y-3">
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe your ideal model... (e.g., 'young professional woman, business attire, confident pose, studio lighting' or 'athletic male model, casual style, outdoor setting')"
+                  placeholder="Describe the desired style, lighting, or setting... (e.g., 'studio lighting, professional pose, clean background' or 'outdoor setting, natural lighting, casual atmosphere')"
                   className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none resize-none text-sm"
                   rows={3}
                 />
                 <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-3">
                   <p className="text-xs text-slate-400 mb-2">
-                    <span className="text-indigo-400 font-medium">💡 Pro Tip:</span> Be specific about:
+                    <span className="text-indigo-400 font-medium">💡 Style Tips:</span> Describe the photo style:
                   </p>
                   <ul className="text-xs text-slate-500 space-y-1">
-                    <li>• Age range (young, mature, etc.)</li>
-                    <li>• Style (professional, casual, sporty, fashion-forward)</li>
-                    <li>• Pose (confident, relaxed, dynamic)</li>
-                    <li>• Setting (studio, outdoor, urban background)</li>
+                    <li>• Lighting: "studio lighting", "natural light", "dramatic shadows"</li>
+                    <li>• Setting: "clean background", "outdoor scene", "urban environment"</li>
+                    <li>• Pose: "professional pose", "relaxed stance", "dynamic pose"</li>
+                    <li>• Style: "editorial style", "casual lifestyle", "commercial shoot"</li>
                   </ul>
                 </div>
               </div>
