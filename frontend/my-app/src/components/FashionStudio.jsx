@@ -11,27 +11,47 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedResult, setGeneratedResult] = useState(null);
   
-  // Sample model images users can choose from
+  // Sample model images users can choose from - More diverse options
   const sampleModels = [
     {
       id: 'sample-1',
       name: 'Professional Female',
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=400&fit=crop'
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-2', 
       name: 'Professional Male',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=400&fit=crop'
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-3',
       name: 'Casual Female',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=400&fit=crop'
+      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=600&fit=crop&crop=face'
     },
     {
       id: 'sample-4',
       name: 'Casual Male',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop'
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face'
+    },
+    {
+      id: 'sample-5',
+      name: 'Fashion Female',
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=face'
+    },
+    {
+      id: 'sample-6',
+      name: 'Business Male',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=face'
+    },
+    {
+      id: 'sample-7',
+      name: 'Trendy Female',
+      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop&crop=face'
+    },
+    {
+      id: 'sample-8',
+      name: 'Sporty Male',
+      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=face'
     }
   ];
 
@@ -271,10 +291,10 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
               Select or Upload Model
             </h3>
             
-            {/* Sample Models - More Prominent */}
+            {/* Sample Models - More Options */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-300 mb-3">Choose Sample Model</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {sampleModels.map((model) => (
                   <button
                     key={model.id}
@@ -288,20 +308,49 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                     <img 
                       src={model.image} 
                       alt={model.name}
-                      className="w-full h-32 object-cover"
+                      className="w-full h-28 object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <p className="text-white text-sm font-semibold truncate">{model.name}</p>
-                      <p className="text-slate-300 text-xs">Click to select</p>
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <p className="text-white text-xs font-semibold truncate">{model.name}</p>
                     </div>
                     {selectedModelImage === model.image && !modelImageFile && (
-                      <div className="absolute top-2 right-2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        ✓ Selected
+                      <div className="absolute top-1 right-1 bg-indigo-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                        ✓
                       </div>
                     )}
                   </button>
                 ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-2">
+                💡 Tip: Choose a model that matches your target audience and clothing style
+              </p>
+            </div>
+
+            {/* Custom Model Description */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Or Describe Your Ideal Model
+              </label>
+              <div className="space-y-3">
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Describe your ideal model... (e.g., 'young professional woman, business attire, confident pose, studio lighting' or 'athletic male model, casual style, outdoor setting')"
+                  className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none resize-none text-sm"
+                  rows={3}
+                />
+                <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-3">
+                  <p className="text-xs text-slate-400 mb-2">
+                    <span className="text-indigo-400 font-medium">💡 Pro Tip:</span> Be specific about:
+                  </p>
+                  <ul className="text-xs text-slate-500 space-y-1">
+                    <li>• Age range (young, mature, etc.)</li>
+                    <li>• Style (professional, casual, sporty, fashion-forward)</li>
+                    <li>• Pose (confident, relaxed, dynamic)</li>
+                    <li>• Setting (studio, outdoor, urban background)</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -349,19 +398,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
             )}
           </div>
 
-          {/* Style Prompt */}
-          <div className="bg-slate-900/50 backdrop-blur border border-slate-800/50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Style Instructions (Optional)
-            </h3>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the desired style, lighting, or pose... (e.g., 'studio lighting, professional pose, clean background')"
-              className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none resize-none"
-              rows={3}
-            />
-          </div>
+          {/* Style Prompt - Removed since integrated above */}
 
           {/* Generate Button */}
           <button
@@ -410,7 +447,7 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
               {/* Result Header */}
               <div className="p-6 border-b border-slate-800/50">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">Generated Result</h3>
+                  <h3 className="text-lg font-semibold text-white">✨ Your Try-On Result</h3>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={downloadResult}
@@ -439,6 +476,9 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                     className="w-full rounded-lg shadow-lg"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg"></div>
+                  <div className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                    ✅ Complete
+                  </div>
                 </div>
                 
                 {/* Result Metadata */}
@@ -471,21 +511,26 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">Ready for Try-On</h3>
                 <p className="text-slate-400 mb-6">
-                  Upload your clothing image and select a model to see the magic happen
+                  Your generated try-on result will appear here. Upload clothing and select/describe a model to get started!
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                   <div className="p-4 bg-slate-800/30 rounded-lg">
                     <FiUpload className="w-6 h-6 text-indigo-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-300">Upload Clothing</p>
+                    <p className="text-sm text-slate-300">1. Upload Clothing</p>
                   </div>
                   <div className="p-4 bg-slate-800/30 rounded-lg">
                     <FiUser className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-300">Select Model</p>
+                    <p className="text-sm text-slate-300">2. Select/Describe Model</p>
                   </div>
                   <div className="p-4 bg-slate-800/30 rounded-lg">
                     <FiZap className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-300">Generate</p>
+                    <p className="text-sm text-slate-300">3. Generate Result</p>
                   </div>
+                </div>
+                <div className="mt-6 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-lg">
+                  <p className="text-indigo-300 text-sm">
+                    💡 <strong>Results appear instantly here</strong> - no need to navigate anywhere else!
+                  </p>
                 </div>
               </div>
             </div>
