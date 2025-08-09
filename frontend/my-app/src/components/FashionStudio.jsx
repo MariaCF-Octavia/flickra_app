@@ -1,5 +1,39 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 'react-icons/fi';
+
+const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
+  const [selectedModelImage, setSelectedModelImage] = useState(null);
+  const [modelImagePreview, setModelImagePreview] = useState(null);
+  const [modelImageFile, setModelImageFile] = useState(null);
+  const [clothingFile, setClothingFile] = useState(null);
+  const [clothingPreview, setClothingPreview] = useState(null);
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedResult, setGeneratedResult] = useState(null);
+  
+  // Sample model images users can choose from
+  const sampleModels = [
+    {
+      id: 'sample-1',
+      name: 'Professional Female',
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=400&fit=crop'
+    },
+    {
+      id: 'sample-2', 
+      name: 'Professional Male',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=400&fit=crop'
+    },
+    {
+      id: 'sample-3',
+      name: 'Casual Female',
+      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=400&fit=crop'
+    },
+    {
+      id: 'sample-4',
+      name: 'Casual Male',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop'
+    }
+  ];
 
   // Load available models
   useEffect(() => {
@@ -9,32 +43,6 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
       setModelImagePreview(sampleModels[0].image);
     }
   }, []);
-
-  const handleClothingUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      console.log('Please upload a valid image file');
-      return;
-    }
-
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      console.log('Image must be smaller than 10MB');
-      return;
-    }
-
-    setClothingFile(file);
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setClothingPreview(e.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleModelImageUpload = (event) => {
     const file = event.target.files[0];
@@ -67,6 +75,32 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
     setSelectedModelImage(model.image);
     setModelImagePreview(model.image);
     setModelImageFile(null); // Clear uploaded file
+  };
+
+  const handleClothingUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.log('Please upload a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      console.log('Image must be smaller than 10MB');
+      return;
+    }
+
+    setClothingFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setClothingPreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleTryOn = async () => {
@@ -161,9 +195,14 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
     setClothingPreview(null);
     setPrompt('');
     setGeneratedResult(null);
-    // Reset file input
-    const fileInput = document.getElementById('clothing-upload');
-    if (fileInput) fileInput.value = '';
+    setModelImageFile(null);
+    setModelImagePreview(sampleModels[0]?.image);
+    setSelectedModelImage(sampleModels[0]?.image);
+    // Reset file inputs
+    const clothingInput = document.getElementById('clothing-upload');
+    const modelInput = document.getElementById('model-upload');
+    if (clothingInput) clothingInput.value = '';
+    if (modelInput) modelInput.value = '';
   };
 
   return (
@@ -232,10 +271,44 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
               Select or Upload Model
             </h3>
             
+            {/* Sample Models - More Prominent */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-300 mb-3">Choose Sample Model</label>
+              <div className="grid grid-cols-2 gap-4">
+                {sampleModels.map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => selectSampleModel(model)}
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all duration-300 transform hover:scale-105 ${
+                      selectedModelImage === model.image && !modelImageFile
+                        ? 'border-indigo-500 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/25'
+                        : 'border-slate-600 hover:border-slate-500 hover:shadow-lg'
+                    }`}
+                  >
+                    <img 
+                      src={model.image} 
+                      alt={model.name}
+                      className="w-full h-32 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-2 left-2 right-2">
+                      <p className="text-white text-sm font-semibold truncate">{model.name}</p>
+                      <p className="text-slate-300 text-xs">Click to select</p>
+                    </div>
+                    {selectedModelImage === model.image && !modelImageFile && (
+                      <div className="absolute top-2 right-2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        ✓ Selected
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Upload Custom Model */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Upload Your Own Model Image</label>
-              <div className="border-2 border-dashed border-slate-600 hover:border-slate-500 rounded-lg p-4 text-center transition-all duration-300">
+              <label className="block text-sm font-medium text-slate-300 mb-2">Or Upload Your Own Model Image</label>
+              <div className="border-2 border-dashed border-slate-600 hover:border-slate-500 rounded-lg p-6 text-center transition-all duration-300 hover:bg-slate-800/30">
                 <input
                   id="model-upload"
                   type="file"
@@ -244,8 +317,8 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
                   className="hidden"
                 />
                 <label htmlFor="model-upload" className="cursor-pointer block">
-                  <FiUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-white text-sm">Upload model photo</p>
+                  <FiUpload className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                  <p className="text-white text-sm font-medium mb-1">Upload model photo</p>
                   <p className="text-slate-400 text-xs">PNG, JPG up to 10MB</p>
                 </label>
               </div>
@@ -253,50 +326,27 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
 
             {/* Current Model Preview */}
             {modelImagePreview && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Current Model</label>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Current Model Preview</label>
                 <div className="relative">
                   <img 
                     src={modelImagePreview} 
                     alt="Selected model" 
-                    className="w-full h-48 object-cover rounded-lg border border-slate-600"
+                    className="w-full h-48 object-cover rounded-lg border border-slate-600 shadow-lg"
                   />
                   {modelImageFile && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs px-3 py-1 rounded-full font-medium shadow-lg">
                       Custom Upload
+                    </div>
+                  )}
+                  {!modelImageFile && (
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full font-medium shadow-lg">
+                      Sample Model
                     </div>
                   )}
                 </div>
               </div>
             )}
-            
-            {/* Sample Models */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Or Choose Sample Model</label>
-              <div className="grid grid-cols-2 gap-3">
-                {sampleModels.map((model) => (
-                  <button
-                    key={model.id}
-                    onClick={() => selectSampleModel(model)}
-                    className={`relative rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                      selectedModelImage === model.image && !modelImageFile
-                        ? 'border-indigo-500 ring-2 ring-indigo-500/20'
-                        : 'border-slate-600 hover:border-slate-500'
-                    }`}
-                  >
-                    <img 
-                      src={model.image} 
-                      alt={model.name}
-                      className="w-full h-24 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div className="absolute bottom-1 left-1 right-1">
-                      <p className="text-white text-xs font-medium truncate">{model.name}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Style Prompt */}
@@ -477,6 +527,6 @@ import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 're
       </div>
     </div>
   );
-
+};
 
 export default FashionStudio;
