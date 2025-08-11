@@ -553,9 +553,14 @@ const GenerateBackground = ({ userPlan, usage, onUsageUpdate }) => {
               <FiCamera className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                Creative Studio
-              </h1>
+              <div className="flex items-center space-x-4 mb-1">
+                <h1 className="text-3xl font-bold text-white">
+                  Creative Studio
+                </h1>
+                <div className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-full shadow-lg">
+                  Launching Soon
+                </div>
+              </div>
               <p className="text-lg text-gray-400">
                 Transform product photos with AI-powered background processing
               </p>
