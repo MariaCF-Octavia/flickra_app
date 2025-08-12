@@ -8,6 +8,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { v4 as uuidv4 } from 'uuid';
 import { Bell, User, LogOut } from 'lucide-react';
 import DemoVideo from "../components/DemoVideo.jsx";
+import { toast } from 'react-hot-toast';
 import { 
     FiHome, FiFileText, FiImage, FiVideo, FiMic, FiEdit, 
     FiBarChart2, FiUsers, FiShoppingCart, FiMoon, FiSun, 

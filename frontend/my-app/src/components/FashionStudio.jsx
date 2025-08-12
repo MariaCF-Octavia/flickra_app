@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiUpload, FiUser, FiZap, FiDownload, FiMaximize, FiRefreshCw } from 'react-icons/fi';
 
 const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
@@ -229,9 +229,17 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2">
-          Fashion Studio
-        </h1>
+        <div className="flex items-center gap-4 mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            Fashion Studio
+          </h1>
+          <div className="relative">
+            <span className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-full shadow-lg animate-pulse">
+              🚀 Launching Soon
+            </span>
+            <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full blur opacity-25 animate-pulse"></div>
+          </div>
+        </div>
         <p className="text-lg text-slate-400 max-w-2xl">
           Upload your clothing and see it on professional models with realistic virtual try-on technology
         </p>
@@ -397,8 +405,6 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
               </div>
             )}
           </div>
-
-          {/* Style Prompt - Removed since integrated above */}
 
           {/* Generate Button */}
           <button
@@ -574,4 +580,4 @@ const FashionStudio = ({ userPlan, usage, onUsageUpdate }) => {
   );
 };
 
-export default FashionStudio;
+export default FashionStudio; 
