@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,18 +44,35 @@
             width: 100%;
             height: 100%;
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 2px;
-            opacity: 0.15;
+            grid-template-columns: 1fr 2fr 1fr 2fr 1fr;
+            grid-template-rows: 1fr 2fr 1fr 2fr 1fr;
+            gap: 4px;
+            opacity: 0.25;
             animation: float 20s ease-in-out infinite;
         }
 
         .product-item {
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 8s ease-in-out;
             overflow: hidden;
             position: relative;
+        }
+
+        .product-item.featured {
+            grid-column: span 2;
+            grid-row: span 2;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            opacity: 0.4;
+            z-index: 2;
+        }
+
+        .product-item.featured video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         .product-item video {
@@ -400,117 +417,61 @@
     <section class="hero">
         <div class="hero-bg">
             <div class="product-grid">
-                <!-- Mix of videos and images for dynamic background -->
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/perfume-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400" alt="Perfume">
-                    </video>
-                </div>
-                <div class="product-item">
+                <!-- FEATURED: ALL 5 of Your Amazing Commercials - Large and Prominent -->
+                <div class="product-item featured">
                     <video autoplay muted loop>
                         <source src="videos/car-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Car">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Car Commercial">
                     </video>
                 </div>
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/fashion-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400" alt="Fashion">
-                    </video>
-                </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400" alt="Tech">
-                </div>
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/food-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1594736797933-d0411e5bd1d2?w=400" alt="Food">
-                    </video>
-                </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400" alt="Beauty">
-                </div>
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/tech-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400" alt="Tech">
-                    </video>
-                </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400" alt="Beverage">
-                </div>
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/luxury-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400" alt="Luxury">
-                    </video>
-                </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400" alt="Home">
-                </div>
-                <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/automotive-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400" alt="Automotive">
-                    </video>
-                </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400" alt="Electronics">
-                </div>
-                <div class="product-item">
+                
+                <div class="product-item featured">
                     <video autoplay muted loop>
                         <source src="videos/beauty-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400" alt="Beauty">
+                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400" alt="Beauty Commercial">
                     </video>
                 </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400" alt="Accessories">
-                </div>
-                <div class="product-item">
+                
+                <div class="product-item featured">
                     <video autoplay muted loop>
-                        <source src="videos/lifestyle-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=400" alt="Lifestyle">
+                        <source src="videos/perfume-commercial.mp4" type="video/mp4">
+                        <img src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400" alt="Perfume Commercial">
                     </video>
                 </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1503602642458-232111445657?w=400" alt="Jewelry">
-                </div>
-                <div class="product-item">
+                
+                <div class="product-item featured">
                     <video autoplay muted loop>
-                        <source src="videos/real-estate-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400" alt="Real Estate">
+                        <source src="videos/fashion-commercial.mp4" type="video/mp4">
+                        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400" alt="Fashion Commercial">
                     </video>
                 </div>
-                <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400" alt="Fitness">
-                </div>
-                <div class="product-item">
+                
+                <div class="product-item featured">
                     <video autoplay muted loop>
-                        <source src="videos/product-showcase.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400" alt="Products">
+                        <source src="videos/luxury-commercial.mp4" type="video/mp4">
+                        <img src="https://images.unsplash.com/photo-1594736797933-d0411e5bd1d2?w=400" alt="Luxury Watch Commercial">
                     </video>
                 </div>
+                
+                <!-- Smaller Supporting Elements (fewer now) -->
                 <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1628202926206-c63a34b1618f?w=400" alt="Wellness">
+                    <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400" alt="Tech">
                 </div>
+                
                 <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/commercial-sample.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1574169208507-84376144848b?w=400" alt="Commercial">
-                    </video>
+                    <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400" alt="Design">
                 </div>
+                
                 <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400" alt="Design">
+                    <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400" alt="Lifestyle">
                 </div>
+                
                 <div class="product-item">
-                    <video autoplay muted loop>
-                        <source src="videos/brand-commercial.mp4" type="video/mp4">
-                        <img src="https://images.unsplash.com/photo-1588099768023-456898e59eae?w=400" alt="Branding">
-                    </video>
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400" alt="Products">
                 </div>
+                
                 <div class="product-item">
-                    <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400" alt="Retail">
+                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400" alt="Home">
                 </div>
             </div>
         </div>
@@ -651,4 +612,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
