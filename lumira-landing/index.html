@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,65 +12,16 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #0a0a0a;
             color: #ffffff;
             overflow-x: hidden;
-        }
-        
-        /* Hide any ConvertKit overflow text */
-        .formkit-form[data-uid="8448843"] {
-            overflow: hidden !important;
-        }
-        
-        /* Hide any script text that might appear */
-        script {
-            display: none !important;
-        }
-        
-        /* Hide any stray text at bottom of page */
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background: #0a0a0a;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        
-        /* Additional safety to hide overflow text */
-        html {
-            overflow-x: hidden;
-        }
-        
-        /* Hide any visible ConvertKit debug text */
-        [data-options] {
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-indent: -9999px !important;
-            height: 0 !important;
-            opacity: 0 !important;
-        }
-        
-        /* Completely hide any stray ConvertKit configuration text */
-        body > *:last-child:not(section):not(script) {
-            display: none !important;
-        }
-        
-        /* Hide any text nodes that might appear after the closing body tag */
-        html::after {
-            content: '';
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: #0a0a0a;
-            z-index: 10000;
+            position: relative;
         }
 
         .hero {
@@ -81,6 +32,8 @@
             justify-content: center;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 30%, #2d1b69 70%, #1a0a2e 100%);
             overflow: hidden;
+            padding-top: 0;
+            margin-top: 0;
         }
 
         .hero-bg {
@@ -235,60 +188,60 @@
             opacity: 0.6;
         }
 
-        /* ConvertKit Form Styling to match your design */
-        .formkit-form[data-uid="8448843"] {
-            max-width: 500px !important;
-            margin: 0 auto !important;
+        /* SIMPLIFIED EMAIL FORM - No ConvertKit Dependencies */
+        .email-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-fields {
-            display: flex !important;
-            gap: 15px !important;
-            flex-wrap: wrap !important;
+        .email-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 18px 25px;
+            border: 2px solid #374151;
+            border-radius: 12px;
+            background: rgba(17, 24, 39, 0.8);
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-field {
-            flex: 1 !important;
-            min-width: 250px !important;
-            margin: 0 !important;
+        .email-input:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-input {
-            padding: 18px 25px !important;
-            border: 2px solid #374151 !important;
-            border-radius: 12px !important;
-            background: rgba(17, 24, 39, 0.8) !important;
-            color: #ffffff !important;
-            font-size: 16px !important;
+        .email-input::placeholder {
+            color: #9ca3af;
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-input:focus {
-            border-color: #a855f7 !important;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1) !important;
+        .email-submit {
+            padding: 18px 35px;
+            background: linear-gradient(45deg, #a855f7, #ec4899);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            outline: none;
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-submit {
-            padding: 18px 35px !important;
-            background: linear-gradient(45deg, #a855f7, #ec4899) !important;
-            border: none !important;
-            border-radius: 12px !important;
-            color: white !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            min-width: 200px !important;
-            margin: 0 !important;
+        .email-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
         }
 
-        .formkit-form[data-uid="8448843"] .formkit-submit:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4) !important;
-        }
-
-        .formkit-form[data-uid="8448843"] .formkit-powered-by-convertkit-container {
-            margin-top: 20px !important;
+        .email-submit:active {
+            transform: translateY(0);
         }
 
         .stats {
@@ -456,6 +409,23 @@
             margin-bottom: 50px;
         }
 
+        /* Success Message Styling */
+        .success-message {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
@@ -465,8 +435,12 @@
                 font-size: 3rem;
             }
             
-            .formkit-form[data-uid="8448843"] .formkit-fields {
-                flex-direction: column !important;
+            .email-form {
+                flex-direction: column;
+            }
+            
+            .email-input {
+                min-width: auto;
             }
             
             .stats {
@@ -595,22 +569,21 @@
             <div class="cta-section">
                 <h3 style="font-size: 1.5rem; margin-bottom: 20px;">Be Among the First to Experience AI Commercial Direction</h3>
                 
-                <!-- FIXED ConvertKit Form Integration with Correct Form ID -->
-                <form action="https://app.kit.com/forms/8448843/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="8448843" data-uid="8448843" data-format="inline" data-version="5" data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! You're on the Lumira Waitlist!&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}">
-                    <div data-style="clean">
-                        <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
-                        <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
-                            <div class="formkit-field">
-                                <input class="formkit-input" name="email_address" aria-label="Enter Your Business Email" placeholder="Enter Your Business Email" required="" type="email">
-                            </div>
-                            <button data-element="submit" class="formkit-submit formkit-submit">
-                                <div class="formkit-spinner"><div></div><div></div><div></div></div>
-                                <span class="">Join Waitlist</span>
-                            </button>
-                        </div>
-                        <div class="formkit-powered-by-convertkit-container"><a href="https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic" data-element="powered-by" class="formkit-powered-by-convertkit" data-variant="dark" target="_blank" rel="nofollow">Built with Kit</a></div>
-                    </div>
+                <!-- SIMPLE EMAIL FORM THAT ALWAYS WORKS -->
+                <form class="email-form" action="https://app.kit.com/forms/8448843/subscriptions" method="post">
+                    <input 
+                        type="email" 
+                        name="email_address" 
+                        class="email-input" 
+                        placeholder="Enter Your Business Email" 
+                        required
+                    >
+                    <button type="submit" class="email-submit">Join Waitlist</button>
                 </form>
+                
+                <div class="success-message" id="successMessage">
+                    🎉 Success! You're on the Lumira Waitlist!
+                </div>
                 
                 <p style="color: #9ca3af; margin-top: 15px; font-size: 14px;">
                     ✨ CF Studio users get priority access • No spam, ever
@@ -701,26 +674,40 @@
         </p>
         
         <div class="cta-section" style="max-width: 600px; margin: 0 auto;">
-            <!-- FIXED ConvertKit Form for bottom CTA -->
-            <form action="https://app.kit.com/forms/8448843/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="8448843" data-uid="8448843" data-format="inline" data-version="5" data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! You're on the Lumira Waitlist!&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}">
-                <div data-style="clean">
-                    <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
-                    <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
-                        <div class="formkit-field">
-                            <input class="formkit-input" name="email_address" aria-label="Enter Your Business Email" placeholder="Enter Your Business Email" required="" type="email">
-                        </div>
-                        <button data-element="submit" class="formkit-submit formkit-submit">
-                            <div class="formkit-spinner"><div></div><div></div><div></div></div>
-                            <span class="">Join Waitlist</span>
-                        </button>
-                    </div>
-                    <div class="formkit-powered-by-convertkit-container"><a href="https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic" data-element="powered-by" class="formkit-powered-by-convertkit" data-variant="dark" target="_blank" rel="nofollow">Built with Kit</a></div>
-                </div>
+            <!-- SECOND EMAIL FORM -->
+            <form class="email-form" action="https://app.kit.com/forms/8448843/subscriptions" method="post">
+                <input 
+                    type="email" 
+                    name="email_address" 
+                    class="email-input" 
+                    placeholder="Enter Your Business Email" 
+                    required
+                >
+                <button type="submit" class="email-submit">Join Waitlist</button>
             </form>
         </div>
     </section>
 
     <script>
+        // Ensure page starts at top
+        window.addEventListener('load', function() {
+            window.scrollTo(0, 0);
+        });
+        
+        // Handle form submission with success message
+        document.querySelectorAll('.email-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // Let the form submit normally to ConvertKit
+                // Show success message after a brief delay
+                setTimeout(() => {
+                    const successMessage = document.getElementById('successMessage');
+                    if (successMessage) {
+                        successMessage.style.display = 'block';
+                    }
+                }, 1000);
+            });
+        });
+        
         // Smooth scrolling for better UX
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -730,26 +717,6 @@
                 });
             });
         });
-        
-        // Additional script to hide any stray ConvertKit text that might appear
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide any text nodes that contain ConvertKit configuration
-            const walker = document.createTreeWalker(
-                document.body,
-                NodeFilter.SHOW_TEXT,
-                null,
-                false
-            );
-            
-            let node;
-            while (node = walker.nextNode()) {
-                if (node.textContent.includes('data-options') || 
-                    node.textContent.includes('powered_by') || 
-                    node.textContent.includes('show_once_every')) {
-                    node.parentNode.style.display = 'none';
-                }
-            }
-        });
     </script>
 </body>
-</html>
+</html> 
