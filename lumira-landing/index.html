@@ -1,9 +1,10 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumira - Your AI Commercial Director</title>
+    <script src="https://f.convertkit.com/ckjs/ck.5.js"></script>
     <style>
         * {
             margin: 0;
@@ -180,50 +181,60 @@
             opacity: 0.6;
         }
 
-        .email-form {
-            display: flex;
-            gap: 15px;
-            max-width: 500px;
-            margin: 0 auto;
-            flex-wrap: wrap;
+        /* ConvertKit Form Styling to match your design */
+        .formkit-form[data-uid="7c395c8564"] {
+            max-width: 500px !important;
+            margin: 0 auto !important;
         }
 
-        .email-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 18px 25px;
-            border: 2px solid #374151;
-            border-radius: 12px;
-            background: rgba(17, 24, 39, 0.8);
-            color: #ffffff;
-            font-size: 16px;
-            transition: all 0.3s ease;
+        .formkit-form[data-uid="7c395c8564"] .formkit-fields {
+            display: flex !important;
+            gap: 15px !important;
+            flex-wrap: wrap !important;
         }
 
-        .email-input:focus {
-            outline: none;
-            border-color: #a855f7;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        .formkit-form[data-uid="7c395c8564"] .formkit-field {
+            flex: 1 !important;
+            min-width: 250px !important;
+            margin: 0 !important;
         }
 
-        .cta-button {
-            padding: 18px 35px;
-            background: linear-gradient(45deg, #a855f7, #ec4899);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            min-width: 200px;
+        .formkit-form[data-uid="7c395c8564"] .formkit-input {
+            padding: 18px 25px !important;
+            border: 2px solid #374151 !important;
+            border-radius: 12px !important;
+            background: rgba(17, 24, 39, 0.8) !important;
+            color: #ffffff !important;
+            font-size: 16px !important;
         }
 
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+        .formkit-form[data-uid="7c395c8564"] .formkit-input:focus {
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1) !important;
+        }
+
+        .formkit-form[data-uid="7c395c8564"] .formkit-submit {
+            padding: 18px 35px !important;
+            background: linear-gradient(45deg, #a855f7, #ec4899) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: white !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            min-width: 200px !important;
+            margin: 0 !important;
+        }
+
+        .formkit-form[data-uid="7c395c8564"] .formkit-submit:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4) !important;
+        }
+
+        .formkit-form[data-uid="7c395c8564"] .formkit-powered-by-convertkit-container {
+            margin-top: 20px !important;
         }
 
         .stats {
@@ -399,8 +410,8 @@
                 font-size: 3rem;
             }
             
-            .email-form {
-                flex-direction: column;
+            .formkit-form[data-uid="7c395c8564"] .formkit-fields {
+                flex-direction: column !important;
             }
             
             .stats {
@@ -528,10 +539,62 @@
 
             <div class="cta-section">
                 <h3 style="font-size: 1.5rem; margin-bottom: 20px;">Be Among the First to Experience AI Commercial Direction</h3>
-                <form class="email-form" id="waitlistForm">
-                    <input type="email" class="email-input" placeholder="Enter your business email" required>
-                    <button type="submit" class="cta-button">Get Early Access</button>
+                
+                <!-- ConvertKit Form Integration -->
+                <form action="https://app.kit.com/forms/8448843/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="8448843" data-uid="7c395c8564" data-format="inline" data-version="5">
+                <div data-style="clean">
+                    <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
+                    <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+                        <div class="formkit-field">
+                            <input class="formkit-input" name="email_address" aria-label="Enter Your Business Email" placeholder="Enter Your Business Email" required="" type="email">
+                        </div>
+                        <button data-element="submit" class="formkit-submit formkit-submit">
+                            <div class="formkit-spinner"><div></div><div></div><div></div></div>
+                            <span class="">Join Waitlist</span>
+                        </button>
+                    </div>
+                    <div class="formkit-powered-by-convertkit-container">
+                        <a href="https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic" data-element="powered-by" class="formkit-powered-by-convertkit" data-variant="dark" target="_blank" rel="nofollow">Built with Kit</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <p style="color: #9ca3af; margin-top: 30px;">
+            💜 Built by the CF Studio team • Launching Soon
+        </p>
+    </section>
+
+    <script>
+        // Smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}" min-width="400 500 600 700 800">
+                    <div data-style="clean">
+                        <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
+                        <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+                            <div class="formkit-field">
+                                <input class="formkit-input" name="email_address" aria-label="Enter Your Business Email" placeholder="Enter Your Business Email" required="" type="email">
+                            </div>
+                            <button data-element="submit" class="formkit-submit formkit-submit">
+                                <div class="formkit-spinner"><div></div><div></div><div></div></div>
+                                <span class="">Join Waitlist</span>
+                            </button>
+                        </div>
+                        <div class="formkit-powered-by-convertkit-container">
+                            <a href="https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic" data-element="powered-by" class="formkit-powered-by-convertkit" data-variant="dark" target="_blank" rel="nofollow">Built with Kit</a>
+                        </div>
+                    </div>
                 </form>
+                
                 <p style="color: #9ca3af; margin-top: 15px; font-size: 14px;">
                     ✨ CF Studio users get priority access • No spam, ever
                 </p>
@@ -617,39 +680,5 @@
         </p>
         
         <div class="cta-section" style="max-width: 600px; margin: 0 auto;">
-            <form class="email-form">
-                <input type="email" class="email-input" placeholder="Enter your business email" required>
-                <button type="submit" class="cta-button">Join Waitlist</button>
-            </form>
-        </div>
-        
-        <p style="color: #9ca3af; margin-top: 30px;">
-            💜 Built by the CF Studio team • Launching Soon
-        </p>
-    </section>
-
-    <script>
-        // Simple form handling
-        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = this.querySelector('input[type="email"]').value;
-            
-            // Replace with your actual email collection service
-            alert('Thanks for joining! We\'ll be in touch soon with early access.');
-            
-            // Here you would integrate with ConvertKit, Mailchimp, etc.
-            console.log('Email submitted:', email);
-        });
-
-        // Smooth scrolling for better UX
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+            <!-- Second ConvertKit Form for bottom CTA -->
+            <form action="https://app.kit.com/forms/8448843/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="8448843" data-uid="7c395c8564" data-format="inline" data-version="5" data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! Now check your email to confirm your subscription.&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once 
