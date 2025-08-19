@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -569,16 +569,17 @@
             <div class="cta-section">
                 <h3 style="font-size: 1.5rem; margin-bottom: 20px;">Be Among the First to Experience AI Commercial Direction</h3>
                 
-                <!-- SIMPLE EMAIL FORM THAT ALWAYS WORKS -->
-                <form class="email-form" action="https://app.kit.com/forms/8448843/subscriptions" method="post">
+                <!-- AJAX EMAIL FORM - NO REDIRECT -->
+                <form class="email-form" id="emailForm">
                     <input 
                         type="email" 
                         name="email_address" 
                         class="email-input" 
                         placeholder="Enter Your Business Email" 
                         required
+                        id="emailInput"
                     >
-                    <button type="submit" class="email-submit">Join Waitlist</button>
+                    <button type="submit" class="email-submit" id="submitBtn">Join Waitlist</button>
                 </form>
                 
                 <div class="success-message" id="successMessage">
@@ -674,8 +675,8 @@
         </p>
         
         <div class="cta-section" style="max-width: 600px; margin: 0 auto;">
-            <!-- SECOND EMAIL FORM -->
-            <form class="email-form" action="https://app.kit.com/forms/8448843/subscriptions" method="post">
+            <!-- AJAX EMAIL FORM - NO REDIRECT -->
+            <form class="email-form" id="emailForm2">
                 <input 
                     type="email" 
                     name="email_address" 
@@ -694,18 +695,82 @@
             window.scrollTo(0, 0);
         });
         
-        // Handle form submission with success message
-        document.querySelectorAll('.email-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                // Let the form submit normally to ConvertKit
-                // Show success message after a brief delay
+        // Handle form submission with AJAX to prevent redirect
+        async function submitToConvertKit(email) {
+            try {
+                const formData = new FormData();
+                formData.append('email_address', email);
+                
+                const response = await fetch('https://app.kit.com/forms/8448843/subscriptions', {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors' // This prevents CORS issues
+                });
+                
+                return true; // Assume success since we can't read the response in no-cors mode
+            } catch (error) {
+                console.log('Form submission error:', error);
+                return false;
+            }
+        }
+        
+        // Handle both forms
+        document.getElementById('emailForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Update button text
+            submitBtn.innerHTML = 'Joining...';
+            submitBtn.disabled = true;
+            
+            // Submit to ConvertKit
+            const success = await submitToConvertKit(email);
+            
+            if (success) {
+                // Show success message
+                successMessage.style.display = 'block';
+                this.style.display = 'none';
+            } else {
+                // Reset button if failed
+                submitBtn.innerHTML = 'Join Waitlist';
+                submitBtn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
+        });
+        
+        document.getElementById('emailForm2').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = this.querySelector('input[name="email_address"]').value;
+            const submitBtn = this.querySelector('button');
+            
+            // Update button text
+            submitBtn.innerHTML = 'Joining...';
+            submitBtn.disabled = true;
+            
+            // Submit to ConvertKit
+            const success = await submitToConvertKit(email);
+            
+            if (success) {
+                // Show success message and hide form
+                submitBtn.innerHTML = '✅ You\'re on the list!';
                 setTimeout(() => {
-                    const successMessage = document.getElementById('successMessage');
-                    if (successMessage) {
-                        successMessage.style.display = 'block';
-                    }
+                    this.style.display = 'none';
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success-message';
+                    successDiv.style.display = 'block';
+                    successDiv.innerHTML = '🎉 Success! You\'re on the Lumira Waitlist!';
+                    this.parentNode.appendChild(successDiv);
                 }, 1000);
-            });
+            } else {
+                // Reset button if failed
+                submitBtn.innerHTML = 'Join Waitlist';
+                submitBtn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
         });
         
         // Smooth scrolling for better UX
@@ -719,4 +784,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
