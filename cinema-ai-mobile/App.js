@@ -58,6 +58,9 @@ export default function CinemaAI() {
   const [previousObjects, setPreviousObjects] = useState([]);
   const [isMoving, setIsMoving] = useState(false);
   
+  // FIX: Add manual capture control
+  const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
+  
   const cameraRef = useRef(null);
 
   // SAFER USEEFFECT FOR PHASE 1B - LOAD AI MODEL WITH FALLBACK
@@ -65,7 +68,7 @@ export default function CinemaAI() {
     const loadAIModel = async () => {
       try {
         setIsModelLoading(true);
-        console.log('🧠 Nova is loading her AI brain...');
+        console.log('🧠 Lumira is loading her AI brain...');
         
         // First load TensorFlow
         await loadTensorFlow();
@@ -143,29 +146,24 @@ export default function CinemaAI() {
     }
     
     try {
-      // Read the image file as base64
+      // FIXED: Use React Native compatible approach instead of HTML Image
       const response = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
       
-      // Convert to tensor (simplified approach for React Native)
-      const imageData = `data:image/jpeg;base64,${response}`;
-      
-      // Create image element (React Native compatible)
-      const img = new Image();
-      img.src = imageData;
-      
-      // Wait for image to load
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        // Timeout after 5 seconds
-        setTimeout(reject, 5000);
+      // FIXED: Use tensor-based approach for React Native
+      const imageTensor = tf.browser.fromPixels({
+        data: new Uint8Array(Buffer.from(response, 'base64')),
+        width: 640,
+        height: 480
       });
       
-      // Run object detection
-      const predictions = await model.detect(img);
+      // Run object detection with tensor
+      const predictions = await model.detect(imageTensor);
       console.log('🔍 Detected objects:', predictions);
+      
+      // Clean up tensor
+      imageTensor.dispose();
       
       return predictions;
     } catch (error) {
@@ -205,6 +203,7 @@ export default function CinemaAI() {
     
     return false;
   };
+
   // NEW FUNCTION FOR PHASE 1B - SMART PRODUCT MATCHING
   const matchDetectedToIntent = (detectedObjects, userIntent, detectedProduct) => {
     const productMappings = {
@@ -249,7 +248,7 @@ export default function CinemaAI() {
         match: false,
         confidence: 0,
         detectedClass: null,
-        guidance: `Point your camera at your ${detectedProduct} so Nova can analyze it`
+        guidance: `Point your camera at your ${detectedProduct} so Lumira can analyze it`
       };
     }
   };
@@ -273,38 +272,38 @@ export default function CinemaAI() {
     
     const productGuidance = {
       'perfume': {
-        wellPositioned: `Perfect! Nova detects your perfume bottle (${Math.round(confidence * 100)}% confidence). Great positioning for luxury appeal.`,
-        needsAdjustment: `Nova sees your perfume bottle! Try centering it more for elegant symmetry.`,
-        tooSmall: `Move closer to your perfume bottle - Nova wants to showcase its elegant details.`,
+        wellPositioned: `Perfect! Lumira detects your perfume bottle (${Math.round(confidence * 100)}% confidence). Great positioning for luxury appeal.`,
+        needsAdjustment: `Lumira sees your perfume bottle! Try centering it more for elegant symmetry.`,
+        tooSmall: `Move closer to your perfume bottle - Lumira wants to showcase its elegant details.`,
         tooLarge: `Step back slightly - let's capture the full elegance of your perfume bottle.`
       },
       'car': {
-        wellPositioned: `Excellent! Nova detects your vehicle (${Math.round(confidence * 100)}% confidence). Perfect angle for automotive appeal.`,
-        needsAdjustment: `Nova sees your car! Try angling to show more of its sleek design.`,
+        wellPositioned: `Excellent! Lumira detects your vehicle (${Math.round(confidence * 100)}% confidence). Perfect angle for automotive appeal.`,
+        needsAdjustment: `Lumira sees your car! Try angling to show more of its sleek design.`,
         tooSmall: `Move closer to highlight your vehicle's distinctive features.`,
         tooLarge: `Step back to capture more of your car's impressive silhouette.`
       },
       'clothing': {
-        wellPositioned: `Great! Nova detects your apparel (${Math.round(confidence * 100)}% confidence). Perfect for fashion showcase.`,
-        needsAdjustment: `Nova sees your clothing item! Center it to show the fabric's best features.`,
+        wellPositioned: `Great! Lumira detects your apparel (${Math.round(confidence * 100)}% confidence). Perfect for fashion showcase.`,
+        needsAdjustment: `Lumira sees your clothing item! Center it to show the fabric's best features.`,
         tooSmall: `Move closer to show the texture and quality of your fabric.`,
         tooLarge: `Step back to capture the full style and cut of your garment.`
       },
       'food': {
-        wellPositioned: `Delicious! Nova detects your food (${Math.round(confidence * 100)}% confidence). Perfect presentation for appetite appeal.`,
-        needsAdjustment: `Nova sees your food! Center it to make it look most appetizing.`,
+        wellPositioned: `Delicious! Lumira detects your food (${Math.round(confidence * 100)}% confidence). Perfect presentation for appetite appeal.`,
+        needsAdjustment: `Lumira sees your food! Center it to make it look most appetizing.`,
         tooSmall: `Move closer to show the delicious details and texture.`,
         tooLarge: `Step back to capture the full presentation of your dish.`
       },
       'tech': {
-        wellPositioned: `Innovative! Nova detects your tech product (${Math.round(confidence * 100)}% confidence). Perfect for modern showcase.`,
-        needsAdjustment: `Nova sees your device! Center it to highlight its sleek design.`,
+        wellPositioned: `Innovative! Lumira detects your tech product (${Math.round(confidence * 100)}% confidence). Perfect for modern showcase.`,
+        needsAdjustment: `Lumira sees your device! Center it to highlight its sleek design.`,
         tooSmall: `Move closer to show the tech details and features.`,
         tooLarge: `Step back to capture the full product design.`
       },
       'real-estate': {
-        wellPositioned: `Perfect! Nova detects the interior elements (${Math.round(confidence * 100)}% confidence). Great angle for property showcase.`,
-        needsAdjustment: `Nova sees your space! Try angling to show more of the room's features.`,
+        wellPositioned: `Perfect! Lumira detects the interior elements (${Math.round(confidence * 100)}% confidence). Great angle for property showcase.`,
+        needsAdjustment: `Lumira sees your space! Try angling to show more of the room's features.`,
         tooSmall: `Step back to capture more of the space and its appeal.`,
         tooLarge: `Move closer to highlight specific room features.`
       }
@@ -526,7 +525,7 @@ export default function CinemaAI() {
     const workflows = {
       'perfume': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Perfume Campaign`,
-        description: `✨ Perfect! Nova will guide you through creating a ${style} fragrance commercial`,
+        description: `✨ Perfect! Lumira will guide you through creating a ${style} fragrance commercial`,
         steps: [
           `Generate Background → "${style} perfume stand with elegant mood lighting"`,
           'Image Enhancement → Use generated background as reference',
@@ -536,7 +535,7 @@ export default function CinemaAI() {
       },
       'car': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Automotive Commercial`,
-        description: `🚗 Excellent! Nova will create a ${style} car commercial with professional quality`,
+        description: `🚗 Excellent! Lumira will create a ${style} car commercial with professional quality`,
         steps: [
           `Generate Background → "${style} automotive showroom with dramatic lighting"`,
           '3D & 360 → Complete vehicle showcase (interior + exterior)', 
@@ -546,7 +545,7 @@ export default function CinemaAI() {
       },
       'clothing': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Fashion Campaign`,
-        description: `👗 Amazing! Nova will help you create a ${style} fashion commercial`,
+        description: `👗 Amazing! Lumira will help you create a ${style} fashion commercial`,
         steps: [
           'Remove Background → Clean product isolation',
           'TryOn API → Virtual models wearing your clothes',
@@ -556,7 +555,7 @@ export default function CinemaAI() {
       },
       'food': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Food & Beverage Campaign`,
-        description: `🍽️ Delicious! Nova will create an appetizing ${style} food commercial`,
+        description: `🍽️ Delicious! Lumira will create an appetizing ${style} food commercial`,
         steps: [
           `Generate Background → "${style} kitchen or dining environment"`,
           'Image Enhancement → Food styling perfection',
@@ -566,7 +565,7 @@ export default function CinemaAI() {
       },
       'tech': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Tech Product Campaign`,
-        description: `📱 Innovative! Nova will build a ${style} technology commercial`,
+        description: `📱 Innovative! Lumira will build a ${style} technology commercial`,
         steps: [
           `Generate Background → "${style} tech environment with clean aesthetics"`,
           'Image Enhancement → Sleek product presentation',
@@ -576,7 +575,7 @@ export default function CinemaAI() {
       },
       'real-estate': {
         title: `${style.charAt(0).toUpperCase() + style.slice(1)} Real Estate Campaign`,
-        description: `🏠 Perfect! Nova will create a ${style} property showcase`,
+        description: `🏠 Perfect! Lumira will create a ${style} property showcase`,
         steps: [
           'Decor8 API → Enhanced interior staging',
           `Generate Background → "Perfect ${style} exterior views"`,
@@ -588,7 +587,7 @@ export default function CinemaAI() {
     
     return workflows[productType] || {
       title: 'Professional Commercial Campaign',
-      description: '🎬 Great! Nova will help you create a professional commercial',
+      description: '🎬 Great! Lumira will help you create a professional commercial',
       steps: [
         'Image Enhancement → Professional product presentation',
         'Video Production → Dynamic commercial content',
@@ -600,7 +599,7 @@ export default function CinemaAI() {
 
   const handleStartCreating = () => {
     if (detectedProduct === 'general' && userIntent.trim().length < 5) {
-      Alert.alert("Tell Nova more!", "Please select a business type or describe your commercial");
+      Alert.alert("Tell Lumira more!", "Please select a business type or describe your commercial");
       return;
     }
     
@@ -614,17 +613,19 @@ export default function CinemaAI() {
     }
     
     setShowOnboarding(false);
+    // FIX: Enable auto analysis only after starting
+    setAutoAnalysisEnabled(true);
     
     const productGuidance = {
-      'perfume': 'Position your perfume bottle in good lighting - Nova is analyzing...',
-      'car': 'Frame your vehicle to show its best angle - Nova is analyzing...',
-      'clothing': 'Display your clothing item clearly - Nova is analyzing...',
-      'food': 'Make your food look fresh and appetizing - Nova is analyzing...',
-      'tech': 'Show your tech product\'s key features - Nova is analyzing...',
-      'real-estate': 'Capture the property\'s best features - Nova is analyzing...'
+      'perfume': 'Position your perfume bottle in good lighting - Lumira is analyzing...',
+      'car': 'Frame your vehicle to show its best angle - Lumira is analyzing...',
+      'clothing': 'Display your clothing item clearly - Lumira is analyzing...',
+      'food': 'Make your food look fresh and appetizing - Lumira is analyzing...',
+      'tech': 'Show your tech product\'s key features - Lumira is analyzing...',
+      'real-estate': 'Capture the property\'s best features - Lumira is analyzing...'
     };
     
-    setGuidance(productGuidance[detectedProduct] || 'Position your product in the frame - Nova is analyzing...');
+    setGuidance(productGuidance[detectedProduct] || 'Position your product in the frame - Lumira is analyzing...');
   };
 
   // Slideshow Component
@@ -683,20 +684,24 @@ export default function CinemaAI() {
         contentContainerStyle={styles.onboardingScroll} 
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        // FIX: Prevent auto-scroll glitch
+        scrollEventThrottle={16}
+        decelerationRate="normal"
+        bounces={false}
       >
         
         {/* Header */}
         <View style={styles.onboardingHeader}>
           <View style={styles.logoContainer}>
-            <Text style={styles.onboardingTitle}>Nova</Text>
+            <Text style={styles.onboardingTitle}>Lumira</Text>
             <View style={styles.betaBadge}>
               <Text style={styles.betaText}>AI</Text>
             </View>
           </View>
           <Text style={styles.onboardingSubtitle}>Your AI Commercial Director</Text>
           <Text style={styles.onboardingDescription}>
-            Nova analyzes your products in real-time and creates professional commercials in minutes. 
-            From lighting guidance to CF Studio workflows - Nova handles everything.
+            Lumira analyzes your products in real-time and creates professional commercials in minutes. 
+            From lighting guidance to CF Studio workflows - Lumira handles everything.
           </Text>
         </View>
 
@@ -706,7 +711,7 @@ export default function CinemaAI() {
         {/* Business Type Selection */}
         <View style={styles.businessTypeContainer}>
           <Text style={styles.sectionTitle}>What type of business do you have?</Text>
-          <Text style={styles.sectionSubtitle}>Nova will tailor the perfect commercial strategy for your industry</Text>
+          <Text style={styles.sectionSubtitle}>Lumira will tailor the perfect commercial strategy for your industry</Text>
           <View style={styles.businessGrid}>
             {[
               { type: 'perfume', label: 'Beauty & Fragrance', direction: 'left', glowColor: '#8B5CF6' },
@@ -817,7 +822,7 @@ export default function CinemaAI() {
         {/* AI Preview */}
         {detectedProduct !== 'general' && (
           <View style={styles.aiPreviewContainer}>
-            <Text style={styles.aiPreviewTitle}>✨ Nova's Analysis</Text>
+            <Text style={styles.aiPreviewTitle}>✨ Lumira's Analysis</Text>
             <View style={styles.aiPreviewCard}>
               <Text style={styles.aiPreviewText}>
                 {(() => {
@@ -826,7 +831,7 @@ export default function CinemaAI() {
                 })()}
               </Text>
               <View style={styles.workflowPreview}>
-                <Text style={styles.workflowPreviewTitle}>Nova will create:</Text>
+                <Text style={styles.workflowPreviewTitle}>Lumira will create:</Text>
                 {(() => {
                   const workflow = generateWorkflow(detectedProduct, detectedStyle);
                   return workflow.steps.slice(0, 2).map((step, index) => (
@@ -846,8 +851,8 @@ export default function CinemaAI() {
 
         {/* Custom Input */}
         <View style={styles.customInputContainer}>
-          <Text style={styles.sectionTitle}>Or describe your vision to Nova:</Text>
-          <Text style={styles.sectionSubtitle}>Tell Nova exactly what commercial you want to create</Text>
+          <Text style={styles.sectionTitle}>Or describe your vision to Lumira:</Text>
+          <Text style={styles.sectionSubtitle}>Tell Lumira exactly what commercial you want to create</Text>
           <TextInput
             style={styles.intentInput}
             placeholder="e.g., 'Premium skincare for mature women' or 'Electric car showcase'"
@@ -880,14 +885,14 @@ export default function CinemaAI() {
           disabled={detectedProduct === 'general' && userIntent.length < 5}
         >
           <Text style={styles.startButtonText}>
-            🚀 Start Creating with Nova {detectedProduct !== 'general' ? `• ${detectedProduct.charAt(0).toUpperCase() + detectedProduct.slice(1)} Commercial` : ''}
+            🚀 Start Creating with Lumira {detectedProduct !== 'general' ? `• ${detectedProduct.charAt(0).toUpperCase() + detectedProduct.slice(1)} Commercial` : ''}
           </Text>
         </TouchableOpacity>
 
         {/* Footer */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>
-            Powered by Nova AI & CF Studio • Professional results in 15 minutes
+            Powered by Lumira AI & CF Studio • Professional results in 15 minutes
           </Text>
         </View>
 
@@ -895,27 +900,28 @@ export default function CinemaAI() {
     </View>
   );
 
-  // UPDATED REAL-TIME AI ANALYSIS WITH OBJECT DETECTION - PHASE 1B
+  // FIXED REAL-TIME AI ANALYSIS - Only when enabled and controlled intervals
   useEffect(() => {
-    if (showOnboarding || isModelLoading) return;
+    if (showOnboarding || isModelLoading || !autoAnalysisEnabled) return;
     
     const interval = setInterval(async () => {
-      // Only analyze every 3 seconds for real AI processing
+      // FIX: Only analyze every 5 seconds to prevent rapid changes and auto-capture
       const now = Date.now();
-      if (now - lastAnalysisTime < 3000) {
+      if (now - lastAnalysisTime < 5000) {
         return;
       }
       
-      if (cameraRef.current && !isAnalyzing) {
+      if (cameraRef.current && !isAnalyzing && !isCapturing) {
         setIsAnalyzing(true);
         setLastAnalysisTime(now);
         
         try {
-          // Capture frame for analysis
+          // FIX: Use lower quality and skip processing for analysis only
           const photo = await cameraRef.current.takePictureAsync({
-            quality: 0.3, // Medium quality for balance of speed and accuracy
+            quality: 0.1, // Very low quality for analysis
             base64: false,
-            skipProcessing: true, // Faster capture
+            skipProcessing: true,
+            exif: false, // Skip EXIF data
           });
           
           // STEP 1: REAL OBJECT DETECTION (with fallback)
@@ -931,14 +937,12 @@ export default function CinemaAI() {
           const productMatch = matchDetectedToIntent(detectedObjects, userIntent, detectedProduct);
           
           // STEP 3: CALCULATE MOBILE-REALISTIC PRODUCT SCORE
-          let newProductScore = 35; // Higher base for mobile (was 25)
+          let newProductScore = 35;
           if (productMatch.match) {
-            // Real object detected and matches intent - mobile-friendly scoring
-            newProductScore = Math.round(50 + (productMatch.confidence * 40)); // More generous
+            newProductScore = Math.round(50 + (productMatch.confidence * 40));
             setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
           } else {
-            // Object not detected or doesn't match
-            newProductScore = Math.max(35, productScore - 3); // Slower degradation
+            newProductScore = Math.max(35, productScore - 3);
             setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
           }
           setProductScore(newProductScore);
@@ -957,16 +961,16 @@ export default function CinemaAI() {
           );
           setMagicScore(newMagicScore);
           
-          // STEP 7: REALISTIC MOBILE PERFECT SHOT DETECTION
-          const mobileQualityThreshold = 72; // Realistic for smartphones (was 85)
-          const goodConfidenceThreshold = 0.6; // More forgiving (was 0.7)
+          // STEP 7: REALISTIC MOBILE PERFECT SHOT DETECTION (no auto-capture)
+          const mobileQualityThreshold = 72;
+          const goodConfidenceThreshold = 0.6;
           
           if (newMagicScore >= mobileQualityThreshold && 
               productMatch.match && 
               productMatch.confidence > goodConfidenceThreshold && 
               !perfectShot) {
             setPerfectShot(true);
-            setGuidance(`🎯 Perfect mobile shot! Nova detected your ${productMatch.detectedClass} with ${Math.round(productMatch.confidence * 100)}% confidence - excellent smartphone quality!`);
+            setGuidance(`🎯 Perfect mobile shot! Lumira detected your ${productMatch.detectedClass} with ${Math.round(productMatch.confidence * 100)}% confidence - tap capture button when ready!`);
           } else if (newMagicScore < (mobileQualityThreshold - 5) && perfectShot) {
             setPerfectShot(false);
           }
@@ -981,26 +985,26 @@ export default function CinemaAI() {
         } catch (error) {
           console.log('Analysis error:', error);
           // Fallback with mobile-friendly guidance
-          const lightingChange = Math.max(-1, Math.min(2, Math.random() * 3 - 1)); // Gentler changes
+          const lightingChange = Math.max(-1, Math.min(2, Math.random() * 3 - 1));
           setLightingScore(prev => Math.max(35, Math.min(85, prev + lightingChange)));
           setGuidance("📱 Adjusting for mobile camera - try moving for better lighting");
         }
         
         setIsAnalyzing(false);
       }
-    }, 1000);
+    }, 2000); // FIX: Increased interval to 2 seconds
 
     return () => clearInterval(interval);
-  }, [showOnboarding, isModelLoading, lastAnalysisTime, isAnalyzing, userIntent, detectedProduct, productScore, perfectShot]);
+  }, [showOnboarding, isModelLoading, autoAnalysisEnabled, lastAnalysisTime, isAnalyzing, isCapturing, userIntent, detectedProduct, productScore, perfectShot]);
 
   // ENHANCED GUIDANCE GENERATION for mobile photography
   const generateEnhancedGuidance = (productMatch, isMoving, detectedObjects) => {
     if (isMoving) {
-      return "📱 Hold steady! Nova detects camera movement - try bracing your phone against something for sharper mobile photos";
+      return "📱 Hold steady! Lumira detects camera movement - try bracing your phone against something for sharper mobile photos";
     }
     
     if (!detectedObjects.length) {
-      return `📱 Point your camera at your ${detectedProduct} - Nova is ready to help you create great smartphone content!`;
+      return `📱 Point your camera at your ${detectedProduct} - Lumira is ready to help you create great smartphone content!`;
     }
     
     if (productMatch.match) {
@@ -1018,11 +1022,12 @@ export default function CinemaAI() {
     }
   };
 
+  // FIX: Manual capture only
   const capturePhoto = async () => {
-    if (magicScore < 70) { // MOBILE-REALISTIC threshold (was 85)
+    if (magicScore < 70) {
       Alert.alert(
         "Almost there!", 
-        `Your mobile photo score is ${magicScore}/100. For best smartphone results, try to reach 70+. Nova is optimizing for mobile quality!`
+        `Your mobile photo score is ${magicScore}/100. For best smartphone results, try to reach 70+. Lumira is optimizing for mobile quality!`
       );
       return;
     }
@@ -1032,7 +1037,7 @@ export default function CinemaAI() {
     try {
       if (cameraRef.current) {
         const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.9, // High quality for mobile
+          quality: 0.9, // High quality for final capture
           base64: false,
         });
         
@@ -1060,7 +1065,7 @@ export default function CinemaAI() {
   const WorkflowModal = () => (
     <View style={styles.workflowModal}>
       <View style={styles.workflowContent}>
-        <Text style={styles.workflowTitle}>🎯 Perfect Shot! Nova's Analysis Complete</Text>
+        <Text style={styles.workflowTitle}>🎯 Perfect Shot! Lumira's Analysis Complete</Text>
         <Text style={styles.detectedProduct}>
           ✨ {currentWorkflow?.description || "Commercial detected • Premium quality achieved"}
         </Text>
@@ -1117,11 +1122,11 @@ export default function CinemaAI() {
     );
   }
 
-  // NEW FOR PHASE 1B: AI Model Loading Screen
+  // FIX: Updated loading text
   if (isModelLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>🧠 Nova is loading her AI brain...</Text>
+        <Text style={styles.loadingText}>🧠 Lumira is loading her AI brain...</Text>
         <Text style={styles.subLoadingText}>
           {tensorflowLoaded ? 'Loading AI model...' : 'Setting up fallback mode...'}
         </Text>
@@ -1149,13 +1154,13 @@ export default function CinemaAI() {
       {/* Dark overlay for better visibility */}
       <View style={styles.overlay} />
       
-      {/* Magic Score Circle with Nova Intelligence Indicator */}
+      {/* Magic Score Circle with Lumira Intelligence Indicator */}
       <View style={styles.magicScoreContainer}>
         <View style={[styles.magicScore, { borderColor: getScoreColor(magicScore) }]}>
           <Text style={[styles.magicScoreNumber, { color: getScoreColor(magicScore) }]}>
             {magicScore}
           </Text>
-          <Text style={styles.magicScoreLabel}>NOVA</Text>
+          <Text style={styles.magicScoreLabel}>LUMIRA</Text>
           {isAnalyzing && (
             <View style={styles.analyzingIndicator}>
               <Text style={styles.analyzingText}>•</Text>
@@ -1191,10 +1196,10 @@ export default function CinemaAI() {
         }]} />
       </View>
       
-      {/* UPDATED Nova's Real-Time Guidance with Mobile Movement Detection */}
+      {/* UPDATED Lumira's Real-Time Guidance with Mobile Movement Detection */}
       <View style={styles.guidanceContainer}>
         <View style={styles.guidanceBox}>
-          <Text style={styles.guidanceBrand}>Nova AI:</Text>
+          <Text style={styles.guidanceBrand}>Lumira AI:</Text>
           <Text style={styles.guidanceText}>{guidance}</Text>
           {detectedObjects.length > 0 && (
             <Text style={styles.detectedObjectsText}>
@@ -1611,6 +1616,8 @@ const styles = StyleSheet.create({
   onboardingScroll: {
     flexGrow: 1,
     padding: 24,
+    // FIX: Add minimum height to prevent scroll glitch
+    minHeight: height + 100,
   },
   onboardingHeader: {
     alignItems: 'center',
