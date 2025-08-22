@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
@@ -127,21 +127,36 @@ export default function CinemaAI() {
     }
     
     try {
-      // FIXED: Use React Native compatible image loading
+      // FIXED: Proper React Native image handling for TensorFlow
+      const response = await fetch(imageUri);
+      const imageBlob = await response.blob();
+      
+      // Create proper image element for React Native
       const imageElement = await new Promise((resolve, reject) => {
-        // For React Native, we need to use a different approach
-        // Using the model directly with the image URI
-        resolve({ uri: imageUri });
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = (error) => {
+          console.log('Image loading failed, using fallback detection');
+          reject(error);
+        };
+        img.src = URL.createObjectURL(imageBlob);
+        
+        // Fallback timeout
+        setTimeout(() => reject(new Error('Image load timeout')), 3000);
       });
       
-      // FIXED: Use the model with proper error handling
-      const predictions = await model.detect(imageElement, 5, 0.4);
+      // FIXED: Direct model detection with proper image
+      const predictions = await model.detect(imageElement, 3, 0.5);
+      
+      // Clean up blob URL
+      URL.revokeObjectURL(imageElement.src);
       
       console.log('🎯 Real detection results:', predictions);
       return predictions.length > 0 ? predictions : generateSmartFallbackDetection();
       
     } catch (error) {
-      console.error('❌ Object detection error (fallback mode activated):', error);
+      console.log('❌ Object detection using fallback (React Native compatibility):', error.message);
       return generateSmartFallbackDetection();
     }
   };
@@ -1006,7 +1021,7 @@ export default function CinemaAI() {
     }
   };
 
-  // FIXED CAPTURE FUNCTION - Better error handling
+  // FIXED CAPTURE FUNCTION - Complete backend payload
   const capturePhoto = async () => {
     if (magicScore < 70) {
       Alert.alert(
@@ -1021,16 +1036,17 @@ export default function CinemaAI() {
     try {
       if (cameraRef.current) {
         const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.9,
+          quality: 0.8,
           base64: true,
+          skipProcessing: false,
         });
         
-        // FIXED: Better backend payload structure
+        // FIXED: Complete backend payload with all required fields
         const payload = {
           image_data: `data:image/jpeg;base64,${photo.base64}`,
           business_type: detectedProduct,
           style: detectedStyle,
-          user_intent: userIntent,
+          user_intent: userIntent || `${detectedStyle} ${detectedProduct} commercial`,
           scores: {
             magic_score: magicScore,
             lighting_score: lightingScore,
@@ -1039,32 +1055,54 @@ export default function CinemaAI() {
           },
           detected_objects: detectedObjects.map(obj => ({
             class: obj.class,
-            confidence: obj.score,
+            confidence: Math.round(obj.score * 100) / 100,
             bbox: obj.bbox
           })),
-          platform: 'mobile',
-          app_version: '2.0'
+          metadata: {
+            platform: 'react-native',
+            app_version: '2.0',
+            timestamp: new Date().toISOString(),
+            device_type: 'mobile',
+            analysis_mode: tensorflowLoaded ? 'ai_enhanced' : 'fallback'
+          },
+          workflow_preferences: {
+            quality: 'high',
+            speed: 'balanced',
+            output_format: 'mp4'
+          }
         };
         
         console.log('📤 Sending to backend:', {
           business_type: payload.business_type,
           style: payload.style,
+          user_intent: payload.user_intent,
           scores: payload.scores,
-          detected_objects_count: payload.detected_objects.length
+          detected_objects_count: payload.detected_objects.length,
+          image_size: Math.round(photo.base64.length / 1024) + 'KB'
         });
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
         
         const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'User-Agent': 'Lumira-Mobile/2.0'
           },
           body: JSON.stringify(payload),
-          timeout: 30000
+          signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
+        
+        console.log('📥 Backend response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error(`Backend responded with status: ${response.status}`);
+          const errorText = await response.text();
+          console.log('❌ Backend error response:', errorText);
+          throw new Error(`Backend error ${response.status}: ${errorText}`);
         }
         
         const result = await response.json();
@@ -1081,10 +1119,10 @@ export default function CinemaAI() {
           setShowWorkflow(true);
           Alert.alert('Success!', `Lumira generated ${result.commercials.length} commercials for you!`);
         } else {
-          console.log('⚠️ Backend response indicates failure:', result);
+          console.log('⚠️ Backend processing issue:', result);
           Alert.alert(
-            'Backend Processing Issue', 
-            result.message || 'The commercials are being processed. This can take a few minutes for mobile uploads.'
+            'Processing Issue', 
+            result.message || result.error || 'The commercials are being processed. This may take a few minutes.'
           );
         }
         
@@ -1095,20 +1133,30 @@ export default function CinemaAI() {
       console.error('❌ Error creating commercials:', error);
       setIsCapturing(false);
       
-      if (error.message.includes('Network')) {
+      if (error.name === 'AbortError') {
+        Alert.alert(
+          'Upload Timeout', 
+          'The upload is taking longer than expected. Your commercial may still be processing in the background.'
+        );
+      } else if (error.message.includes('Network')) {
         Alert.alert(
           'Network Error', 
           'Please check your internet connection and try again.'
         );
-      } else if (error.message.includes('timeout')) {
+      } else if (error.message.includes('422')) {
         Alert.alert(
-          'Upload Timeout', 
-          'The upload is taking longer than expected. Your commercial may still be processing.'
+          'Data Validation Error', 
+          'There was an issue with the image data. Please try capturing again with better lighting.'
+        );
+      } else if (error.message.includes('500')) {
+        Alert.alert(
+          'Server Error', 
+          'The server is experiencing issues. Please try again in a moment.'
         );
       } else {
         Alert.alert(
           'Processing Error', 
-          'Failed to generate commercials. Please try again with better lighting.'
+          `Failed to generate commercials: ${error.message}. Please try again.`
         );
       }
     }
@@ -2005,4 +2053,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-}); 
+});
