@@ -1021,7 +1021,7 @@ export default function CinemaAI() {
     }
   };
 
-  // FIXED CAPTURE FUNCTION - Complete backend payload
+  // FIXED CAPTURE FUNCTION - Match exact backend schema
   const capturePhoto = async () => {
     if (magicScore < 70) {
       Alert.alert(
@@ -1041,48 +1041,31 @@ export default function CinemaAI() {
           skipProcessing: false,
         });
         
-        // FIXED: Complete backend payload with all required fields
+        // FIXED: Match EXACT backend schema (LumiraCommercialRequest)
         const payload = {
           image_data: `data:image/jpeg;base64,${photo.base64}`,
           business_type: detectedProduct,
           style: detectedStyle,
           user_intent: userIntent || `${detectedStyle} ${detectedProduct} commercial`,
-          scores: {
-            magic_score: magicScore,
-            lighting_score: lightingScore,
-            composition_score: compositionScore,
-            product_score: productScore
-          },
+          magic_score: magicScore,  // Root level, not nested
           detected_objects: detectedObjects.map(obj => ({
             class: obj.class,
-            confidence: Math.round(obj.score * 100) / 100,
+            score: Math.round(obj.score * 100) / 100,
             bbox: obj.bbox
-          })),
-          metadata: {
-            platform: 'react-native',
-            app_version: '2.0',
-            timestamp: new Date().toISOString(),
-            device_type: 'mobile',
-            analysis_mode: tensorflowLoaded ? 'ai_enhanced' : 'fallback'
-          },
-          workflow_preferences: {
-            quality: 'high',
-            speed: 'balanced',
-            output_format: 'mp4'
-          }
+          }))
         };
         
-        console.log('📤 Sending to backend:', {
+        console.log('📤 Sending to backend (exact schema match):', {
           business_type: payload.business_type,
           style: payload.style,
           user_intent: payload.user_intent,
-          scores: payload.scores,
+          magic_score: payload.magic_score,
           detected_objects_count: payload.detected_objects.length,
           image_size: Math.round(photo.base64.length / 1024) + 'KB'
         });
         
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
         
         const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
           method: 'POST',
@@ -1102,7 +1085,15 @@ export default function CinemaAI() {
         if (!response.ok) {
           const errorText = await response.text();
           console.log('❌ Backend error response:', errorText);
-          throw new Error(`Backend error ${response.status}: ${errorText}`);
+          
+          let errorDetail;
+          try {
+            errorDetail = JSON.parse(errorText);
+          } catch {
+            errorDetail = { message: errorText };
+          }
+          
+          throw new Error(`Backend error ${response.status}: ${errorDetail.detail?.message || errorDetail.message || errorText}`);
         }
         
         const result = await response.json();
@@ -1117,12 +1108,18 @@ export default function CinemaAI() {
           });
           
           setShowWorkflow(true);
-          Alert.alert('Success!', `Lumira generated ${result.commercials.length} commercials for you!`);
+          Alert.alert('Success!', `🎬 Lumira generated ${result.commercials.length} commercials for you!`);
+        } else if (result.success === false) {
+          console.log('⚠️ Backend processing failed:', result);
+          Alert.alert(
+            'Processing Failed', 
+            result.message || result.error || 'The backend could not process your image. Please try again.'
+          );
         } else {
-          console.log('⚠️ Backend processing issue:', result);
+          console.log('⚠️ Unexpected backend response:', result);
           Alert.alert(
             'Processing Issue', 
-            result.message || result.error || 'The commercials are being processed. This may take a few minutes.'
+            'Your commercials are being processed. This may take a few minutes.'
           );
         }
         
@@ -1138,7 +1135,7 @@ export default function CinemaAI() {
           'Upload Timeout', 
           'The upload is taking longer than expected. Your commercial may still be processing in the background.'
         );
-      } else if (error.message.includes('Network')) {
+      } else if (error.message.includes('Network request failed')) {
         Alert.alert(
           'Network Error', 
           'Please check your internet connection and try again.'
@@ -1146,7 +1143,14 @@ export default function CinemaAI() {
       } else if (error.message.includes('422')) {
         Alert.alert(
           'Data Validation Error', 
-          'There was an issue with the image data. Please try capturing again with better lighting.'
+          'There was an issue with the image data format. Please try capturing again.'
+        );
+      } else if (error.message.includes('400')) {
+        Alert.alert(
+          'Request Error', 
+          error.message.includes('Magic score') 
+            ? `Magic score too low (${magicScore}). Try to reach 70+ for best results.`
+            : 'Invalid request data. Please try again.'
         );
       } else if (error.message.includes('500')) {
         Alert.alert(
@@ -1156,7 +1160,7 @@ export default function CinemaAI() {
       } else {
         Alert.alert(
           'Processing Error', 
-          `Failed to generate commercials: ${error.message}. Please try again.`
+          `Failed to generate commercials: ${error.message.slice(0, 100)}. Please try again.`
         );
       }
     }
