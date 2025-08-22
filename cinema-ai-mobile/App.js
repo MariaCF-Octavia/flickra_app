@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
@@ -42,7 +42,7 @@ export default function CinemaAI() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [userIntent, setUserIntent] = useState('');
   const [detectedProduct, setDetectedProduct] = useState('general');
-  const [detectedStyle, setDetectedStyle] = useState('professional');
+  const [detectedStyle, setDetectedStyle] = useState('modern'); // Changed from 'professional' to 'modern'
   const [currentWorkflow, setCurrentWorkflow] = useState(null);
   const [animationValues, setAnimationValues] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -2057,4 +2057,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});
+}); 
