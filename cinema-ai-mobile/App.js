@@ -1022,37 +1022,60 @@ export default function CinemaAI() {
     }
   };
 
-  // FIX: Manual capture only
-  const capturePhoto = async () => {
-    if (magicScore < 70) {
-      Alert.alert(
-        "Almost there!", 
-        `Your mobile photo score is ${magicScore}/100. For best smartphone results, try to reach 70+. Lumira is optimizing for mobile quality!`
-      );
-      return;
-    }
+  // UPDATED capturePhoto function for backend integration
+const capturePhoto = async () => {
+  if (magicScore < 70) {
+    Alert.alert(
+      "Almost there!", 
+      `Your mobile photo score is ${magicScore}/100. For best smartphone results, try to reach 70+. Lumira is optimizing for mobile quality!`
+    );
+    return;
+  }
 
-    setIsCapturing(true);
-    
-    try {
-      if (cameraRef.current) {
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.9, // High quality for final capture
-          base64: false,
-        });
-        
-        // Simulate processing delay
-        setTimeout(() => {
-          setIsCapturing(false);
-          setShowWorkflow(true);
-          console.log('Mobile photo captured:', photo.uri);
-        }, 1500);
-      }
-    } catch (error) {
-      console.error('Error capturing photo:', error);
+  setIsCapturing(true);
+  
+  try {
+    if (cameraRef.current) {
+      // UPDATED: Capture with base64 for API
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.9,
+        base64: true, // ← Need base64 for API
+      });
+      
+      // Send to Hollywood Pipeline
+      const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_data: `data:image/jpeg;base64,${photo.base64}`,
+          business_type: detectedProduct,
+          style: detectedStyle,
+          user_intent: userIntent,
+          magic_score: magicScore,
+          detected_objects: detectedObjects
+        })
+      });
+      
+      const result = await response.json();
+      
+      // Update workflow with real results
+      setCurrentWorkflow({
+        ...currentWorkflow,
+        realResults: result,
+        status: 'completed'
+      });
+      
       setIsCapturing(false);
+      setShowWorkflow(true);
+      console.log('Real commercials generated:', result);
+      
     }
-  };
+  } catch (error) {
+    console.error('Error creating commercials:', error);
+    setIsCapturing(false);
+    Alert.alert('Error', 'Failed to generate commercials. Please try again.');
+  }
+};
 
   const getScoreColor = (score) => {
     // MOBILE-APPROPRIATE color coding
