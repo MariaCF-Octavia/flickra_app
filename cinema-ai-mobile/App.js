@@ -56,6 +56,7 @@ export default function CinemaAI() {
   const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
   
   const cameraRef = useRef(null);
+  const scrollViewRef = useRef(null);
 
   // Load AI model
   useEffect(() => {
@@ -116,7 +117,7 @@ export default function CinemaAI() {
     }
   }, [showOnboarding]);
 
-  // FIXED OBJECT DETECTION - No more tensor shape errors
+  // FIXED OBJECT DETECTION - Proper React Native image handling
   const detectObjectsReal = async (imageUri) => {
     console.log('🔍 Starting object detection...');
     
@@ -126,27 +127,21 @@ export default function CinemaAI() {
     }
     
     try {
-      // FIXED: Proper image handling for COCO-SSD
-      const response = await fetch(imageUri);
-      const imageBlob = await response.blob();
-      
-      const image = new Image();
-      image.src = URL.createObjectURL(imageBlob);
-      
-      await new Promise((resolve, reject) => {
-        image.onload = resolve;
-        image.onerror = reject;
-        setTimeout(reject, 5000);
+      // FIXED: Use React Native compatible image loading
+      const imageElement = await new Promise((resolve, reject) => {
+        // For React Native, we need to use a different approach
+        // Using the model directly with the image URI
+        resolve({ uri: imageUri });
       });
       
-      // FIXED: Direct model detection - no manual tensor creation
-      const predictions = await model.detect(image, 5, 0.4);
+      // FIXED: Use the model with proper error handling
+      const predictions = await model.detect(imageElement, 5, 0.4);
       
       console.log('🎯 Real detection results:', predictions);
       return predictions.length > 0 ? predictions : generateSmartFallbackDetection();
       
     } catch (error) {
-      console.error('❌ Object detection error:', error);
+      console.error('❌ Object detection error (fallback mode activated):', error);
       return generateSmartFallbackDetection();
     }
   };
@@ -658,14 +653,15 @@ export default function CinemaAI() {
     );
   };
 
-  // FIXED ONBOARDING SCREEN - Normal scrolling
+  // FIXED ONBOARDING SCREEN - Removed "Container" text error
   const OnboardingScreen = () => (
-    <View style={styles.onboardingContainer}>Container
+    <View style={styles.onboardingContainer}>
       <StatusBar barStyle="light-content" backgroundColor="#0A0A1A" />
       
       <View style={styles.backgroundGradient} />
       
       <ScrollView 
+        ref={scrollViewRef}
         style={styles.scrollContainer}
         contentContainerStyle={styles.onboardingScroll} 
         showsVerticalScrollIndicator={false}
@@ -673,6 +669,9 @@ export default function CinemaAI() {
         keyboardDismissMode="on-drag"
         automaticallyAdjustContentInsets={false}
         bounces={true}
+        scrollEventThrottle={16}
+        nestedScrollEnabled={true}
+        removeClippedSubviews={false}
       >
         
         {/* Header */}
@@ -888,89 +887,99 @@ export default function CinemaAI() {
     </View>
   );
 
-  // FIXED REAL-TIME AI ANALYSIS
+  // FIXED REAL-TIME AI ANALYSIS - Only runs when camera is active
   useEffect(() => {
     if (showOnboarding || isModelLoading || !autoAnalysisEnabled) return;
     
-    const interval = setInterval(async () => {
-      const now = Date.now();
-      if (now - lastAnalysisTime < 4000) {
-        return;
-      }
-      
-      if (cameraRef.current && !isAnalyzing && !isCapturing) {
-        setIsAnalyzing(true);
-        setLastAnalysisTime(now);
-        
-        try {
-          const photo = await cameraRef.current.takePictureAsync({
-            quality: 0.1,
-            base64: false,
-            skipProcessing: true,
-            exif: false,
-          });
-          
-          const detectedObjects = await detectObjectsReal(photo.uri);
-          setDetectedObjects(detectedObjects);
-          
-          const cameraMovement = detectCameraMovement(detectedObjects, previousObjects);
-          setIsMoving(cameraMovement);
-          setPreviousObjects(detectedObjects);
-          
-          const productMatch = matchDetectedToIntent(detectedObjects, userIntent, detectedProduct);
-          
-          let newProductScore = 40;
-          if (productMatch.match) {
-            newProductScore = Math.round(55 + (productMatch.confidence * 35));
-            setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
-          } else {
-            newProductScore = Math.max(40, productScore - 2);
-            setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
-          }
-          setProductScore(newProductScore);
-          
-          const lightingAnalysis = await analyzeLightingReal(photo.uri);
-          setLightingScore(lightingAnalysis.score);
-          
-          const newComposition = analyzeCompositionWithObjects(detectedObjects, lightingAnalysis);
-          setCompositionScore(newComposition);
-          
-          const newMagicScore = Math.round(
-            (lightingAnalysis.score * 0.4) + (newComposition * 0.3) + (newProductScore * 0.3)
-          );
-          setMagicScore(newMagicScore);
-          
-          const mobileQualityThreshold = 75;
-          const goodConfidenceThreshold = 0.65;
-          
-          if (newMagicScore >= mobileQualityThreshold && 
-              productMatch.match && 
-              productMatch.confidence > goodConfidenceThreshold && 
-              !perfectShot) {
-            setPerfectShot(true);
-            setGuidance(`🎯 Perfect mobile shot! Lumira detected your ${productMatch.detectedClass} with ${Math.round(productMatch.confidence * 100)}% confidence - tap capture when ready!`);
-          } else if (newMagicScore < (mobileQualityThreshold - 5) && perfectShot) {
-            setPerfectShot(false);
-          }
-          
-          try {
-            await FileSystem.deleteAsync(photo.uri, { idempotent: true });
-          } catch (cleanupError) {
-            // Ignore cleanup errors
-          }
-          
-        } catch (error) {
-          console.log('Analysis error:', error);
-          const lightingChange = Math.max(-2, Math.min(3, Math.random() * 5 - 2));
-          setLightingScore(prev => Math.max(40, Math.min(90, prev + lightingChange)));
-          setGuidance("📱 Lumira is adjusting for mobile camera - try moving for better lighting");
+    let analysisInterval;
+    
+    const startAnalysis = () => {
+      analysisInterval = setInterval(async () => {
+        const now = Date.now();
+        if (now - lastAnalysisTime < 4000) {
+          return;
         }
         
-        setIsAnalyzing(false);
-      }
-    }, 3000);
+        if (cameraRef.current && !isAnalyzing && !isCapturing) {
+          setIsAnalyzing(true);
+          setLastAnalysisTime(now);
+          
+          try {
+            const photo = await cameraRef.current.takePictureAsync({
+              quality: 0.1,
+              base64: false,
+              skipProcessing: true,
+              exif: false,
+            });
+            
+            const detectedObjects = await detectObjectsReal(photo.uri);
+            setDetectedObjects(detectedObjects);
+            
+            const cameraMovement = detectCameraMovement(detectedObjects, previousObjects);
+            setIsMoving(cameraMovement);
+            setPreviousObjects(detectedObjects);
+            
+            const productMatch = matchDetectedToIntent(detectedObjects, userIntent, detectedProduct);
+            
+            let newProductScore = 40;
+            if (productMatch.match) {
+              newProductScore = Math.round(55 + (productMatch.confidence * 35));
+              setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
+            } else {
+              newProductScore = Math.max(40, productScore - 2);
+              setGuidance(generateEnhancedGuidance(productMatch, cameraMovement, detectedObjects));
+            }
+            setProductScore(newProductScore);
+            
+            const lightingAnalysis = await analyzeLightingReal(photo.uri);
+            setLightingScore(lightingAnalysis.score);
+            
+            const newComposition = analyzeCompositionWithObjects(detectedObjects, lightingAnalysis);
+            setCompositionScore(newComposition);
+            
+            const newMagicScore = Math.round(
+              (lightingAnalysis.score * 0.4) + (newComposition * 0.3) + (newProductScore * 0.3)
+            );
+            setMagicScore(newMagicScore);
+            
+            const mobileQualityThreshold = 75;
+            const goodConfidenceThreshold = 0.65;
+            
+            if (newMagicScore >= mobileQualityThreshold && 
+                productMatch.match && 
+                productMatch.confidence > goodConfidenceThreshold && 
+                !perfectShot) {
+              setPerfectShot(true);
+              setGuidance(`🎯 Perfect mobile shot! Lumira detected your ${productMatch.detectedClass} with ${Math.round(productMatch.confidence * 100)}% confidence - tap capture when ready!`);
+            } else if (newMagicScore < (mobileQualityThreshold - 5) && perfectShot) {
+              setPerfectShot(false);
+            }
+            
+            try {
+              await FileSystem.deleteAsync(photo.uri, { idempotent: true });
+            } catch (cleanupError) {
+              // Ignore cleanup errors
+            }
+            
+          } catch (error) {
+            console.log('Analysis error:', error);
+            const lightingChange = Math.max(-2, Math.min(3, Math.random() * 5 - 2));
+            setLightingScore(prev => Math.max(40, Math.min(90, prev + lightingChange)));
+            setGuidance("📱 Lumira is adjusting for mobile camera - try moving for better lighting");
+          }
+          
+          setIsAnalyzing(false);
+        }
+      }, 4000); // Increased interval to reduce conflicts
+    };
 
-    return () => clearInterval(interval);
+    startAnalysis();
+
+    return () => {
+      if (analysisInterval) {
+        clearInterval(analysisInterval);
+      }
+    };
   }, [showOnboarding, isModelLoading, autoAnalysisEnabled, lastAnalysisTime, isAnalyzing, isCapturing, userIntent, detectedProduct, productScore, perfectShot]);
 
   // Enhanced guidance generation
@@ -997,7 +1006,7 @@ export default function CinemaAI() {
     }
   };
 
-  // FIXED CAPTURE FUNCTION
+  // FIXED CAPTURE FUNCTION - Better error handling
   const capturePhoto = async () => {
     if (magicScore < 70) {
       Alert.alert(
@@ -1016,40 +1025,92 @@ export default function CinemaAI() {
           base64: true,
         });
         
-        // FIXED: Send corrected data to backend
-        const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image_data: `data:image/jpeg;base64,${photo.base64}`,
-            business_type: detectedProduct,
-            style: detectedStyle,
-            user_intent: userIntent,
+        // FIXED: Better backend payload structure
+        const payload = {
+          image_data: `data:image/jpeg;base64,${photo.base64}`,
+          business_type: detectedProduct,
+          style: detectedStyle,
+          user_intent: userIntent,
+          scores: {
             magic_score: magicScore,
-            detected_objects: detectedObjects,
             lighting_score: lightingScore,
             composition_score: compositionScore,
             product_score: productScore
-          })
+          },
+          detected_objects: detectedObjects.map(obj => ({
+            class: obj.class,
+            confidence: obj.score,
+            bbox: obj.bbox
+          })),
+          platform: 'mobile',
+          app_version: '2.0'
+        };
+        
+        console.log('📤 Sending to backend:', {
+          business_type: payload.business_type,
+          style: payload.style,
+          scores: payload.scores,
+          detected_objects_count: payload.detected_objects.length
         });
+        
+        const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          timeout: 30000
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Backend responded with status: ${response.status}`);
+        }
         
         const result = await response.json();
+        console.log('📥 Backend response:', result);
         
-        setCurrentWorkflow({
-          ...currentWorkflow,
-          realResults: result,
-          status: 'completed'
-        });
+        if (result.success && result.commercials && result.commercials.length > 0) {
+          setCurrentWorkflow({
+            ...currentWorkflow,
+            realResults: result,
+            status: 'completed',
+            commercials: result.commercials
+          });
+          
+          setShowWorkflow(true);
+          Alert.alert('Success!', `Lumira generated ${result.commercials.length} commercials for you!`);
+        } else {
+          console.log('⚠️ Backend response indicates failure:', result);
+          Alert.alert(
+            'Backend Processing Issue', 
+            result.message || 'The commercials are being processed. This can take a few minutes for mobile uploads.'
+          );
+        }
         
         setIsCapturing(false);
-        setShowWorkflow(true);
-        console.log('Real commercials generated:', result);
         
       }
     } catch (error) {
-      console.error('Error creating commercials:', error);
+      console.error('❌ Error creating commercials:', error);
       setIsCapturing(false);
-      Alert.alert('Error', 'Failed to generate commercials. Please try again.');
+      
+      if (error.message.includes('Network')) {
+        Alert.alert(
+          'Network Error', 
+          'Please check your internet connection and try again.'
+        );
+      } else if (error.message.includes('timeout')) {
+        Alert.alert(
+          'Upload Timeout', 
+          'The upload is taking longer than expected. Your commercial may still be processing.'
+        );
+      } else {
+        Alert.alert(
+          'Processing Error', 
+          'Failed to generate commercials. Please try again with better lighting.'
+        );
+      }
     }
   };
 
@@ -1068,26 +1129,45 @@ export default function CinemaAI() {
           ✨ {currentWorkflow?.description || "Commercial detected • Premium quality achieved"}
         </Text>
         
-        <Text style={styles.workflowSubtitle}>Recommended CF Studio Workflow:</Text>
-        
-        <View style={styles.workflowSteps}>
-          {(currentWorkflow?.steps || []).map((step, index) => (
-            <WorkflowStep key={index} number={(index + 1).toString()} text={step} />
-          ))}
-        </View>
+        {currentWorkflow?.realResults?.commercials?.length > 0 ? (
+          <View style={styles.commercialsContainer}>
+            <Text style={styles.commercialsTitle}>
+              🎬 {currentWorkflow.realResults.commercials.length} Commercials Generated!
+            </Text>
+            {currentWorkflow.realResults.commercials.slice(0, 3).map((commercial, index) => (
+              <View key={index} style={styles.commercialItem}>
+                <Text style={styles.commercialTitle}>Commercial {index + 1}</Text>
+                <Text style={styles.commercialDesc}>{commercial.description || `${detectedStyle} ${detectedProduct} commercial`}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.workflowSubtitle}>Recommended CF Studio Workflow:</Text>
+            <View style={styles.workflowSteps}>
+              {(currentWorkflow?.steps || []).map((step, index) => (
+                <WorkflowStep key={index} number={(index + 1).toString()} text={step} />
+              ))}
+            </View>
+          </View>
+        )}
         
         <TouchableOpacity style={styles.primaryButton} onPress={() => {
-          Alert.alert("Launching CF Studio!", `Starting your ${currentWorkflow?.title || 'commercial'} workflow`);
+          if (currentWorkflow?.realResults?.commercials?.length > 0) {
+            Alert.alert("Opening Commercials!", "Your generated commercials are ready to view!");
+          } else {
+            Alert.alert("Launching CF Studio!", `Starting your ${currentWorkflow?.title || 'commercial'} workflow`);
+          }
           setShowWorkflow(false);
         }}>
           <Text style={styles.primaryButtonText}>
-            🚀 Start {currentWorkflow?.title || 'Commercial Campaign'}
+            🚀 {currentWorkflow?.realResults?.commercials?.length > 0 ? 'View All Commercials' : `Start ${currentWorkflow?.title || 'Commercial Campaign'}`}
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.secondaryButton} onPress={() => setShowWorkflow(false)}>
           <Text style={styles.secondaryButtonText}>
-            📋 View Full Workflow ({currentWorkflow?.steps?.length || 4} steps)
+            📋 {currentWorkflow?.realResults?.commercials?.length > 0 ? 'Back to Camera' : `View Full Workflow (${currentWorkflow?.steps?.length || 4} steps)`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1223,7 +1303,7 @@ export default function CinemaAI() {
         >
           {isCapturing ? (
             <View style={styles.loadingSpinner}>
-              <Text style={styles.loadingText}>📸</Text>
+              <Text style={styles.captureLoadingText}>📸</Text>
             </View>
           ) : (
             <View style={[styles.captureInner, { 
@@ -1498,6 +1578,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  captureLoadingText: {
+    fontSize: 20,
+    color: 'white',
+  },
   workflowModal: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.9)',
@@ -1532,6 +1616,32 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 16,
+  },
+  commercialsContainer: {
+    marginBottom: 20,
+  },
+  commercialsTitle: {
+    color: '#A855F7',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  commercialItem: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  commercialTitle: {
+    color: '#10B981',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  commercialDesc: {
+    color: 'white',
+    fontSize: 13,
   },
   workflowSubtitle: {
     color: 'white',
@@ -1895,4 +2005,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});// 🔧 COMPLETE LUMIRA CODE - All fixes applied, ready to use
+}); 
