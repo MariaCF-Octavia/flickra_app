@@ -57,43 +57,21 @@ export default function CinemaAI() {
   const [isMoving, setIsMoving] = useState(false);
   const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
   
-  // 🔧 FIX 1: Add scroll position control
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const scrollViewRef = useRef(null);
+  // Removed complicated keyboard/scroll state - using simple scrolling now
   
   const cameraRef = useRef(null);
 
-  // 🔧 FIX 1: Better keyboard handling to prevent scroll glitch
-  useEffect(() => {
-    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-      // Restore scroll position after keyboard hides
-      setTimeout(() => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
-        }
-      }, 100);
-    });
+  // Removed complicated keyboard handling - using simple scrolling now
 
-    return () => {
-      keyboardDidShow?.remove();
-      keyboardDidHide?.remove();
-    };
-  }, [scrollPosition]);
-
-  // 🔧 FIX 1: Improved slideshow timer that doesn't interfere with scroll
+  // Simple slideshow timer
   useEffect(() => {
-    if (showOnboarding && !keyboardVisible) {
+    if (showOnboarding) {
       const timer = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % 3);
       }, 8000);
       return () => clearInterval(timer);
     }
-  }, [showOnboarding, keyboardVisible]);
+  }, [showOnboarding]);
 
   // Load AI model with better error handling
   useEffect(() => {
@@ -699,7 +677,7 @@ export default function CinemaAI() {
     );
   };
 
-  // 🔧 FIX 1: Enhanced Onboarding Screen with scroll glitch fixes
+  // 🔧 SIMPLE ONBOARDING SCREEN - Normal scrolling only
   const OnboardingScreen = () => (
     <View style={styles.onboardingContainer}>
       <StatusBar barStyle="light-content" backgroundColor="#0A0A1A" />
@@ -707,25 +685,10 @@ export default function CinemaAI() {
       <View style={styles.backgroundGradient} />
       
       <ScrollView 
-        ref={scrollViewRef}
+        style={styles.scrollContainer}
         contentContainerStyle={styles.onboardingScroll} 
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        // 🔧 FIX 1: Critical scroll glitch fixes
-        scrollEventThrottle={32}
-        decelerationRate={0.998}
-        bounces={true}
-        overScrollMode="always"
-        nestedScrollEnabled={false}
-        removeClippedSubviews={false}
-        automaticallyAdjustContentInsets={false}
-        // 🔧 FIX 1: Prevent auto-scroll during text input
-        onScroll={(event) => {
-          if (!keyboardVisible) {
-            setScrollPosition(event.nativeEvent.contentOffset.y);
-          }
-        }}
-        scrollEnabled={!keyboardVisible || Platform.OS === 'ios'}
       >
         
         {/* Header */}
@@ -887,7 +850,7 @@ export default function CinemaAI() {
           </View>
         )}
 
-        {/* 🔧 FIX 1: Enhanced Custom Input with scroll prevention */}
+        {/* Simple Custom Input */}
         <View style={styles.customInputContainer}>
           <Text style={styles.sectionTitle}>Or describe your vision to Lumira:</Text>
           <Text style={styles.sectionSubtitle}>Tell Lumira exactly what commercial you want to create</Text>
@@ -905,25 +868,8 @@ export default function CinemaAI() {
               }
             }}
             multiline={true}
-            numberOfLines={2}
+            numberOfLines={3}
             textAlignVertical="top"
-            // 🔧 FIX 1: Critical TextInput fixes for scroll glitch
-            onFocus={() => {
-              setKeyboardVisible(true);
-              // Prevent scroll jumping when focusing
-              setTimeout(() => {
-                if (scrollViewRef.current) {
-                  scrollViewRef.current.scrollToEnd({ animated: true });
-                }
-              }, 300);
-            }}
-            onBlur={() => {
-              setTimeout(() => {
-                setKeyboardVisible(false);
-              }, 100);
-            }}
-            scrollEnabled={false}
-            blurOnSubmit={true}
           />
         </View>
 
@@ -1655,7 +1601,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   
-  // 🔧 ENHANCED ONBOARDING STYLES - Fixed scroll glitch issues
+  // 🔧 SIMPLE ONBOARDING STYLES
   onboardingContainer: {
     flex: 1,
     backgroundColor: '#020617',
@@ -1669,11 +1615,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(59, 7, 100, 0.1)',
     opacity: 0.6,
   },
+  scrollContainer: {
+    flex: 1,
+  },
   onboardingScroll: {
-    flexGrow: 1,
     padding: 24,
-    // 🔧 FIX 1: Prevent content jumping and ensure smooth scrolling
-    paddingBottom: 100, // Extra bottom padding
+    paddingBottom: 60, // Simple bottom padding
   },
   onboardingHeader: {
     alignItems: 'center',
@@ -1931,11 +1878,8 @@ const styles = StyleSheet.create({
     padding: 16,
     color: 'white',
     fontSize: 16,
-    minHeight: 80,
+    minHeight: 100, // Taller for better UX
     textAlignVertical: 'top',
-    // 🔧 FIX 1: Additional TextInput styling to prevent scroll glitch
-    maxHeight: 120,
-    lineHeight: 22,
   },
   
   startButton: {
