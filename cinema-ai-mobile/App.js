@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
@@ -1023,50 +1023,66 @@ export default function CinemaAI() {
 
   // FIXED CAPTURE FUNCTION - Match exact backend schema
   const capturePhoto = async () => {
-    if (magicScore < 70) {
-      Alert.alert(
-        "Almost there!", 
-        `Your mobile photo score is ${magicScore}/100. For best smartphone results, try to reach 70+. Lumira is optimizing for mobile quality!`
-      );
-      return;
-    }
+  // Lowered threshold for easier testing
+  if (magicScore < 60) {
+    Alert.alert(
+      "Almost there!", 
+      `Magic Score: ${magicScore}/100. Try to reach 60+ for better results. Continue anyway?`,
+      [
+        { text: "Keep improving", style: "cancel" },
+        { text: "Create anyway", onPress: () => proceedWithCapture() }
+      ]
+    );
+    return;
+  }
 
-    setIsCapturing(true);
-    
-    try {
-      if (cameraRef.current) {
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.8,
-          base64: true,
-          skipProcessing: false,
-        });
-        
-        // FIXED: Match EXACT backend schema (LumiraCommercialRequest)
-        const payload = {
-          image_data: `data:image/jpeg;base64,${photo.base64}`,
-          business_type: detectedProduct,
-          style: detectedStyle,
-          user_intent: userIntent || `${detectedStyle} ${detectedProduct} commercial`,
-          magic_score: magicScore,  // Root level, not nested
-          detected_objects: detectedObjects.map(obj => ({
-            class: obj.class,
-            score: Math.round(obj.score * 100) / 100,
-            bbox: obj.bbox
-          }))
-        };
-        
-        console.log('📤 Sending to backend (exact schema match):', {
-          business_type: payload.business_type,
-          style: payload.style,
-          user_intent: payload.user_intent,
-          magic_score: payload.magic_score,
-          detected_objects_count: payload.detected_objects.length,
-          image_size: Math.round(photo.base64.length / 1024) + 'KB'
-        });
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
-        
+  await proceedWithCapture();
+};
+
+const proceedWithCapture = async () => {
+  setIsCapturing(true);
+  
+  try {
+    if (cameraRef.current) {
+      console.log('📸 Taking photo...');
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        base64: true,
+        skipProcessing: false,
+      });
+      
+      console.log(`📏 Photo captured: ${Math.round(photo.base64.length / 1024)}KB`);
+      
+      // Backend schema match
+      const payload = {
+        image_data: `data:image/jpeg;base64,${photo.base64}`,
+        business_type: detectedProduct,
+        style: detectedStyle,
+        user_intent: userIntent || `${detectedStyle} ${detectedProduct} commercial`,
+        magic_score: Math.round(magicScore), // Ensure integer
+        detected_objects: detectedObjects.map(obj => ({
+          class: obj.class,
+          score: Math.round(obj.score * 100) / 100,
+          bbox: obj.bbox || []
+        }))
+      };
+      
+      console.log('📤 Sending payload:', {
+        business_type: payload.business_type,
+        style: payload.style,
+        magic_score: payload.magic_score,
+        detected_objects_count: payload.detected_objects.length,
+        image_size: `${Math.round(photo.base64.length / 1024)}KB`
+      });
+      
+      // Longer timeout for processing
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.log('⏰ Request timeout after 90 seconds');
+      }, 90000); // Increased to 90 seconds
+      
+      try {
         const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/create-commercials', {
           method: 'POST',
           headers: { 
@@ -1080,91 +1096,100 @@ export default function CinemaAI() {
         
         clearTimeout(timeoutId);
         
-        console.log('📥 Backend response status:', response.status);
+        console.log(`📥 Response: ${response.status} ${response.statusText}`);
+        
+        // Better response handling
+        let result;
+        try {
+          result = await response.json();
+        } catch (jsonError) {
+          console.log('❌ JSON parsing failed:', jsonError);
+          const textResponse = await response.text();
+          console.log('📝 Raw response:', textResponse.substring(0, 200));
+          throw new Error(`Server returned invalid JSON. Status: ${response.status}`);
+        }
+        
+        console.log('📥 Parsed response:', {
+          success: result.success,
+          commercials_count: result.commercials?.length || 0,
+          has_error: !!result.error
+        });
         
         if (!response.ok) {
-          const errorText = await response.text();
-          console.log('❌ Backend error response:', errorText);
-          
-          let errorDetail;
-          try {
-            errorDetail = JSON.parse(errorText);
-          } catch {
-            errorDetail = { message: errorText };
-          }
-          
-          throw new Error(`Backend error ${response.status}: ${errorDetail.detail?.message || errorDetail.message || errorText}`);
+          throw new Error(result.message || result.error || `HTTP ${response.status}`);
         }
         
-        const result = await response.json();
-        console.log('📥 Backend response:', result);
-        
-        if (result.success && result.commercials && result.commercials.length > 0) {
-          setCurrentWorkflow({
-            ...currentWorkflow,
-            realResults: result,
-            status: 'completed',
-            commercials: result.commercials
-          });
+        // Handle successful response
+        if (result.success) {
+          const commercials = result.commercials || [];
           
-          setShowWorkflow(true);
-          Alert.alert('Success!', `🎬 Lumira generated ${result.commercials.length} commercials for you!`);
-        } else if (result.success === false) {
-          console.log('⚠️ Backend processing failed:', result);
-          Alert.alert(
-            'Processing Failed', 
-            result.message || result.error || 'The backend could not process your image. Please try again.'
-          );
+          if (commercials.length > 0) {
+            setCurrentWorkflow({
+              ...currentWorkflow,
+              realResults: result,
+              status: 'completed',
+              commercials: commercials
+            });
+            
+            setShowWorkflow(true);
+            Alert.alert(
+              '🎉 Success!', 
+              `Lumira generated ${commercials.length} commercial${commercials.length === 1 ? '' : 's'} for you!`
+            );
+          } else {
+            Alert.alert(
+              '✅ Processing Complete!',
+              result.message || 'Your commercials are being processed.',
+              [{ text: 'OK', onPress: () => setShowWorkflow(true) }]
+            );
+          }
         } else {
-          console.log('⚠️ Unexpected backend response:', result);
+          const errorMsg = result.message || result.error || 'Processing failed';
+          console.log('⚠️ Backend processing failed:', errorMsg);
+          
           Alert.alert(
             'Processing Issue', 
-            'Your commercials are being processed. This may take a few minutes.'
+            errorMsg,
+            [
+              { text: 'Try Again', onPress: () => setIsCapturing(false) },
+              { text: 'OK', style: 'cancel', onPress: () => setIsCapturing(false) }
+            ]
           );
         }
         
-        setIsCapturing(false);
+      } catch (fetchError) {
+        console.error('❌ Network Error:', fetchError);
         
+        let errorTitle = 'Network Error';
+        let errorMessage = 'Please check your connection and try again.';
+        
+        if (fetchError.name === 'AbortError') {
+          errorTitle = 'Upload Timeout';
+          errorMessage = 'Upload took too long. Your commercial may still be processing.';
+        } else if (fetchError.message.includes('JSON')) {
+          errorTitle = 'Server Response Error';  
+          errorMessage = 'Server returned invalid response. Please try again.';
+        } else if (fetchError.message.includes('Network request failed')) {
+          errorTitle = 'Connection Failed';
+          errorMessage = 'Unable to connect. Check your internet connection.';
+        } else {
+          errorMessage = fetchError.message;
+        }
+        
+        Alert.alert(errorTitle, errorMessage, [
+          { text: 'Retry', onPress: () => proceedWithCapture() },
+          { text: 'Cancel', style: 'cancel', onPress: () => setIsCapturing(false) }
+        ]);
       }
-    } catch (error) {
-      console.error('❌ Error creating commercials:', error);
-      setIsCapturing(false);
       
-      if (error.name === 'AbortError') {
-        Alert.alert(
-          'Upload Timeout', 
-          'The upload is taking longer than expected. Your commercial may still be processing in the background.'
-        );
-      } else if (error.message.includes('Network request failed')) {
-        Alert.alert(
-          'Network Error', 
-          'Please check your internet connection and try again.'
-        );
-      } else if (error.message.includes('422')) {
-        Alert.alert(
-          'Data Validation Error', 
-          'There was an issue with the image data format. Please try capturing again.'
-        );
-      } else if (error.message.includes('400')) {
-        Alert.alert(
-          'Request Error', 
-          error.message.includes('Magic score') 
-            ? `Magic score too low (${magicScore}). Try to reach 70+ for best results.`
-            : 'Invalid request data. Please try again.'
-        );
-      } else if (error.message.includes('500')) {
-        Alert.alert(
-          'Server Error', 
-          'The server is experiencing issues. Please try again in a moment.'
-        );
-      } else {
-        Alert.alert(
-          'Processing Error', 
-          `Failed to generate commercials: ${error.message.slice(0, 100)}. Please try again.`
-        );
-      }
     }
-  };
+  } catch (cameraError) {
+    console.error('❌ Camera Error:', cameraError);
+    Alert.alert('Camera Error', 'Failed to take photo. Please try again.');
+  } finally {
+    setIsCapturing(false);
+  }
+};
 
   const getScoreColor = (score) => {
     if (score >= 80) return '#10B981';
@@ -2057,4 +2082,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-}); 
+});
