@@ -1166,6 +1166,9 @@ const proceedWithCapture = async () => {
     return '#DC2626';
   };
 
+// Just add this line before your existing code:
+const App = () => {
+
   const WorkflowModal = () => (
     <View style={styles.workflowModal}>
       <View style={styles.workflowContent}>
@@ -1220,16 +1223,12 @@ const proceedWithCapture = async () => {
   );
 
   const WorkflowStep = ({ number, text }) => (
-  <View style={styles.workflowStep}>
-    <Text style={styles.stepNumber}>{number}.</Text>
-    <Text style={styles.stepText}>{text}</Text>
-  </View>
-);
+    <View style={styles.workflowStep}>
+      <Text style={styles.stepNumber}>{number}.</Text>
+      <Text style={styles.stepText}>{text}</Text>
+    </View>
+  );
 
-// Add this - wrap your logic in a component function
-const CameraScreen = () => {
-  // Your permission and loading logic should be here
-  
   if (!permission) {
     return (
       <View style={styles.loadingContainer}>
@@ -1262,7 +1261,6 @@ const CameraScreen = () => {
       </View>
     );
   }
-}
 
   if (showOnboarding) {
     return <OnboardingScreen />;
@@ -1381,6 +1379,10 @@ const ScoreItem = ({ label, score, isReal, hasObjects }) => (
     </Text>
   </View>
 );
+
+// Add these two lines at the end:
+};
+
 
 const styles = StyleSheet.create({
   container: {
