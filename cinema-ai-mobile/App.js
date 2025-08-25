@@ -1198,8 +1198,19 @@ const proceedWithCapture = async () => {
     return '#DC2626';
   };
 
-  // Just add this line before your existing code:
-
+  // Score Item Component - MOVED HERE before it's used
+  const ScoreItem = ({ label, score, isReal, hasObjects }) => (
+    <View style={styles.scoreItem}>
+      <View style={styles.scoreItemHeader}>
+        <Text style={styles.scoreLabel}>{label}</Text>
+        {isReal && <View style={styles.realIndicator} />}
+        {hasObjects && <View style={styles.objectDetectedIndicator} />}
+      </View>
+      <Text style={[styles.scoreValue, { color: score >= 80 ? '#10B981' : score >= 65 ? '#F59E0B' : '#EF4444' }]}>
+        {score}
+      </Text>
+    </View>
+  );
 
   const WorkflowModal = () => (
     <View style={styles.workflowModal}>
@@ -1398,23 +1409,7 @@ const proceedWithCapture = async () => {
     </View>
   );
 
-// Score Item Component
-const ScoreItem = ({ label, score, isReal, hasObjects }) => (
-  <View style={styles.scoreItem}>
-    <View style={styles.scoreItemHeader}>
-      <Text style={styles.scoreLabel}>{label}</Text>
-      {isReal && <View style={styles.realIndicator} />}
-      {hasObjects && <View style={styles.objectDetectedIndicator} />}
-    </View>
-    <Text style={[styles.scoreValue, { color: score >= 80 ? '#10B981' : score >= 65 ? '#F59E0B' : '#EF4444' }]}>
-      {score}
-    </Text>
-  </View>
-);
-
-// Add these two lines at the end:
-};
-
+} // End of CinemaAI component
 
 const styles = StyleSheet.create({
   container: {
