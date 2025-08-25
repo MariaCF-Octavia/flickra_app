@@ -1209,6 +1209,9 @@ const proceedWithCapture = async () => {
     return '#DC2626';
   };
 
+  // Just add this line before your existing code:
+const App = () => {
+
   const WorkflowModal = () => (
     <View style={styles.workflowModal}>
       <View style={styles.workflowContent}>
@@ -1419,6 +1422,10 @@ const ScoreItem = ({ label, score, isReal, hasObjects }) => (
     </Text>
   </View>
 );
+
+// Add these two lines at the end:
+};
+
 
 const styles = StyleSheet.create({
   container: {
