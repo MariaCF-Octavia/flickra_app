@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
@@ -42,7 +42,7 @@ export default function CinemaAI() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [userIntent, setUserIntent] = useState('');
   const [detectedProduct, setDetectedProduct] = useState('general');
-  const [detectedStyle, setDetectedStyle] = useState('modern'); // Changed from 'professional' to 'modern'
+  const [detectedStyle, setDetectedStyle] = useState('modern');
   const [currentWorkflow, setCurrentWorkflow] = useState(null);
   const [animationValues, setAnimationValues] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -191,17 +191,6 @@ export default function CinemaAI() {
         { class: 'chair', score: 0.70, bbox: [200, 200, 440, 280] }
       ]
     };
-
-    const detectionOptions = productDetectionMap[detectedProduct] || productDetectionMap['tech'];
-    const timeBasedIndex = Math.floor(Date.now() / 10000) % detectionOptions.length;
-    const selectedDetection = { ...detectionOptions[timeBasedIndex] };
-    
-    const scoreVariation = (Math.random() - 0.5) * 0.2;
-    selectedDetection.score = Math.max(0.6, Math.min(0.95, selectedDetection.score + scoreVariation));
-    
-    console.log('🎯 Smart fallback detected:', selectedDetection.class);
-    return [selectedDetection];
-  };
 
     const detectionOptions = productDetectionMap[detectedProduct] || productDetectionMap['tech'];
     const timeBasedIndex = Math.floor(Date.now() / 10000) % detectionOptions.length;
@@ -1210,7 +1199,7 @@ const proceedWithCapture = async () => {
   };
 
   // Just add this line before your existing code:
-const App = () => {
+
 
   const WorkflowModal = () => (
     <View style={styles.workflowModal}>
