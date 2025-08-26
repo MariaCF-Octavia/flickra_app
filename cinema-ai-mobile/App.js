@@ -857,12 +857,7 @@ export default function CinemaAI() {
         contentContainerStyle={styles.onboardingScroll} 
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustContentInsets={false}
-        bounces={true}
-        scrollEventThrottle={16}
-        nestedScrollEnabled={true}
-        removeClippedSubviews={false}
+        bounces={false}
       >
         
         <View style={styles.onboardingHeader}>
