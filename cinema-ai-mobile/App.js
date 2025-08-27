@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform, Image } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
@@ -32,10 +32,10 @@ export default function CinemaAI() {
   // Loading states
   const [loadingStage, setLoadingStage] = useState(0);
   const [loadingMessages] = useState([
-    "Creating ocean sunset backdrop...",
-    "Enhancing perfume bottle lighting...",
-    "Generating luxury commercial variations...",
-    "Finalizing cinematic presentation..."
+    "Creating dramatic red silk backdrop...",
+    "Enhancing golden perfume lighting...",
+    "Generating rose petal variations...",
+    "Finalizing luxury brand presentation..."
   ]);
   
   const cameraRef = useRef(null);
@@ -281,6 +281,32 @@ export default function CinemaAI() {
 
   // RESULTS SCREEN COMPONENT
   const ResultsScreen = () => {
+    const [cardAnimations] = useState(() => 
+      Array(6).fill(0).map(() => ({
+        opacity: new Animated.Value(0),
+        translateY: new Animated.Value(50)
+      }))
+    );
+
+    useEffect(() => {
+      cardAnimations.forEach((anim, index) => {
+        setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(anim.opacity, {
+              toValue: 1,
+              duration: 800,
+              useNativeDriver: true
+            }),
+            Animated.timing(anim.translateY, {
+              toValue: 0,
+              duration: 800,
+              useNativeDriver: true
+            })
+          ]).start();
+        }, index * 200);
+      });
+    }, []);
+
     return (
       <View style={styles.resultsContainer}>
         <StatusBar hidden />
@@ -292,26 +318,26 @@ export default function CinemaAI() {
             {[
               {
                 id: 1,
-                title: "Dramatic Red Silk",
-                description: "Luxury YSL perfume with flowing red silk backdrop",
+                title: "Botanical Elegance",
+                description: "YSL perfume with lush greenery and soft pink gradient",
                 source: require('./assets/images/perfume_1.jpg')
               },
               {
                 id: 2,
-                title: "Botanical Garden",
-                description: "Premium fragrance with elegant natural elements",
+                title: "Dramatic Red Silk",
+                description: "YSL Collection 2024 with flowing crimson fabric backdrop",
                 source: require('./assets/images/perfume_2.jpg')
               },
               {
                 id: 3,
                 title: "Rose Petals Romance",
-                description: "Sophisticated perfume with floating rose petals",
+                description: "Floating rose petals with sophisticated presentation",
                 source: require('./assets/images/perfume_3.jpg')
               },
               {
                 id: 4,
-                title: "Modern Minimalist",
-                description: "Clean geometric presentation with bold accents",
+                title: "The Art of Seduction",
+                description: "Minimalist red luxury with premium gold accents",
                 source: require('./assets/images/perfume_4.jpg')
               },
               {
@@ -332,22 +358,10 @@ export default function CinemaAI() {
                 style={[
                   styles.commercialCard,
                   {
-                    opacity: 0,
-                    transform: [{ translateY: 50 }]
+                    opacity: cardAnimations[index]?.opacity || 1,
+                    transform: [{ translateY: cardAnimations[index]?.translateY || 0 }]
                   }
                 ]}
-                ref={ref => {
-                  if (ref) {
-                    setTimeout(() => {
-                      Animated.timing(ref, {
-                        toValue: { opacity: 1, translateY: 0 },
-                        duration: 800,
-                        delay: index * 200,
-                        useNativeDriver: true
-                      }).start();
-                    }, 500);
-                  }
-                }}
               >
                 <Image
                   style={styles.imagePreview}
@@ -1328,4 +1342,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-}); 
+});
