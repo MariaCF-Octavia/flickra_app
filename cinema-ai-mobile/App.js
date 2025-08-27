@@ -490,7 +490,7 @@ export default function CinemaAI() {
                     onPress={() => {
                       setDetectedProduct(business.type);
                       if (business.type === 'perfume') {
-                        setUserIntent('beauty and fragrance commercial');
+                        setUserIntent('Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.');
                       } else {
                         setUserIntent(`${business.label.toLowerCase()} commercial`);
                       }
