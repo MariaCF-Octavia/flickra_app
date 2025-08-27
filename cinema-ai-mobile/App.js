@@ -393,6 +393,15 @@ export default function CinemaAI() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         bounces={false}
+        keyboardDismissMode="interactive"
+        scrollEventThrottle={16}
+        removeClippedSubviews={false}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 10,
+        }}
+        automaticallyAdjustKeyboardInsets={false}
+        contentInsetAdjustmentBehavior="never"
       >
         
         <View style={styles.onboardingHeader}>
@@ -534,6 +543,15 @@ export default function CinemaAI() {
             textAlignVertical="top"
             returnKeyType="done"
             blurOnSubmit={true}
+            scrollEnabled={false}
+            onFocus={() => {
+              // Disable automatic scrolling when focused
+              setTimeout(() => {
+                if (scrollViewRef.current) {
+                  scrollViewRef.current.scrollTo({ y: 0, animated: false });
+                }
+              }, 100);
+            }}
           />
         </View>
 
