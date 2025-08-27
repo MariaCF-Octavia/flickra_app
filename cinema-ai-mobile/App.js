@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform, Image } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
@@ -61,15 +61,15 @@ export default function CinemaAI() {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Simple slideshow timer
-  useEffect(() => {
-    if (showOnboarding) {
-      const timer = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % 3);
-      }, 8000);
-      return () => clearInterval(timer);
-    }
-  }, [showOnboarding]);
+  // Simple slideshow timer - REMOVED FOR SIMPLICITY
+  // useEffect(() => {
+  //   if (showOnboarding) {
+  //     const timer = setInterval(() => {
+  //       setCurrentSlide((prev) => (prev + 1) % 3);
+  //     }, 8000);
+  //     return () => clearInterval(timer);
+  //   }
+  // }, [showOnboarding]);
 
   // REALISTIC FAKE GUIDANCE SEQUENCE
   const guidanceSequence = [
@@ -174,46 +174,23 @@ export default function CinemaAI() {
     </View>
   );
 
-  // Slideshow Component
-  const Slideshow = () => {
-    const slides = [
-      { 
-        title: "Professional Commercials", 
-        description: "Create stunning ads in minutes", 
-        color: "#3B0764"
-      },
-      { 
-        title: "AI-Powered Guidance", 
-        description: "Real-time feedback on your shots", 
-        color: "#4C1D95"
-      },
-      { 
-        title: "Automated Workflows", 
-        description: "From capture to final edit", 
-        color: "#5B21B6"
-      },
-    ];
-
+  // Simple Features Section (replacing animated slideshow)
+  const FeaturesSection = () => {
     return (
-      <View style={styles.slideshowContainer}>
-        <Animated.View style={[
-          styles.slide,
-          { backgroundColor: slides[currentSlide].color }
-        ]}>
-          <Text style={styles.slideTitle}>{slides[currentSlide].title}</Text>
-          <Text style={styles.slideDescription}>{slides[currentSlide].description}</Text>
-        </Animated.View>
+      <View style={styles.featuresContainer}>
+        <View style={styles.featureItem}>
+          <Text style={styles.featureTitle}>Professional Commercials</Text>
+          <Text style={styles.featureDescription}>Create stunning ads in minutes</Text>
+        </View>
         
-        <View style={styles.slideshowDots}>
-          {slides.map((_, index) => (
-            <View 
-              key={index}
-              style={[
-                styles.dot,
-                index === currentSlide && styles.activeDot
-              ]}
-            />
-          ))}
+        <View style={styles.featureItem}>
+          <Text style={styles.featureTitle}>AI-Powered Guidance</Text>
+          <Text style={styles.featureDescription}>Real-time feedback on your shots</Text>
+        </View>
+        
+        <View style={styles.featureItem}>
+          <Text style={styles.featureTitle}>Automated Workflows</Text>
+          <Text style={styles.featureDescription}>From capture to final edit</Text>
         </View>
       </View>
     );
@@ -429,7 +406,7 @@ export default function CinemaAI() {
           </Text>
         </View>
 
-        <Slideshow />
+        <FeaturesSection />
 
         <View style={styles.businessTypeContainer}>
           <Text style={styles.sectionTitle}>What type of business do you have?</Text>
@@ -1158,57 +1135,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   
-  // Slideshow styles
-  slideshowContainer: {
+  // Simple Features styles (replacing slideshow)
+  featuresContainer: {
     marginBottom: 32,
+    backgroundColor: '#0F172A',
     borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#7C3AED',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#374151',
   },
-  slide: {
-    padding: 24,
-    alignItems: 'center',
-    minHeight: 120,
-    justifyContent: 'center',
+  featureItem: {
+    marginBottom: 16,
   },
-  slideTitle: {
-    color: 'white',
-    fontSize: 22,
+  featureTitle: {
+    color: '#A855F7',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
+    marginBottom: 4,
   },
-  slideDescription: {
-    color: 'white',
-    fontSize: 16,
+  featureDescription: {
+    color: '#E5E7EB',
+    fontSize: 14,
     opacity: 0.9,
-    textAlign: 'center',
-  },
-  slideshowDots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 12,
-    backgroundColor: '#111827',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4B5563',
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: '#A855F7',
-    width: 16,
-    shadowColor: '#A855F7',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 4,
   },
   
   businessTypeContainer: {
@@ -1349,4 +1297,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-}); 
+});
