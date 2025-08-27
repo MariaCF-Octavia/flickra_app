@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform, Image } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
@@ -28,31 +28,6 @@ export default function CinemaAI() {
   const [detectedObjects, setDetectedObjects] = useState([]);
   const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
   const [guidanceStage, setGuidanceStage] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
-  
-  // Auto-typing effect for demo
-  const autoTypeDescription = () => {
-    const description = "Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.";
-    
-    setIsTyping(true);
-    setUserIntent(''); // Clear first
-    
-    setTimeout(() => {
-      let currentText = '';
-      let charIndex = 0;
-      
-      const typeInterval = setInterval(() => {
-        if (charIndex < description.length) {
-          currentText += description[charIndex];
-          setUserIntent(currentText);
-          charIndex++;
-        } else {
-          clearInterval(typeInterval);
-          setIsTyping(false);
-        }
-      }, 30); // Faster typing speed
-    }, 500); // Wait 500ms before starting to type
-  };
   
   // Loading states
   const [loadingStage, setLoadingStage] = useState(0);
@@ -85,16 +60,6 @@ export default function CinemaAI() {
     
     return () => clearTimeout(timeout);
   }, []);
-
-  // Simple slideshow timer - REMOVED FOR SIMPLICITY
-  // useEffect(() => {
-  //   if (showOnboarding) {
-  //     const timer = setInterval(() => {
-  //       setCurrentSlide((prev) => (prev + 1) % 3);
-  //     }, 8000);
-  //     return () => clearInterval(timer);
-  //   }
-  // }, [showOnboarding]);
 
   // REALISTIC FAKE GUIDANCE SEQUENCE
   const guidanceSequence = [
@@ -409,12 +374,6 @@ export default function CinemaAI() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         bounces={false}
-        scrollEnabled={true}
-        nestedScrollEnabled={false}
-        automaticallyAdjustContentInsets={false}
-        automaticallyAdjustKeyboardInsets={false}
-        contentInsetAdjustmentBehavior="never"
-        keyboardDismissMode="none"
       >
         
         <View style={styles.onboardingHeader}>
@@ -533,9 +492,9 @@ export default function CinemaAI() {
                   ]}
                   onPress={() => {
                     setDetectedStyle(styleOption.style);
-                    // Auto-type when Beauty & Fragrance + Luxury is selected
+                    // Set realistic white text when Beauty & Fragrance + Luxury is selected
                     if (detectedProduct === 'perfume' && styleOption.style === 'luxury') {
-                      autoTypeDescription();
+                      setUserIntent("Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.");
                     }
                   }}
                 >
@@ -555,33 +514,18 @@ export default function CinemaAI() {
         <View style={styles.customInputContainer}>
           <Text style={styles.sectionTitle}>Describe your vision to Lumira:</Text>
           <Text style={styles.sectionSubtitle}>Tell Lumira exactly what commercial you want to create</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.intentInput}
-              placeholder="e.g., 'Luxury perfume with ocean sunset backdrop' or 'Premium fragrance commercial'"
-              placeholderTextColor="#6B7280"
-              value={userIntent}
-              onChangeText={setUserIntent}
-              multiline={true}
-              numberOfLines={3}
-              textAlignVertical="top"
-              returnKeyType="done"
-              blurOnSubmit={true}
-              scrollEnabled={false}
-              onFocus={() => {
-                // Prevent any scroll behavior
-                if (scrollViewRef.current) {
-                  scrollViewRef.current.setNativeProps({ scrollEnabled: false });
-                }
-              }}
-              onBlur={() => {
-                // Re-enable scroll after blur
-                if (scrollViewRef.current) {
-                  scrollViewRef.current.setNativeProps({ scrollEnabled: true });
-                }
-              }}
-            />
-          </View>
+          <TextInput
+            style={styles.intentInput}
+            placeholder="Luxury YSL perfume commercial with dramatic red silk backdrop..."
+            placeholderTextColor="#6B7280"
+            value={userIntent}
+            onChangeText={setUserIntent}
+            multiline={true}
+            numberOfLines={3}
+            textAlignVertical="top"
+            returnKeyType="done"
+            blurOnSubmit={true}
+          />
         </View>
 
         <TouchableOpacity
@@ -1290,10 +1234,6 @@ const styles = StyleSheet.create({
   customInputContainer: {
     marginBottom: 32,
   },
-  inputWrapper: {
-    position: 'relative',
-    zIndex: 1,
-  },
   intentInput: {
     backgroundColor: '#0F172A',
     borderWidth: 3,
@@ -1332,4 +1272,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});
+}); 
