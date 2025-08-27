@@ -19,7 +19,7 @@ export default function CinemaAI() {
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [userIntent, setUserIntent] = useState('');
-  const [detectedProduct, setDetectedProduct] = useState('perfume');
+  const [detectedProduct, setDetectedProduct] = useState('general');
   const [detectedStyle, setDetectedStyle] = useState('luxury');
   const [animationValues, setAnimationValues] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -28,6 +28,11 @@ export default function CinemaAI() {
   const [detectedObjects, setDetectedObjects] = useState([]);
   const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
   const [guidanceStage, setGuidanceStage] = useState(0);
+  
+  // Typing animation states
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [shouldShowTyping, setShouldShowTyping] = useState(false);
   
   // Loading states
   const [loadingStage, setLoadingStage] = useState(0);
@@ -40,6 +45,41 @@ export default function CinemaAI() {
   
   const cameraRef = useRef(null);
   const scrollViewRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+
+  // The full text to be typed
+  const fullTypingText = "Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.";
+
+  // Typing animation effect
+  useEffect(() => {
+    if (shouldShowTyping && detectedProduct === 'perfume' && detectedStyle === 'luxury') {
+      setIsTyping(true);
+      setDisplayedText('');
+      setUserIntent('');
+      
+      let currentIndex = 0;
+      const typeNextChar = () => {
+        if (currentIndex < fullTypingText.length) {
+          const newText = fullTypingText.substring(0, currentIndex + 1);
+          setDisplayedText(newText);
+          setUserIntent(newText);
+          currentIndex++;
+          typingTimeoutRef.current = setTimeout(typeNextChar, 50); // 50ms delay between characters
+        } else {
+          setIsTyping(false);
+        }
+      };
+      
+      // Start typing after a brief delay
+      typingTimeoutRef.current = setTimeout(typeNextChar, 300);
+      
+      return () => {
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+      };
+    }
+  }, [shouldShowTyping, detectedProduct, detectedStyle]);
 
   // Initialize animations
   useEffect(() => {
@@ -351,6 +391,9 @@ export default function CinemaAI() {
               setGuidanceStage(0);
               setPerfectShot(false);
               setAutoAnalysisEnabled(false);
+              setShouldShowTyping(false);
+              setDisplayedText('');
+              setUserIntent('');
             }}
           >
             <Text style={styles.backButtonText}>🎬 Create Another Commercial</Text>
@@ -492,9 +535,9 @@ export default function CinemaAI() {
                   ]}
                   onPress={() => {
                     setDetectedStyle(styleOption.style);
-                    // Set realistic white text when Beauty & Fragrance + Luxury is selected
+                    // Trigger typing animation when Beauty & Fragrance + Luxury is selected
                     if (detectedProduct === 'perfume' && styleOption.style === 'luxury') {
-                      setUserIntent("Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.");
+                      setShouldShowTyping(true);
                     }
                   }}
                 >
@@ -515,17 +558,34 @@ export default function CinemaAI() {
           <Text style={styles.sectionTitle}>Describe your vision to Lumira:</Text>
           <Text style={styles.sectionSubtitle}>Tell Lumira exactly what commercial you want to create</Text>
           <TextInput
-            style={styles.intentInput}
+            style={[
+              styles.intentInput,
+              { 
+                color: shouldShowTyping && detectedProduct === 'perfume' && detectedStyle === 'luxury' ? 'white' : 'white',
+                fontWeight: shouldShowTyping && detectedProduct === 'perfume' && detectedStyle === 'luxury' ? '500' : 'normal'
+              }
+            ]}
             placeholder="Luxury YSL perfume commercial with dramatic red silk backdrop..."
             placeholderTextColor="#6B7280"
             value={userIntent}
-            onChangeText={setUserIntent}
+            onChangeText={(text) => {
+              // If typing animation is active, don't allow manual input
+              if (!isTyping) {
+                setUserIntent(text);
+              }
+            }}
             multiline={true}
             numberOfLines={3}
             textAlignVertical="top"
             returnKeyType="done"
             blurOnSubmit={true}
+            editable={!isTyping}
           />
+          {isTyping && (
+            <View style={styles.typingIndicator}>
+              <Text style={styles.typingIndicatorText}>AI is typing...</Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity
@@ -836,6 +896,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+
+  // TYPING ANIMATION STYLES
+  typingIndicator: {
+    position: 'absolute',
+    bottom: 12,
+    right: 16,
+    backgroundColor: 'rgba(168, 85, 247, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  typingIndicatorText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
   },
 
   // EXISTING STYLES (keeping all your original styles)
@@ -1233,6 +1309,7 @@ const styles = StyleSheet.create({
   
   customInputContainer: {
     marginBottom: 32,
+    position: 'relative',
   },
   intentInput: {
     backgroundColor: '#0F172A',
