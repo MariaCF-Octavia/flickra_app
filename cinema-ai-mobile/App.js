@@ -28,6 +28,29 @@ export default function CinemaAI() {
   const [detectedObjects, setDetectedObjects] = useState([]);
   const [autoAnalysisEnabled, setAutoAnalysisEnabled] = useState(false);
   const [guidanceStage, setGuidanceStage] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  
+  // Auto-typing effect for demo
+  const autoTypeDescription = () => {
+    const description = "Luxury YSL perfume commercial with dramatic red silk backdrop, floating rose petals, and botanical elegance. Show the golden bottle with sophisticated lighting and premium brand presentation.";
+    
+    setIsTyping(true);
+    setUserIntent('');
+    
+    let currentText = '';
+    let charIndex = 0;
+    
+    const typeInterval = setInterval(() => {
+      if (charIndex < description.length) {
+        currentText += description[charIndex];
+        setUserIntent(currentText);
+        charIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+      }
+    }, 50); // 50ms per character for natural typing speed
+  };
   
   // Loading states
   const [loadingStage, setLoadingStage] = useState(0);
@@ -462,7 +485,16 @@ export default function CinemaAI() {
                     ]}
                     onPress={() => {
                       setDetectedProduct(business.type);
-                      setUserIntent(`${business.label.toLowerCase()} commercial`);
+                      if (business.type === 'perfume') {
+                        // Auto-type description after selecting Beauty & Fragrance
+                        setTimeout(() => {
+                          if (detectedStyle === 'luxury') {
+                            autoTypeDescription();
+                          }
+                        }, 500);
+                      } else {
+                        setUserIntent(`${business.label.toLowerCase()} commercial`);
+                      }
                     }}
                   >
                     <Text style={styles.businessLabel}>{business.label}</Text>
@@ -502,7 +534,15 @@ export default function CinemaAI() {
                       elevation: detectedStyle === styleOption.style ? 12 : 6,
                     }
                   ]}
-                  onPress={() => setDetectedStyle(styleOption.style)}
+                  onPress={() => {
+                    setDetectedStyle(styleOption.style);
+                    // Auto-type when Beauty & Fragrance + Luxury is selected
+                    if (detectedProduct === 'perfume' && styleOption.style === 'luxury') {
+                      setTimeout(() => {
+                        autoTypeDescription();
+                      }, 300);
+                    }
+                  }}
                 >
                   <Text style={styles.styleLabel}>{styleOption.label}</Text>
                   <Text style={styles.styleDesc}>{styleOption.desc}</Text>
