@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, StatusBar, TextInput, ScrollView, Animated, Platform, Image } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
@@ -407,15 +407,12 @@ export default function CinemaAI() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         bounces={false}
-        keyboardDismissMode="interactive"
-        scrollEventThrottle={16}
-        removeClippedSubviews={false}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: 10,
-        }}
+        scrollEnabled={true}
+        nestedScrollEnabled={false}
+        automaticallyAdjustContentInsets={false}
         automaticallyAdjustKeyboardInsets={false}
         contentInsetAdjustmentBehavior="never"
+        keyboardDismissMode="none"
       >
         
         <View style={styles.onboardingHeader}>
@@ -546,27 +543,33 @@ export default function CinemaAI() {
         <View style={styles.customInputContainer}>
           <Text style={styles.sectionTitle}>Describe your vision to Lumira:</Text>
           <Text style={styles.sectionSubtitle}>Tell Lumira exactly what commercial you want to create</Text>
-          <TextInput
-            style={styles.intentInput}
-            placeholder="e.g., 'Luxury perfume with ocean sunset backdrop' or 'Premium fragrance commercial'"
-            placeholderTextColor="#6B7280"
-            value={userIntent}
-            onChangeText={setUserIntent}
-            multiline={true}
-            numberOfLines={3}
-            textAlignVertical="top"
-            returnKeyType="done"
-            blurOnSubmit={true}
-            scrollEnabled={false}
-            onFocus={() => {
-              // Disable automatic scrolling when focused
-              setTimeout(() => {
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.intentInput}
+              placeholder="e.g., 'Luxury perfume with ocean sunset backdrop' or 'Premium fragrance commercial'"
+              placeholderTextColor="#6B7280"
+              value={userIntent}
+              onChangeText={setUserIntent}
+              multiline={true}
+              numberOfLines={3}
+              textAlignVertical="top"
+              returnKeyType="done"
+              blurOnSubmit={true}
+              scrollEnabled={false}
+              onFocus={() => {
+                // Prevent any scroll behavior
                 if (scrollViewRef.current) {
-                  scrollViewRef.current.scrollTo({ y: 0, animated: false });
+                  scrollViewRef.current.setNativeProps({ scrollEnabled: false });
                 }
-              }, 100);
-            }}
-          />
+              }}
+              onBlur={() => {
+                // Re-enable scroll after blur
+                if (scrollViewRef.current) {
+                  scrollViewRef.current.setNativeProps({ scrollEnabled: true });
+                }
+              }}
+            />
+          </View>
         </View>
 
         <TouchableOpacity
@@ -1304,6 +1307,10 @@ const styles = StyleSheet.create({
   customInputContainer: {
     marginBottom: 32,
   },
+  inputWrapper: {
+    position: 'relative',
+    zIndex: 1,
+  },
   intentInput: {
     backgroundColor: '#0F172A',
     borderWidth: 3,
@@ -1342,4 +1349,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});
+}); 
