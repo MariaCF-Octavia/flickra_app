@@ -1,46 +1,117 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-  ActivityIndicator,
-  StatusBar,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, ActivityIndicator, StatusBar, ScrollView } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { DeviceMotion } from 'expo-sensors';
 import { manipulateAsync } from 'expo-image-manipulator';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-export default function App() {
+// Professional Template Definitions
+const PROFESSIONAL_TEMPLATES = {
+  white_infinity: {
+    id: 'white_infinity',
+    name: 'White Infinity',
+    icon: '⚪',
+    description: 'Clean seamless white studio background',
+    overlay: {
+      background: 'linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%)',
+      lighting: 'soft_studio',
+      shadows: true,
+      reflections: false
+    }
+  },
+  matte_black: {
+    id: 'matte_black',
+    name: 'Matte Black',
+    icon: '⚫',
+    description: 'Dramatic high-contrast black background',
+    overlay: {
+      background: 'linear-gradient(to bottom, #2d3436 0%, #000000 100%)',
+      lighting: 'dramatic_single',
+      shadows: true,
+      reflections: false
+    }
+  },
+  marble_luxury: {
+    id: 'marble_luxury',
+    name: 'Marble Luxury',
+    icon: '🏛️',
+    description: 'White Carrara marble with natural reflections',
+    overlay: {
+      background: 'url(marble-texture)',
+      lighting: 'natural_soft',
+      shadows: true,
+      reflections: true
+    }
+  },
+  glass_reflection: {
+    id: 'glass_reflection',
+    name: 'Glass Surface',
+    icon: '💎',
+    description: 'Clear glass surface with realistic reflections',
+    overlay: {
+      background: 'transparent',
+      lighting: 'even_distributed',
+      shadows: false,
+      reflections: true
+    }
+  },
+  golden_hour: {
+    id: 'golden_hour',
+    name: 'Golden Hour',
+    icon: '🌅',
+    description: 'Warm natural lighting mimicking sunset',
+    overlay: {
+      background: 'linear-gradient(45deg, #fdcb6e 0%, #f39c12 100%)',
+      lighting: 'warm_natural',
+      shadows: true,
+      reflections: false
+    }
+  },
+  velvet_premium: {
+    id: 'velvet_premium',
+    name: 'Velvet Premium',
+    icon: '🔴',
+    description: 'Deep burgundy velvet for luxury products',
+    overlay: {
+      background: 'linear-gradient(to bottom, #a29bfe 0%, #6c5ce7 100%)',
+      lighting: 'luxury_ambient',
+      shadows: true,
+      reflections: false
+    }
+  }
+};
+
+export default function LumiraTemplateCamera() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState('back');
   const [selectedIndustry, setSelectedIndustry] = useState('electronics');
+  const [selectedTemplate, setSelectedTemplate] = useState('white_infinity');
+  const [showTemplates, setShowTemplates] = useState(false);
   
-  // Real sensor-based scores
+  // Enhanced sensor scores
   const [lightingScore, setLightingScore] = useState(50);
   const [angleScore, setAngleScore] = useState(80);
   const [stabilityScore, setStabilityScore] = useState(70);
-  const [proximityScore, setProximityScore] = useState(60); // Simulated but realistic
+  const [proximityScore, setProximityScore] = useState(60);
+  const [templateAlignment, setTemplateAlignment] = useState(75); // New: How well product fits template
   const [magicScore, setMagicScore] = useState(0);
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [lastAnalysisTime, setLastAnalysisTime] = useState(0);
-  const [guidanceMessage, setGuidanceMessage] = useState("Position your product and check real sensor data");
-  const [testResults, setTestResults] = useState(null);
+  const [guidanceMessage, setGuidanceMessage] = useState("Select template and position product");
   
   const cameraRef = useRef(null);
   const analysisInterval = useRef(null);
   const motionSubscription = useRef(null);
 
   const industries = [
-    { key: 'electronics', label: 'Electronics', icon: '📱' },
+    { key: 'electronics', label: 'Tech', icon: '📱' },
     { key: 'beauty', label: 'Beauty', icon: '💄' },
-    { key: 'food', label: 'Food', icon: '🍎' }
+    { key: 'fashion', label: 'Fashion', icon: '👗' },
+    { key: 'food', label: 'Food', icon: '🍎' },
+    { key: 'automotive', label: 'Auto', icon: '🚗' }
   ];
 
   useEffect(() => {
@@ -56,32 +127,30 @@ export default function App() {
     };
   }, []);
 
-  // Update Magic Score when component scores change
+  // Enhanced Magic Score calculation including template alignment
   useEffect(() => {
-    // Weighted calculation based on real sensor data
     const newMagicScore = Math.round(
-      lightingScore * 0.35 +      // 35% lighting (real camera analysis)
-      angleScore * 0.25 +         // 25% angle (real gyroscope)
-      stabilityScore * 0.25 +     // 25% stability (real accelerometer)
-      proximityScore * 0.15       // 15% proximity (simulated positioning)
+      lightingScore * 0.25 +      // 25% lighting
+      angleScore * 0.20 +         // 20% angle
+      stabilityScore * 0.20 +     // 20% stability
+      proximityScore * 0.15 +     // 15% proximity
+      templateAlignment * 0.20    // 20% template fit (NEW)
     );
     setMagicScore(Math.max(15, Math.min(95, newMagicScore)));
     updateGuidanceMessage(newMagicScore);
-  }, [lightingScore, angleScore, stabilityScore, proximityScore]);
+  }, [lightingScore, angleScore, stabilityScore, proximityScore, templateAlignment]);
 
   const setupDeviceMotion = () => {
-    DeviceMotion.setUpdateInterval(1000); // Update every second for performance
+    DeviceMotion.setUpdateInterval(1000);
     
     motionSubscription.current = DeviceMotion.addListener((motion) => {
       if (motion?.rotation) {
-        // Calculate device tilt from gyroscope
         const tilt = Math.abs(motion.rotation.beta * (180 / Math.PI));
         const newAngleScore = Math.max(25, 100 - tilt * 2.5);
         setAngleScore(Math.round(newAngleScore));
       }
       
       if (motion?.acceleration) {
-        // Calculate stability from accelerometer data
         const totalAccel = Math.sqrt(
           Math.pow(motion.acceleration.x || 0, 2) +
           Math.pow(motion.acceleration.y || 0, 2) +
@@ -94,11 +163,11 @@ export default function App() {
   };
 
   const startRealTimeAnalysis = () => {
-    // Analyze lighting every 3 seconds using actual camera captures
     analysisInterval.current = setInterval(async () => {
       if (cameraRef.current && !isProcessing) {
         await analyzeLightingConditions();
-        updateProximityScore(); // Simulate but make realistic
+        updateProximityScore();
+        analyzeTemplateAlignment(); // NEW: Check how well product fits selected template
       }
     }, 3000);
   };
@@ -111,51 +180,70 @@ export default function App() {
 
   const analyzeLightingConditions = async () => {
     try {
-      // Take a quick low-quality photo for lighting analysis
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.1, // Very low quality for speed
+        quality: 0.1,
         base64: false,
         skipProcessing: true,
       });
 
       if (photo?.uri) {
-        // Use expo-image-manipulator to analyze the image
         const analyzed = await manipulateAsync(
           photo.uri,
-          [{ resize: { width: 50, height: 50 } }], // Tiny image for quick analysis
+          [{ resize: { width: 50, height: 50 } }],
           { compress: 0.1, format: 'jpeg' }
         );
 
-        // Estimate brightness based on file size and time of day
         const brightness = estimateBrightnessFromImage(analyzed);
         setLightingScore(Math.round(brightness));
         setLastAnalysisTime(Date.now());
-        
-        console.log('Real lighting analysis completed:', Math.round(brightness));
       }
     } catch (error) {
-      console.log('Lighting analysis skipped:', error.message);
-      // Fallback to time-based estimation
       const timeBasedScore = getTimeBasedLightingScore();
       setLightingScore(timeBasedScore);
     }
   };
 
+  const analyzeTemplateAlignment = () => {
+    // Simulate product-template fit analysis
+    // In real implementation, this would use ML Kit object detection
+    const template = PROFESSIONAL_TEMPLATES[selectedTemplate];
+    let alignmentScore = 65; // Base score
+    
+    // Adjust based on industry-template compatibility
+    if (selectedIndustry === 'beauty' && ['marble_luxury', 'velvet_premium'].includes(selectedTemplate)) {
+      alignmentScore += 15;
+    }
+    if (selectedIndustry === 'electronics' && ['white_infinity', 'matte_black'].includes(selectedTemplate)) {
+      alignmentScore += 15;
+    }
+    if (selectedIndustry === 'fashion' && ['velvet_premium', 'golden_hour'].includes(selectedTemplate)) {
+      alignmentScore += 15;
+    }
+    
+    // Factor in lighting compatibility
+    if (lightingScore > 70 && template.overlay.lighting === 'natural_soft') {
+      alignmentScore += 10;
+    }
+    
+    // Add some realistic variation
+    const variation = (Math.random() - 0.5) * 20;
+    const finalScore = Math.max(35, Math.min(90, alignmentScore + variation));
+    
+    setTemplateAlignment(Math.round(finalScore));
+  };
+
   const estimateBrightnessFromImage = (imageData) => {
-    // Combine time-based logic with image analysis
     const hour = new Date().getHours();
     let baseScore = 50;
     
-    // Time-based baseline
     if (hour >= 9 && hour <= 17) {
-      baseScore = 75; // Good daylight hours
+      baseScore = 75;
     } else if (hour >= 7 && hour <= 8 || hour >= 18 && hour <= 20) {
-      baseScore = 60; // Dawn/dusk
+      baseScore = 60;
     } else {
-      baseScore = 40; // Night/indoor
+      baseScore = 40;
     }
     
-    // Add realistic variation based on actual conditions
     const variation = (Math.random() - 0.5) * 25;
     return Math.max(25, Math.min(90, baseScore + variation));
   };
@@ -168,8 +256,6 @@ export default function App() {
   };
 
   const updateProximityScore = () => {
-    // Simulate realistic product positioning based on other scores
-    // Higher when device is stable and lighting is good
     const baseProximity = (stabilityScore + lightingScore) / 2;
     const variation = (Math.random() - 0.5) * 20;
     const newProximity = Math.max(20, Math.min(85, baseProximity + variation));
@@ -177,33 +263,43 @@ export default function App() {
   };
 
   const updateGuidanceMessage = (score) => {
+    const template = PROFESSIONAL_TEMPLATES[selectedTemplate];
+    
     if (score >= 80) {
-      setGuidanceMessage("Excellent conditions! Ready to test backend");
+      setGuidanceMessage(`Perfect! ${template.name} template ready for capture`);
     } else if (score >= 65) {
-      setGuidanceMessage("Good setup! Ready to capture and test pipeline");
+      setGuidanceMessage(`Good setup with ${template.name} - ready to capture`);
+    } else if (templateAlignment < 60) {
+      setGuidanceMessage(`Try different template for ${selectedIndustry} products`);
     } else if (lightingScore < 50) {
-      setGuidanceMessage("Move to brighter area for better lighting");
+      setGuidanceMessage(`Need better lighting for ${template.name} template`);
     } else if (angleScore < 60) {
-      setGuidanceMessage("Keep device level and steady");
+      setGuidanceMessage("Keep device level for template alignment");
     } else if (stabilityScore < 50) {
-      setGuidanceMessage("Hold device more steady");
+      setGuidanceMessage("Hold device steady for template precision");
     } else {
-      setGuidanceMessage("Keep adjusting position and lighting");
+      setGuidanceMessage(`Adjust position for ${template.name} template`);
     }
   };
 
   const testConnection = async () => {
     try {
-      console.log('🔌 Testing backend connection...');
       const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/health');
       const data = await response.json();
       setIsConnected(data.status === 'healthy');
-      console.log('✅ Backend status:', data.status);
-      console.log('🔧 APIs working:', data.apis_working);
     } catch (error) {
-      console.error('❌ Backend connection failed:', error);
       setIsConnected(false);
     }
+  };
+
+  const handleTemplateSelect = (templateId) => {
+    setSelectedTemplate(templateId);
+    setShowTemplates(false);
+    
+    // Trigger immediate template alignment analysis
+    setTimeout(() => {
+      analyzeTemplateAlignment();
+    }, 500);
   };
 
   const handleCapture = async () => {
@@ -219,133 +315,96 @@ export default function App() {
       return;
     }
 
-    if (magicScore < 50) {
+    if (magicScore < 60) {
       const improvements = [];
+      if (templateAlignment < 60) improvements.push(`• Try different template for ${selectedIndustry}`);
       if (lightingScore < 50) improvements.push('• Move to brighter lighting');
       if (angleScore < 60) improvements.push('• Level your device');
       if (stabilityScore < 50) improvements.push('• Hold more steady');
-      if (proximityScore < 50) improvements.push('• Adjust product positioning');
       
       Alert.alert(
-        'Improve Sensor Conditions',
-        `Magic Score: ${magicScore}%\n\nReal sensor feedback:\n${improvements.join('\n')}\n\nTest backend anyway?`,
+        'Improve Template Conditions',
+        `Magic Score: ${magicScore}%\n\nTemplate feedback:\n${improvements.join('\n')}\n\nCapture anyway?`,
         [
           { text: 'Keep Improving', style: 'default' },
-          { text: 'Test Backend Now', onPress: () => captureAndTestPipeline() }
+          { text: 'Capture Now', onPress: () => captureWithTemplate() }
         ]
       );
       return;
     }
 
-    await captureAndTestPipeline();
+    await captureWithTemplate();
   };
 
-  const captureAndTestPipeline = async () => {
+  const captureWithTemplate = async () => {
     setIsProcessing(true);
-    console.log('📸 Starting backend pipeline test...');
     
     try {
-      // Take high-quality photo for backend processing
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         base64: true,
       });
 
-      console.log(`📏 Image captured: ${(photo.base64.length / 1024).toFixed(1)}KB`);
-      
       if (photo?.base64) {
-        await testBackendPipeline(photo.base64);
+        await sendToBackend(photo.base64);
       }
     } catch (error) {
-      console.error('📸 Camera error:', error);
       Alert.alert('Camera Error', 'Failed to capture image. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const testBackendPipeline = async (base64Image) => {
+  const sendToBackend = async (base64Image) => {
     const startTime = Date.now();
     
     try {
-      console.log('🚀 Testing full backend pipeline...');
+      const template = PROFESSIONAL_TEMPLATES[selectedTemplate];
       
       const requestData = {
         image_data: base64Image,
         business_type: selectedIndustry,
         style: 'modern',
-        user_intent: `Foundation test for ${selectedIndustry} with real sensor data`,
-        magic_score: magicScore
+        user_intent: `Professional ${selectedIndustry} commercial with ${template.name} template`,
+        magic_score: magicScore,
+        template_settings: {
+          template_id: selectedTemplate,
+          template_name: template.name,
+          alignment_score: templateAlignment,
+          lighting_compatibility: lightingScore,
+          overlay_config: template.overlay
+        }
       };
 
-      const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/health', {
-        method: 'GET',
+      const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/api/generate-commercial', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
       });
 
       const result = await response.json();
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
       
-      console.log('📊 Backend test completed in', processingTime, 'seconds');
-      console.log('✅ Success:', result.success);
-      
       if (result.success) {
-        const summary = result.summary || {};
-        const warnings = result.warnings || [];
-        
-        setTestResults({
-          success: true,
-          processingTime,
-          apisUsed: summary.apis_used || 0,
-          totalApis: summary.total_apis || 4,
-          commercials: summary.commercials_count || 0,
-          warnings: warnings.length
-        });
-
         Alert.alert(
-          '🎬 Backend Pipeline Test SUCCESS!',
-          `✅ Foundation test completed!\n\n` +
+          `🎬 Commercial Generated with ${template.name}!`,
+          `✅ Professional template processing completed!\n\n` +
           `⏱️ Processing time: ${processingTime}s\n` +
-          `🔧 APIs working: ${summary.apis_used || 0}/${summary.total_apis || 4}\n` +
-          `🎥 Commercials generated: ${summary.commercials_count || 0}\n` +
-          `⚠️ Warnings: ${warnings.length}\n\n` +
-          `📊 Real sensor scores:\n` +
-          `💡 Lighting: ${lightingScore}% (camera analysis)\n` +
-          `📐 Angle: ${angleScore}% (gyroscope)\n` +
-          `🤚 Stability: ${stabilityScore}% (accelerometer)\n` +
-          `📍 Positioning: ${proximityScore}%\n\n` +
-          `⭐ Magic Score: ${magicScore}%`,
-          [
-            { text: 'Test Another', onPress: () => {} },
-            { text: 'Perfect!', style: 'default' }
-          ]
+          `🎨 Template: ${template.name}\n` +
+          `📊 Template alignment: ${templateAlignment}%\n` +
+          `🎥 Commercials generated: ${result.commercials?.length || 0}\n` +
+          `⭐ Magic Score: ${magicScore}%\n\n` +
+          `Professional background applied with ${selectedIndustry} optimization`,
+          [{ text: 'Generate Another', onPress: () => {} }, { text: 'Perfect!', style: 'default' }]
         );
       } else {
-        Alert.alert(
-          'Backend Test Issue',
-          `${result.message}\n\nProcessing time: ${processingTime}s\nMagic Score: ${magicScore}%`,
-          [
-            { text: 'Retry Pipeline', onPress: () => testBackendPipeline(base64Image) },
-            { text: 'OK', style: 'cancel' }
-          ]
-        );
+        Alert.alert('Processing Issue', `${result.message}\n\nTemplate: ${template.name}\nProcessing time: ${processingTime}s`);
       }
     } catch (error) {
-      const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      console.error('🔌 Pipeline test failed:', error);
-      Alert.alert(
-        'Pipeline Connection Error',
-        `Failed to test backend pipeline after ${processingTime}s.\n\nCheck internet connection.`,
-        [
-          { text: 'Retry Test', onPress: () => testBackendPipeline(base64Image) },
-          { text: 'Test Connection', onPress: testConnection },
-          { text: 'Cancel', style: 'cancel' }
-        ]
-      );
+      Alert.alert('Connection Error', 'Failed to process with professional template. Check internet connection.');
     }
   };
 
-  // Permission handling
   if (!permission) {
     return (
       <View style={styles.container}>
@@ -361,7 +420,7 @@ export default function App() {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <Text style={styles.message}>
-          Lumira needs camera access to test real sensor data and backend pipeline
+          Lumira needs camera access for professional template overlay and commercial generation
         </Text>
         <TouchableOpacity onPress={requestPermission} style={styles.button}>
           <Text style={styles.buttonText}>Grant Camera Permission</Text>
@@ -376,7 +435,7 @@ export default function App() {
     return '#e17055';
   };
 
-  const timeSinceAnalysis = Math.round((Date.now() - lastAnalysisTime) / 1000);
+  const currentTemplate = PROFESSIONAL_TEMPLATES[selectedTemplate];
 
   return (
     <View style={styles.container}>
@@ -387,6 +446,18 @@ export default function App() {
         style={styles.camera}
         facing={facing}
       >
+        {/* Template Overlay - This simulates the professional background */}
+        <View style={[styles.templateOverlay, getTemplateOverlayStyle(currentTemplate)]}>
+          <View style={styles.productArea}>
+            <Text style={styles.productGuide}>
+              {currentTemplate.icon} {currentTemplate.name}
+            </Text>
+            <Text style={styles.templateDescription}>
+              {currentTemplate.description}
+            </Text>
+          </View>
+        </View>
+
         {/* Connection Status */}
         <View style={styles.connectionStatus}>
           <View style={[styles.connectionDot, { backgroundColor: isConnected ? '#00b894' : '#e17055' }]} />
@@ -395,40 +466,59 @@ export default function App() {
           </Text>
         </View>
 
-        {/* Foundation Test Header */}
-        <View style={styles.testHeader}>
-          <Text style={styles.testTitle}>🔬 Foundation Test Mode</Text>
-          <Text style={styles.testSubtitle}>Real sensors + Backend pipeline</Text>
+        {/* Industry + Template Selection */}
+        <View style={styles.topControls}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.industrySelector}>
+            {industries.map((industry) => (
+              <TouchableOpacity
+                key={industry.key}
+                style={[
+                  styles.industryButton,
+                  selectedIndustry === industry.key && styles.industryButtonActive
+                ]}
+                onPress={() => setSelectedIndustry(industry.key)}
+              >
+                <Text style={styles.industryIcon}>{industry.icon}</Text>
+                <Text style={[
+                  styles.industryButtonText,
+                  selectedIndustry === industry.key && styles.industryButtonTextActive
+                ]}>
+                  {industry.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          <TouchableOpacity 
+            style={styles.templateSelectorButton}
+            onPress={() => setShowTemplates(!showTemplates)}
+          >
+            <Text style={styles.templateIcon}>{currentTemplate.icon}</Text>
+            <Text style={styles.templateButtonText}>{currentTemplate.name}</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Industry Selection */}
-        <View style={styles.industrySelector}>
-          {industries.map((industry) => (
-            <TouchableOpacity
-              key={industry.key}
-              style={[
-                styles.industryButton,
-                selectedIndustry === industry.key && styles.industryButtonActive
-              ]}
-              onPress={() => setSelectedIndustry(industry.key)}
-            >
-              <Text style={styles.industryIcon}>{industry.icon}</Text>
-              <Text style={[
-                styles.industryButtonText,
-                selectedIndustry === industry.key && styles.industryButtonTextActive
-              ]}>
-                {industry.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Guidance Frame */}
-        <View style={[styles.guidanceFrame, { borderColor: getScoreColor(magicScore) }]}>
-          <Text style={styles.frameText}>
-            Position {selectedIndustry} product - testing sensors
-          </Text>
-        </View>
+        {/* Template Selection Panel */}
+        {showTemplates && (
+          <View style={styles.templatePanel}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {Object.values(PROFESSIONAL_TEMPLATES).map((template) => (
+                <TouchableOpacity
+                  key={template.id}
+                  style={[
+                    styles.templateOption,
+                    selectedTemplate === template.id && styles.templateOptionActive
+                  ]}
+                  onPress={() => handleTemplateSelect(template.id)}
+                >
+                  <Text style={styles.templateOptionIcon}>{template.icon}</Text>
+                  <Text style={styles.templateOptionName}>{template.name}</Text>
+                  <Text style={styles.templateOptionDesc}>{template.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Magic Score Display */}
         <View style={styles.scoreContainer}>
@@ -441,45 +531,38 @@ export default function App() {
           
           <Text style={styles.guidanceText}>{guidanceMessage}</Text>
           
-          {magicScore >= 65 && (
-            <Text style={styles.readyText}>✨ Ready to test backend!</Text>
+          {magicScore >= 70 && (
+            <Text style={styles.readyText}>✨ Ready for professional capture!</Text>
           )}
         </View>
 
-        {/* Real Sensor Metrics */}
+        {/* Enhanced Sensor Metrics */}
         <View style={styles.metricsContainer}>
-          <Text style={styles.metricsTitle}>📱 Real iPhone Sensors:</Text>
+          <Text style={styles.metricsTitle}>📱 Live Sensors + Template:</Text>
           <View style={styles.metricRow}>
             <Text style={styles.metricLabel}>💡 Lighting:</Text>
             <Text style={[styles.metricValue, { color: getScoreColor(lightingScore) }]}>
               {lightingScore}%
             </Text>
-            <Text style={styles.metricSource}>camera</Text>
           </View>
           <View style={styles.metricRow}>
             <Text style={styles.metricLabel}>📐 Angle:</Text>
             <Text style={[styles.metricValue, { color: getScoreColor(angleScore) }]}>
               {angleScore}%
             </Text>
-            <Text style={styles.metricSource}>gyroscope</Text>
           </View>
           <View style={styles.metricRow}>
             <Text style={styles.metricLabel}>🤚 Stability:</Text>
             <Text style={[styles.metricValue, { color: getScoreColor(stabilityScore) }]}>
               {stabilityScore}%
             </Text>
-            <Text style={styles.metricSource}>accelerometer</Text>
           </View>
           <View style={styles.metricRow}>
-            <Text style={styles.metricLabel}>📍 Position:</Text>
-            <Text style={[styles.metricValue, { color: getScoreColor(proximityScore) }]}>
-              {proximityScore}%
+            <Text style={styles.metricLabel}>🎨 Template Fit:</Text>
+            <Text style={[styles.metricValue, { color: getScoreColor(templateAlignment) }]}>
+              {templateAlignment}%
             </Text>
-            <Text style={styles.metricSource}>estimated</Text>
           </View>
-          <Text style={styles.updateText}>
-            Camera analyzed {timeSinceAnalysis}s ago
-          </Text>
         </View>
 
         {/* Controls */}
@@ -494,7 +577,7 @@ export default function App() {
           <TouchableOpacity
             style={[
               styles.captureButton,
-              magicScore >= 50 && styles.captureButtonReady,
+              magicScore >= 60 && styles.captureButtonReady,
               isProcessing && styles.captureButtonProcessing
             ]}
             onPress={handleCapture}
@@ -505,16 +588,16 @@ export default function App() {
             ) : (
               <View style={[
                 styles.captureInner,
-                magicScore >= 50 && styles.captureInnerReady
+                magicScore >= 60 && styles.captureInnerReady
               ]} />
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.controlButton}
-            onPress={testConnection}
+            onPress={() => setShowTemplates(!showTemplates)}
           >
-            <Text style={styles.controlText}>🔌</Text>
+            <Text style={styles.controlText}>🎨</Text>
           </TouchableOpacity>
         </View>
 
@@ -522,19 +605,48 @@ export default function App() {
         {isProcessing && (
           <View style={styles.processingOverlay}>
             <Text style={styles.processingText}>
-              Testing backend pipeline...
+              Generating commercial with {currentTemplate.name}...
             </Text>
             <Text style={styles.processingSubtext}>
-              Real-ESRGAN → Claid → VEO3API → Response
+              Template → Real-ESRGAN → Claid → VEO3 → Professional Result
             </Text>
             <Text style={styles.processingDetails}>
-              Sensors: {lightingScore}% light, {angleScore}% angle, {stabilityScore}% stable
+              Industry: {selectedIndustry} | Template Alignment: {templateAlignment}%
             </Text>
           </View>
         )}
       </CameraView>
     </View>
   );
+}
+
+// Helper function to get template overlay styling
+function getTemplateOverlayStyle(template) {
+  const baseStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.3,
+  };
+
+  switch (template.id) {
+    case 'white_infinity':
+      return { ...baseStyle, backgroundColor: 'rgba(255, 255, 255, 0.2)' };
+    case 'matte_black':
+      return { ...baseStyle, backgroundColor: 'rgba(0, 0, 0, 0.3)' };
+    case 'marble_luxury':
+      return { ...baseStyle, backgroundColor: 'rgba(248, 249, 250, 0.25)' };
+    case 'glass_reflection':
+      return { ...baseStyle, backgroundColor: 'rgba(255, 255, 255, 0.1)' };
+    case 'golden_hour':
+      return { ...baseStyle, backgroundColor: 'rgba(253, 203, 110, 0.2)' };
+    case 'velvet_premium':
+      return { ...baseStyle, backgroundColor: 'rgba(108, 92, 231, 0.2)' };
+    default:
+      return baseStyle;
+  }
 }
 
 const styles = StyleSheet.create({
@@ -544,30 +656,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  message: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    lineHeight: 24,
-  },
-  button: {
-    backgroundColor: '#6c5ce7',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
-    marginHorizontal: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
   camera: {
     flex: 1,
     width: screenWidth,
+  },
+  templateOverlay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  productArea: {
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 15,
+    alignItems: 'center',
+    marginTop: '50%',
+  },
+  productGuide: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  templateDescription: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    textAlign: 'center',
   },
   connectionStatus: {
     position: 'absolute',
@@ -591,31 +704,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  testHeader: {
+  topControls: {
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  testTitle: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  testSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 11,
+    right: 20,
   },
   industrySelector: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    right: 20,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    marginBottom: 10,
   },
   industryButton: {
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -625,76 +722,108 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
     alignItems: 'center',
-    minWidth: 80,
+    marginRight: 10,
+    minWidth: 70,
   },
   industryButtonActive: {
     backgroundColor: '#6c5ce7',
     borderColor: '#6c5ce7',
   },
   industryIcon: {
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 2,
   },
   industryButtonText: {
     color: 'rgba(255,255,255,0.8)',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
   },
   industryButtonTextActive: {
     color: '#fff',
     fontWeight: 'bold',
   },
-  guidanceFrame: {
-    position: 'absolute',
-    top: '30%',
-    left: '15%',
-    right: '15%',
-    bottom: '50%',
-    borderWidth: 3,
-    borderStyle: 'dashed',
-    borderRadius: 20,
-    justifyContent: 'center',
+  templateSelectorButton: {
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 15,
+    flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
   },
-  frameText: {
+  templateIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  templateButtonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    fontWeight: 'bold',
+  },
+  templatePanel: {
+    position: 'absolute',
+    top: 130,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    borderRadius: 15,
+    padding: 15,
+  },
+  templateOption: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 12,
     borderRadius: 10,
+    marginRight: 10,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  templateOptionActive: {
+    backgroundColor: '#6c5ce7',
+  },
+  templateOptionIcon: {
+    fontSize: 20,
+    marginBottom: 5,
+  },
+  templateOptionName: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 3,
+  },
+  templateOptionDesc: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 9,
+    textAlign: 'center',
   },
   scoreContainer: {
     position: 'absolute',
-    top: 160,
+    top: 200,
     left: 20,
     right: 20,
     alignItems: 'center',
   },
   scoreCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
     backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
   },
   scoreText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   scoreLabel: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 10,
     opacity: 0.8,
   },
   guidanceText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -705,7 +834,7 @@ const styles = StyleSheet.create({
   },
   readyText: {
     color: '#00b894',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -719,7 +848,7 @@ const styles = StyleSheet.create({
   },
   metricsTitle: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     marginBottom: 8,
   },
@@ -728,28 +857,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
-    minWidth: 180,
+    minWidth: 160,
   },
   metricLabel: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 10,
     flex: 1,
   },
   metricValue: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
-    marginRight: 8,
-  },
-  metricSource: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 9,
-    fontStyle: 'italic',
-  },
-  updateText: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 9,
-    marginTop: 4,
-    textAlign: 'center',
   },
   controls: {
     position: 'absolute',
@@ -769,7 +886,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   controlText: {
-    fontSize: 20,
+    fontSize: 18,
   },
   captureButton: {
     width: 80,
@@ -822,13 +939,34 @@ const styles = StyleSheet.create({
   },
   processingSubtext: {
     color: 'rgba(255,255,255,0.8)',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
     marginBottom: 4,
   },
   processingDetails: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: 10,
+    textAlign: 'center',
+  },
+  message: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    lineHeight: 24,
+  },
+  button: {
+    backgroundColor: '#6c5ce7',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 }); 
