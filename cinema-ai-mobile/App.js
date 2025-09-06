@@ -271,25 +271,16 @@ export default function App() {
       console.log('🚀 Testing full backend pipeline...');
       
       const requestData = {
-        image_data: `data:image/jpeg;base64,${base64Image}`,
+        image_data: base64Image,
         business_type: selectedIndustry,
         style: 'modern',
         user_intent: `Foundation test for ${selectedIndustry} with real sensor data`,
-        magic_score: magicScore,
-        sensor_data: {
-          lighting_score: lightingScore,
-          angle_score: angleScore,
-          stability_score: stabilityScore,
-          proximity_score: proximityScore,
-          analysis_timestamp: lastAnalysisTime,
-          device_motion_available: true
-        }
+        magic_score: magicScore
       };
 
-      const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/api/generate-commercial', {
-        method: 'POST',
+      const response = await fetch('https://fastapi-app-production-ac48.up.railway.app/health', {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData),
       });
 
       const result = await response.json();
