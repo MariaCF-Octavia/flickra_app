@@ -1,29 +1,49 @@
 {
   "expo": {
-    "name": "cinema-ai-mobile",
-    "slug": "cinema-ai-mobile",
+    "name": "Lumira",
+    "slug": "lumira",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Lumira needs camera access for AI object detection",
+        "NSMicrophoneUsageDescription": "Lumira needs microphone access for video recording"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": { "newArchEnabled": false },
+          "android": { "newArchEnabled": false }
+        }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Lumira needs camera access for AI object detection",
+          "enableFrameProcessors": true
+        }
+      ]
+    ]
   }
 }
