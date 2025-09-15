@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flickra Demo - Your Real-Time AI Commercial Director</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #0A0A0A; 
+            color: #F5F5F5; 
+            line-height: 1.6; 
+            overflow-x: hidden; 
+        }
+        
+        .demo-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1E1E3F 50%, #0A0A0A 100%);
+            border-radius: 20px;
+            border: 1px solid #3B82F6;
+        }
+        
+        .demo-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 36px;
+            color: #3B82F6;
+            margin-bottom: 16px;
+        }
+        
+        .demo-header p {
+            font-size: 18px;
+            color: #D1D5DB;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .demo-section {
+            margin-bottom: 80px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .demo-section:nth-child(2) { animation-delay: 0.2s; }
+        .demo-section:nth-child(3) { animation-delay: 0.4s; }
+        .demo-section:nth-child(4) { animation-delay: 0.6s; }
+        .demo-section:nth-child(5) { animation-delay: 0.8s; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 28px;
+            color: #3B82F6;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            font-size: 20px;
+            color: #FBBF24;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        
+        .narrative-text {
+            background: rgba(55, 65, 81, 0.2);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #F5F5F5;
+        }
+        
+        .phone-mockup {
+            max-width: 400px;
+            margin: 0 auto 40px auto;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            border: 2px solid #3B82F6;
+        }
+        
+        .phone-mockup img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .key-insight {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3B82F6;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+            text-align: center;
+        }
+        
+        .key-insight h3 {
+            color: #3B82F6;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 12px;
+        }
+        
+        .multi-scene-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .scene-card {
+            background: rgba(55, 65, 81, 0.2);
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .scene-title {
+            color: #FBBF24;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .demo-cta {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(251, 191, 36, 0.1));
+            border-radius: 20px;
+            border: 1px solid #3B82F6;
+        }
+        
+        .demo-cta h2 {
+            font-family: 'Poppins', sans-serif;
+            color: #3B82F6;
+            margin-bottom: 16px;
+        }
+        
+        .demo-cta p {
+            font-size: 18px;
+            color: #D1D5DB;
+            margin-bottom: 24px;
+        }
+        
+        .cta-button {
+            background: #3B82F6;
+            color: #F5F5F5;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: #60A5FA;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .demo-header h1 { font-size: 28px; }
+            .section-title { font-size: 24px; }
+            .narrative-text { font-size: 16px; padding: 24px; }
+            .phone-mockup { max-width: 320px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-header">
+            <h1>Flickra Demo</h1>
+            <p>Your Real-Time AI Commercial Director - Transforming how small businesses create professional commercials</p>
+            <div style="margin-top: 16px; font-size: 14px; color: #9CA3AF; font-style: italic;">
+                *Originally developed as "Lumira" - evolved to Flickra to better reflect our real-time commercial direction capability
+            </div>
+        </div>
+
+        <!-- Section 1: The Problem -->
+        <div class="demo-section">
+            <h2 class="section-title">The Current Reality</h2>
+            <p class="section-subtitle">"Everyone here has felt this anxiety..."</p>
+            
+            <div class="narrative-text">
+                <strong>Meet Sarah, a luxury perfume entrepreneur.</strong><br><br>
+                
+                Like every business owner here, Sarah knows that feeling - you've just spent $5,000 on video ads, you post them across social media, and then... you wait. And hope. Will they drive sales? Will they flop? You won't know for days, maybe weeks.<br><br>
+                
+                The traditional approach? Sarah would need to shoot 5 different versions, A/B test them live, spend thousands more, wait for data... and by the time she knows what works, the trend is over. It's slow, expensive, and completely gut-driven.<br><br>
+                
+                <strong>What if Sarah could know before she publishes whether her ad would drive sales or flop?</strong>
+            </div>
+        </div>
+
+        <!-- Section 2: The Solution Setup -->
+        <div class="demo-section">
+            <h2 class="section-title">Flickra Changes Everything</h2>
+            <p class="section-subtitle">Professional Production Quality in Your Pocket</p>
+            
+            <div class="phone-mockup">
+                <!-- Replace this placeholder with your actual screenshot -->
+                <div style="background: linear-gradient(135deg, #1E1E3F, #0A0A0A); height: 600px; display: flex; align-items: center; justify-content: center; color: #3B82F6; font-size: 18px;">
+                    [Screenshot 1: Business Selection Screen]
+                </div>
+            </div>
+            
+            <div class="narrative-text">
+                Instead of guessing, Sarah starts here. She tells Flickra exactly what kind of commercial she wants to create - luxury perfume with dramatic red silk backdrop, floating rose petals, botanical elegance.<br><br>
+                
+                Notice how Flickra understands not just the product, but the brand story, the aesthetic, the emotional journey Sarah wants to create. This isn't just "make a video" - it's "create a luxury brand experience."
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Innovation #1</h3>
+                <p>Flickra starts with story and brand, not just product shots</p>
+            </div>
+        </div>
+
+        <!-- Section 3: The Magic Score -->
+        <div class="demo-section">
+            <h2 class="section-title">The Magic Score System</h2>
+            <p class="section-subtitle">Solving "Garbage In, Garbage Out" at the Source</p>
+            
+            <div class="phone-mockup">
+                <!-- Replace this placeholder with your actual screenshot -->
+                <div style="background: linear-gradient(135deg, #1E1E3F, #0A0A0A); height: 600px; display: flex; align-items: center; justify-content: center; color: #3B82F6; font-size: 18px;">
+                    [Screenshot 2: Magic Score Interface]
+                </div>
+            </div>
+            
+            <div class="narrative-text">
+                Now watch this - Flickra becomes Sarah's personal commercial director in real-time:<br><br>
+                
+                <strong>• Lighting Score: 78</strong> - "It's a bit dark, move toward the window..."<br>
+                <strong>• Composition Score: 75</strong> - "Tilt your phone slightly lower..."<br>
+                <strong>• Product Score: 82</strong> - "Perfect! I can see your YSL perfume clearly"<br><br>
+                
+                Here's the breakthrough: <strong>Flickra won't let Sarah capture until she hits 85+ on all scores.</strong> No more garbage in, garbage out. Perfect input is guaranteed before any AI processing begins.<br><br>
+                
+                While she adjusts, watch the backgrounds change in real-time - studio lighting, elegant backdrops - so Sarah can see exactly how her product will look in the final commercial.
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Innovation #2</h3>
+                <p>Real-time coaching ensures professional quality input - the Magic Score won't let you proceed with mediocre shots</p>
+            </div>
+        </div>
+
+        <!-- Section 4: The Multi-Scene Magic -->
+        <div class="demo-section">
+            <h2 class="section-title">Multi-Scene Commercial Creation</h2>
+            <p class="section-subtitle">Not Just Animation - Actual Storytelling</p>
+            
+            <div class="narrative-text">
+                While other AI tools just animate a single image, watch what happens when Sarah hits the Magic Score of 85+...
+            </div>
+            
+            <div class="phone-mockup">
+                <!-- Replace this placeholder with your actual screenshot -->
+                <div style="background: linear-gradient(135deg, #1E1E3F, #0A0A0A); height: 600px; display: flex; align-items: center; justify-content: center; color: #3B82F6; font-size: 18px;">
+                    [Screenshot 4: Loading Screen]
+                </div>
+            </div>
+            
+            <div class="narrative-text">
+                Flickra creates a complete commercial narrative with multiple scenes:
+            </div>
+            
+            <div class="phone-mockup">
+                <img src="assets/flickra5.webp" alt="Flickra Multi-Scene Commercial Results">
+            </div>
+            
+            <div class="multi-scene-grid">
+                <div class="scene-card">
+                    <div class="scene-title">The Art of Seduction</div>
+                    <p>Minimalist red luxury with premium gold accents - the opening that draws viewers in</p>
+                </div>
+                <div class="scene-card">
+                    <div class="scene-title">Brand Heritage</div>
+                    <p>Classic YSL presentation with premium gold details - establishing luxury credibility</p>
+                </div>
+                <div class="scene-card">
+                    <div class="scene-title">Cinematic Studio</div>
+                    <p>Professional commercial-grade presentation - the money shot that drives purchase</p>
+                </div>
+            </div>
+            
+            <div class="narrative-text">
+                From one perfect capture, Sarah gets <strong>5 complete commercials</strong> - each with different storytelling angles, different emotional journeys, all optimized for her luxury brand positioning.<br><br>
+                
+                This isn't just product shots with movement. This is actual commercial storytelling with narrative flow, brand building, and emotional engagement.
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Innovation #3</h3>
+                <p>Multi-scene storytelling vs. single-image animation - creating actual commercials, not just moving pictures</p>
+            </div>
+        </div>
+
+        <!-- Section 5: The Business Impact -->
+        <div class="demo-section">
+            <h2 class="section-title">The Business Impact</h2>
+            <p class="section-subtitle">Why Our International Customer Pays $89/Month</p>
+            
+            <div class="narrative-text">
+                <strong>Before Flickra:</strong> Sarah spends weeks coordinating shoots, thousands on production, days waiting for A/B test results, and still doesn't know if her ads will work until she spends the media budget.<br><br>
+                
+                <strong>After Flickra:</strong> In 15 seconds, Sarah has 5 professional commercials, each optimized for different audiences, with guaranteed professional input quality. She can test creative concepts instantly, adapt to trends in real-time, and scale her brand story across multiple platforms.<br><br>
+                
+                <strong>The result?</strong> Sarah's ads don't look like "AI slop" anymore. They look like luxury brand commercials because they were created with luxury brand standards from the very first frame.
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="demo-cta">
+            <h2>Ready to Transform Small Business Marketing?</h2>
+            <p>Flickra is democratizing professional production quality for 34.8M small businesses</p>
+            <a href="mailto:contact@contentfactory.ai" class="cta-button">Schedule Full Demo</a>
+        </div>
+    </div>
+</body>
+</html> 
