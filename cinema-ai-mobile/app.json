@@ -1,29 +1,19 @@
 {
   "expo": {
-    "name": "Lumira",
-    "slug": "lumira",
+    "name": "Flickra",
+    "slug": "flickra",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Lumira needs camera access for AI object detection",
-        "NSMicrophoneUsageDescription": "Lumira needs microphone access for video recording"
+        "NSCameraUsageDescription": "Flickra needs camera access to help you create perfect product photos with your personal AI Director.",
+        "NSMicrophoneUsageDescription": "Flickra needs microphone access for video recording features."
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -40,8 +30,9 @@
       [
         "react-native-vision-camera",
         {
-          "cameraPermissionText": "Lumira needs camera access for AI object detection",
-          "enableFrameProcessors": true
+          "cameraPermissionText": "Flickra needs camera access to help you create perfect product photos with your personal AI Director.",
+          "enableFrameProcessors": true,
+          "enableMicrophonePermission": false
         }
       ]
     ]
