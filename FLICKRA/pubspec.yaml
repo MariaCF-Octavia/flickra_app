@@ -1,0 +1,32 @@
+name: flickra
+description: "World's First Real-Time AI Commercial Director"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  camera: ^0.10.5
+  tflite_flutter: ^0.10.4
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.2
+  image: ^4.1.7
+  flutter_vision: 1.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # We'll add assets here later for YOLOv8 models
+  # assets:
+  #   - assets/models/
+  #   - assets/labels.txt 
