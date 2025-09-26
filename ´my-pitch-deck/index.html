@@ -3,445 +3,934 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flickra - Your Real-Time AI Commercial Director</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <title>Flickra Pitch Deck</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0A0A0A; color: #F5F5F5; line-height: 1.6; overflow-x: hidden; }
-        .slide { min-height: 100vh; padding: 100px 80px; display: flex; flex-direction: column; justify-content: center; max-width: 1440px; margin: 0 auto; background: linear-gradient(135deg, #0A0A0A 0%, #1E1E3F 50%, #0A0A0A 100%); border-bottom: 1px solid #3B82F6; opacity: 0; animation: fadeIn 0.7s ease-in forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
-        h1 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 48px; color: #3B82F6; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(59, 130, 246, 0.15); margin-bottom: 24px; }
-        h2 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 32px; color: #F5F5F5; margin-bottom: 28px; }
-        h3 { font-weight: 600; font-size: 22px; color: #D1D5DB; margin-bottom: 20px; }
-        p { font-size: 20px; color: #D1D5DB; max-width: 700px; margin-bottom: 24px; }
-        .intro { background: linear-gradient(135deg, #0A0A0A 0%, #1E1E3F 70%, #0A0A0A 100%); text-align: center; border-bottom: none; position: relative; border-radius: 12px; }
-        .highlight { background: rgba(55, 65, 81, 0.2); border: 1px solid #374151; border-radius: 12px; padding: 28px; margin: 24px 0; backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
-        .aws-highlight { background: rgba(255, 165, 0, 0.1); border: 1px solid #FFA500; border-radius: 12px; padding: 28px; margin: 24px 0; backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(255, 165, 0, 0.2); }
-        .magic-score-highlight { background: rgba(156, 163, 175, 0.2); border: 1px solid #9CA3AF; border-radius: 12px; padding: 28px; margin: 24px 0; backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
-        .stats, .market-size, .competitors-grid, .financials, .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin: 48px 0; }
-        .stat-box, .market-box, .competitor-box, .financial-box, .use-case-box { background: linear-gradient(135deg, rgba(55, 65, 81, 0.2), rgba(31, 41, 55, 0.2)); border: 1px solid #3B82F6; padding: 28px; border-radius: 12px; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .stat-box:hover, .market-box:hover, .competitor-box:hover, .financial-box:hover, .use-case-box:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25); }
-        .stat-number { font-family: 'Poppins', sans-serif; font-size: 28px; font-weight: 700; color: #FBBF24; margin-bottom: 12px; }
-        .stat-label { font-size: 16px; color: #D1D5DB; }
-        .quote { font-size: 18px; font-style: italic; background: rgba(59, 130, 246, 0.1); padding: 24px; border-radius: 12px; margin: 32px 0; border-left: 4px solid #3B82F6; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
-        .timeline { display: flex; justify-content: space-between; margin: 48px 0; padding: 28px; background: rgba(55, 65, 81, 0.2); border-radius: 12px; overflow-x: auto; border: 1px solid #3B82F6; }
-        .timeline-item { text-align: center; min-width: 140px; flex: 1; }
-        .timeline-time { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; color: #3B82F6; margin-bottom: 8px; }
-        .timeline-event { font-size: 14px; color: #D1D5DB; }
-        .contact-info { background: rgba(55, 65, 81, 0.2); border: 1px solid #3B82F6; padding: 28px; border-radius: 12px; text-align: center; margin: 24px 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
-        .cta-button { background: #3B82F6; color: #F5F5F5; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 600; margin: 12px; display: inline-block; transition: background 0.3s ease, transform 0.3s ease; }
-        .cta-button:hover { background: #60A5FA; transform: scale(1.05); }
-        .mockup-img { max-width: 70%; border-radius: 12px; margin: 28px auto; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25); }
-        .navigation { position: fixed; top: 20px; right: 20px; display: flex; gap: 14px; z-index: 1000; }
-        .nav-dot { width: 10px; height: 10px; border-radius: 50%; background: #D1D5DB; cursor: pointer; transition: all 0.3s ease; }
-        .nav-dot.active { background: #3B82F6; transform: scale(1.4); box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
-        .competitor-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 24px 0; background: rgba(55, 65, 81, 0.2); border-radius: 12px; overflow: hidden; border: 1px solid #3B82F6; }
-        .competitor-table th, .competitor-table td { padding: 14px; text-align: left; border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
-        .competitor-table th { background: rgba(59, 130, 246, 0.1); color: #3B82F6; font-family: 'Poppins', sans-serif; font-weight: 600; }
-        .competitor-table td { color: #D1D5DB; }
-        .competitor-table tr:nth-child(even) { background: rgba(31, 41, 55, 0.2); }
-        .competitor-table tr:hover { background: rgba(59, 130, 246, 0.1); }
-        .flickra-advantage { color: #FBBF24; font-weight: 600; }
-        .solution-section { background: rgba(59, 130, 246, 0.1); border: 1px solid #3B82F6; border-radius: 12px; padding: 24px; margin: 24px 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
-        .solution-title { color: #3B82F6; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 15px; }
-        .urgency-box { background: rgba(220, 38, 38, 0.1); border: 1px solid #DC2626; border-radius: 12px; padding: 24px; margin: 24px 0; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1); }
-        .urgency-title { color: #DC2626; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 15px; }
-        @media (max-width: 768px) {
-            .slide { padding: 60px 24px; }
-            h1 { font-size: 40px; } h2 { font-size: 28px; } h3 { font-size: 18px; } p { font-size: 18px; }
-            .stats, .market-size, .competitors-grid, .financials, .use-cases { grid-template-columns: 1fr; }
-            .mockup-img { max-width: 90%; }
-            .timeline { flex-direction: column; align-items: center; }
-            .competitor-table th, .competitor-table td { font-size: 14px; padding: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            background: #f8fafc;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: #ffffff;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .slide:last-child {
+            border-bottom: none;
+        }
+
+        @media (min-width: 768px) {
+            .slide {
+                padding: 80px 60px;
+            }
+        }
+
+        .slide-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .slide h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #1a202c;
+            letter-spacing: -0.02em;
+        }
+
+        .slide h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #2d3748;
+            letter-spacing: -0.01em;
+        }
+
+        .slide h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #718096;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .slide h1 {
+                font-size: 3.5rem;
+            }
+
+            .slide h2 {
+                font-size: 2.8rem;
+            }
+
+            .slide h3 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.3rem;
+            }
+        }
+
+        .accent-text {
+            color: #3182ce;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 2.5rem 0;
+        }
+
+        @media (min-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 2rem;
+            }
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #3182ce;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .feature-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #3182ce;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .quote {
+            font-size: 1.2rem;
+            color: #2d3748;
+            text-align: center;
+            margin: 2.5rem 0;
+            padding: 2rem;
+            background: #edf2f7;
+            border-radius: 8px;
+            border-left: 4px solid #3182ce;
+            font-style: italic;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.8rem;
+        }
+
+        @media (min-width: 768px) {
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .comparison-table td {
+            color: #4a5568;
+        }
+
+        .highlight {
+            background: #ebf8ff !important;
+            font-weight: 600;
+            color: #2b6cb0 !important;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 480px) {
+            .process-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .process-steps {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+
+        .step {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            background: #3182ce;
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            font-size: 1.1rem;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .timeline {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .timeline::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: #e2e8f0;
+                z-index: 0;
+            }
+        }
+
+        .timeline-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            min-width: 180px;
+        }
+
+        .timeline-quarter {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #3182ce;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item .stat-number {
+            font-size: 1.5rem;
+        }
+
+        .bullet-points {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .bullet-points li {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #4a5568;
+        }
+
+        .bullet-points li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #3182ce;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .bullet-points strong {
+            color: #2d3748;
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .contact-info h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .contact-info p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: #4a5568;
+        }
+
+        .large-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #3182ce;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .center-content {
+            text-align: center;
+        }
+
+        .problem-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .problem-options {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        .problem-card {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .problem-card h4 {
+            color: #c53030;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .problem-card p {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (min-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+                align-items: center;
+            }
+        }
+
+        .slide-number {
+            position: sticky;
+            top: 20px;
+            right: 20px;
+            background: rgba(49, 130, 206, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 100;
+            margin-left: auto;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        .four-column-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .four-column-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="navigation">
-        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(6)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(7)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(8)"></div>
-        <div class="nav-dot" onclick="scrollToSlide(9)"></div>
-    </div>
-
-    <!-- Slide 1: Intro with Strong Value Prop -->
-    <div class="slide intro">
-        <h1>Flickra: Real-Time AI Commercial Director</h1>
-        <div style="margin: 30px 0; display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <p style="font-size: 24px;">Democratizing Professional Video Production Through Mobile AI</p>
-            <p style="font-size: 18px; opacity: 0.8;">Built by the team behind <a href="https://contentfactory.ai" style="color: #3B82F6; text-decoration: none;">CF Studio</a> - proven AI platform with paying customers</p>
-        </div>
-        <div class="highlight" style="margin: 30px auto; max-width: 800px; text-align: center;">
-            <p>Professional video production requires expensive equipment and expertise. Flickra puts a real-time AI director in every business owner's pocket, delivering studio-quality results through intelligent mobile guidance.</p>
-        </div>
-        <div class="quote">
-            "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
-        </div>
-    </div>
-
-    <!-- Slide 2: Problem & Market Urgency -->
+    <!-- Slide 1: Title -->
     <div class="slide">
-        <h2>The $50B Problem: Quality vs. Speed in Video Marketing</h2>
-        <div class="urgency-box">
-            <div class="urgency-title">Why Now: AI Video Revolution Window</div>
-            <p>• 87% of marketers using video in 2025 (up from 61% in 2023)<br>
-            • Mobile-first consumption: 75% of video content consumed on mobile<br>
-            • Quality gap: SMBs spend $2.5K-$12K monthly but get "generic slop" from current AI tools<br>
-            • Competition window: 12-18 months before Big Tech solves input quality</p>
-        </div>
-        <div class="highlight">
-            <p><strong>Current Reality:</strong> Small businesses have three bad choices:</p>
-            <p>1. <strong>AI Platforms ($99-299/mo):</strong> Fast but inconsistent quality - "garbage in, garbage out"<br>
-            2. <strong>Agencies ($50K+ budgets):</strong> High quality but 3+ week timelines<br>
-            3. <strong>DIY Content:</strong> Free but looks amateur, hurts brand perception</p>
-        </div>
-        <div class="quote">
-            "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
-        </div>
-    </div>
-
-    <!-- Slide 3: CF Studio - Proven Track Record -->
-    <div class="slide">
-        <h1>Proven Execution: CF Studio Success Story</h1>
-        <div class="solution-section">
-            <div class="solution-title">Enterprise-Grade AI Platform Built Solo in 6 Months</div>
-            <p>Multi-API orchestration (Runway, VEO, CLAID, ElevenLabs), custom UI/UX, Stripe payments, real-time video processing. Result: 13 users, $89/mo international customer, 100% organic growth.</p>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">$89/mo</div>
-                <div class="stat-label">Premium International<br>Customer Paying</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">100% Organic</div>
-                <div class="stat-label">Growth & Customer<br>Acquisition</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">6 Months</div>
-                <div class="stat-label">Solo Development<br>Enterprise Platform</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">AWS Partner</div>
-                <div class="stat-label">Enterprise Infrastructure<br>Validation</div>
-            </div>
-        </div>
-        <div class="aws-highlight">
-            <p><strong>AWS Partnership Details:</strong> 160 hours funded development, 4-person Solutions Architect team, complete serverless migration. AWS doesn't invest this level of resources without seeing significant commercial potential.</p>
-        </div>
-        <div class="quote">
-            "CF Studio proved we can compete with agencies on quality while delivering 10x faster. Flickra solves the final piece: ensuring perfect input quality through real-time guidance."
-        </div>
-    </div>
-
-    <!-- Slide 4: Flickra Innovation - Real-Time Guidance -->
-    <div class="slide">
-        <h2>The Flickra Breakthrough: Real-Time Production Intelligence</h2>
-        <p>Current AI tools fail because of poor inputs. Flickra creates a new category: <strong>Guided AI Production</strong></p>
-        <div class="magic-score-highlight">
-            <p><strong>Step 1: Brand Intelligence Training (30-minute setup)</strong><br>
-            Train your Personal AI Director to recognize your exact products, brand colors, logo placement, and visual identity. Unlike generic object detection, this AI learns your specific brand across different lighting conditions and environments - creating your personalized commercial expert.</p>
-        </div>
-        <div class="magic-score-highlight">
-            <p><strong>Step 2: Real-Time Mobile Guidance System</strong><br>
-            <strong>• Brand-Specific Detection:</strong> Instantly recognizes YOUR product<br>
-            <strong>• Live Coaching:</strong> "Move closer to window... tilt phone 15° left... perfect!"<br>
-            <strong>• Magic Score (0-100):</strong> Gamified system requires 85+ before capture<br>
-            <strong>• Live Background Preview:</strong> See your product in studio environments live<br>
-            <strong>• Multi-Scene Commercial Generation:</strong> One perfect shot creates 5 complete commercial narratives - product close-ups, lifestyle shots, brand storytelling - delivering full commercial campaigns from that single perfect capture</p>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">85+ Score</div>
-                <div class="stat-label">Required Before<br>Processing</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">5 Commercials</div>
-                <div class="stat-label">Full Narrative Stories<br>From One Shot</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">15 Seconds</div>
-                <div class="stat-label">Capture to Final<br>Commercial</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">12-18 Months</div>
-                <div class="stat-label">Technical Moat<br>Before Competition</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 5: Market Positioning & Competitive Advantage -->
-    <div class="slide">
-        <h2>Category Creation: Guided AI vs. "Hope and Pray" AI</h2>
-        <table class="competitor-table">
-            <tr>
-                <th>Approach</th>
-                <th>Input Quality</th>
-                <th>User Experience</th>
-                <th>Output Consistency</th>
-                <th>Price Point</th>
-            </tr>
-            <tr>
-                <td>AI Platforms<br>(Pencil, AdCreative)</td>
-                <td>None</td>
-                <td>Upload → Hope</td>
-                <td>Inconsistent</td>
-                <td>$99-299/mo</td>
-            </tr>
-            <tr>
-                <td>Advanced AI<br>(Synthesia, Runway)</td>
-                <td>Text prompts</td>
-                <td>Prompt → Wait → Refine</td>
-                <td>High quality, slow</td>
-                <td>$200-500/mo</td>
-            </tr>
-            <tr>
-                <td>Production Agencies</td>
-                <td>Professional crew</td>
-                <td>Weeks + $50K</td>
-                <td>Perfect but expensive</td>
-                <td>$50K+ budgets</td>
-            </tr>
-            <tr>
-                <td class="flickra-advantage">Flickra (Guided AI)</td>
-                <td class="flickra-advantage">Real-time coaching</td>
-                <td class="flickra-advantage">Guided → Perfect input</td>
-                <td class="flickra-advantage">Agency quality, 15 sec</td>
-                <td class="flickra-advantage">$89-149/mo</td>
-            </tr>
-        </table>
-        <div class="highlight">
-            <p><strong>Defensive Moat:</strong> Personal AI Director training + Magic Score gamification creates 12-18 month technical lead. Big Tech can't easily replicate real-time mobile guidance systems combining brand intelligence with production coaching.</p>
-        </div>
-        <div class="urgency-box">
-            <div class="urgency-title">First Mover Advantage Window</div>
-            <p>Mobile-first AI video is exploding. We have 12-18 months before Google/Meta solve guided production. Moving fast with $500K accelerates to market leadership before competition arrives.</p>
-        </div>
-    </div>
-
-    <!-- Slide 6: Go-to-Market Strategy -->
-    <div class="slide">
-        <h2>Validated Go-to-Market: Enterprise + SMB</h2>
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-time">Phase 1: Beta</div>
-                <div class="timeline-event">Local SMB validation<br>Product-market fit<br>Customer success stories</div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-time">Phase 2: Scale</div>
-                <div class="timeline-event">Enterprise sales<br>$89-149/mo pricing<br>Channel partnerships</div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-time">Phase 3: Leadership</div>
-                <div class="timeline-event">Category dominance<br>Series A readiness<br>Competitive defense</div>
-            </div>
-        </div>
-        <div class="aws-highlight" style="margin: 30px 0;">
-            <p style="color: #FFA500; font-weight: 600; margin-bottom: 15px;">Strategic Partnership Acceleration</p>
-            <p>Flickra has secured a strategic partnership with AWS, featuring 160 hours of funded enterprise development and dedicated support from a four-person Solutions Architect team. This collaboration accelerates our enterprise infrastructure and provides "Powered by AWS" branding with official logo usage rights at launch.</p>
-            <div class="stats" style="margin: 20px 0;">
-                <div class="stat-box">
-                    <div class="stat-number">160 Hours</div>
-                    <div class="stat-label">Funded Development<br>Enterprise Ready</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">4-Person Team</div>
-                    <div class="stat-label">Solutions Architects<br>Dedicated Support</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">Official Branding</div>
-                    <div class="stat-label">"Powered by AWS"<br>Logo Usage Rights</div>
-                </div>
-            </div>
-        </div>
-        <div class="highlight">
-            <p><strong>Target Customer:</strong> Marketing teams spending $2.5K-$12K monthly on digital marketing, frustrated with current AI quality or agency timelines.</p>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">34.8M</div>
-                <div class="stat-label">US Small Businesses<br>Target Market</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">49%</div>
-                <div class="stat-label">Increasing Marketing<br>Budgets in 2025</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">$2.5K-$12K</div>
-                <div class="stat-label">Monthly Marketing<br>Spend Range</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">93%</div>
-                <div class="stat-label">Plan to Maintain/Increase<br>Video Marketing Spend</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 7: Financial Projections -->
-    <div class="slide">
-        <h2>18-Month Path to $2.5M ARR (Series A Ready)</h2>
-        <p>Conservative projections based on CF Studio traction + AWS partnership acceleration</p>
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-time">Q4 2025</div>
-                <div class="timeline-event">Beta Launch<br>$10K MRR<br>100 customers</div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-time">Q2 2026</div>
-                <div class="timeline-event">Market Entry<br>$50K MRR<br>500 customers</div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-time">Q4 2026</div>
-                <div class="timeline-event">Growth Phase<br>$120K MRR<br>1,200 customers</div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-time">Q2 2027</div>
-                <div class="timeline-event">Series A Ready<br>$210K MRR<br>2,000 customers</div>
-            </div>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">$2.5M ARR</div>
-                <div class="stat-label">Series A Target<br>18 Months</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">$105 ARPU</div>
-                <div class="stat-label">Average Revenue<br>Per User</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">85%</div>
-                <div class="stat-label">Projected Gross<br>Margin</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">15x</div>
-                <div class="stat-label">Revenue Multiple<br>Series A Valuation</div>
-            </div>
-        </div>
-        <div class="highlight">
-            <p><strong>Unit Economics:</strong> $105 ARPU, 85% gross margin, <$50 CAC through AWS co-marketing and organic growth. Path to $37.5M Series A valuation at 15x revenue multiple.</p>
-        </div>
-    </div>
-
-    <!-- Slide 8: Technical Team & Leadership -->
-    <div class="slide">
-        <h2>Technical Leadership: Maria Sheikh, 23</h2>
-        <div class="highlight">
-            <p><strong>Proven Solo Execution Record:</strong><br>
-            Built CF Studio end-to-end in 6 months: multi-API orchestration, payment processing, enterprise UI/UX. Achieved paying customers and AWS enterprise partnership validation.</p>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">Solo Built</div>
-                <div class="stat-label">CF Studio Platform<br>6 Months</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">Enterprise</div>
-                <div class="stat-label">AWS Architecture<br>Partnership</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">$89/mo</div>
-                <div class="stat-label">Premium Customer<br>Validated</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">Technical</div>
-                <div class="stat-label">Full-Stack Expertise<br>Proven</div>
-            </div>
-        </div>
-        <div class="solution-section">
-            <div class="solution-title">$500K Team Scaling Strategy</div>
-            <p><strong>Technical Team (60%):</strong> 2 senior mobile developers, 1 computer vision specialist<br>
-            <strong>Product Team (25%):</strong> UI/UX designer, product manager<br>
-            <strong>Growth Team (15%):</strong> Marketing specialist, customer success</p>
-        </div>
-        <div class="quote">
-            "CF Studio proved technical execution. $500K enables the team to scale Flickra's real-time guidance vision to market leadership."
-        </div>
-    </div>
-
-    <!-- Slide 9: Investment Opportunity -->
-    <div class="slide">
-        <h2>Strategic Investment Opportunity: $500K Seed</h2>
-        <div class="aws-highlight">
-            <p><strong>Investment Timing & Strategic Value:</strong><br>
-            AWS enterprise validation + paying customer traction + 12-18 month competitive window = optimal funding moment for category leadership.</p>
-        </div>
-        <div class="contact-info">
-            <p><strong>Funding Allocation:</strong></p>
-            <div style="text-align: left; margin: 20px 0;">
-                <p><strong>Technical Development (60% - $300K):</strong><br>
-                Senior mobile developers, computer vision specialist, real-time guidance system, Magic Score UI/UX</p>
-                <p><strong>Product Development (25% - $125K):</strong><br>
-                Brand training pipeline, multi-scene generation, enterprise features, AWS infrastructure scaling</p>
-                <p><strong>Market Acceleration (15% - $75K):</strong><br>
-                Customer acquisition, AWS co-marketing, beta user onboarding, Series A preparation</p>
-            </div>
-            <p><strong>Milestones:</strong> Q4 2025 Beta → Q4 2026 $1.4M ARR → Q2 2027 $2.5M ARR Series A</p>
-        </div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number">12-18 Months</div>
-                <div class="stat-label">Series A Timeline<br>$2.5M ARR</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">15x Multiple</div>
-                <div class="stat-label">$37.5M Series A<br>Valuation Target</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">75x Return</div>
-                <div class="stat-label">Potential Investor<br>ROI</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 10: Contact & Next Steps -->
-    <div class="slide">
-        <h2>Ready to Democratize Professional Video Production</h2>
-        <div class="contact-info">
-            <p style="font-size: 24px; margin-bottom: 30px;"><strong>Maria Sheikh, Founder</strong></p>
-            <p>maria@contentfactory.ai</p>
-            <div style="margin: 30px 0;">
-                <a href="https://contentfactory.ai" class="cta-button">View CF Studio Platform</a>
-            </div>
-        </div>
-        <div class="quote">
-            "We're putting professional AI directors in every business owner's pocket. Join us in democratizing quality video production."
-        </div>
-        <div class="aws-highlight">
-            <p style="color: #FFA500; font-weight: 600;">AWS-Partnered • Paying Customers • Market-Ready Technology</p>
-        </div>
-    </div>
-
-    <script>
-        function scrollToSlide(index) {
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.nav-dot');
-            if (slides[index]) {
-                slides[index].scrollIntoView({ behavior: 'smooth' });
-                dots.forEach(dot => dot.classList.remove('active'));
-                if (dots[index]) dots[index].classList.add('active');
-            }
-        }
-        
-        window.addEventListener('scroll', () => {
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.nav-dot');
-            const scrollPosition = window.scrollY + window.innerHeight / 2;
+        <div class="slide-number">1 / 13</div>
+        <div class="slide-content center-content">
+            <h1>Flickra</h1>
+            <div class="subtitle">Real-Time AI Commercial Director</div>
+            <div style="font-size: 1.1rem; color: #4a5568; margin: 2rem 0;">Professional Video Production Through Mobile AI</div>
+            <div style="font-size: 1rem; color: #718096; margin-bottom: 4rem;">Built by the team behind CF Studio - proven AI platform with paying customers</div>
             
-            slides.forEach((slide, index) => {
-                const slideTop = slide.offsetTop;
-                const slideBottom = slideTop + slide.offsetHeight;
-                
-                if (scrollPosition >= slideTop && scrollPosition <= slideBottom) {
-                    dots.forEach(dot => dot.classList.remove('active'));
-                    if (dots[index]) dots[index].classList.add('active');
-                }
-            });
-        });
-    </script>
+            <div class="quote">
+                "Professional video production requires expensive equipment and expertise. Flickra puts a real-time AI director in every business owner's pocket, delivering studio-quality results through intelligent mobile guidance."
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Problem -->
+    <div class="slide">
+        <div class="slide-number">2 / 13</div>
+        <div class="slide-content">
+            <h2>The <span class="accent-text">$50B Problem</span></h2>
+            <div class="subtitle">Quality vs. Speed in Video Marketing</div>
+            
+            <h3 style="margin-top: 3rem;">Current Reality: Small businesses have three bad choices:</h3>
+            <div class="problem-options">
+                <div class="problem-card">
+                    <h4>AI Platforms ($99-299/mo)</h4>
+                    <p>Fast but inconsistent quality - "garbage in, garbage out"</p>
+                </div>
+                <div class="problem-card">
+                    <h4>Agencies ($50K+ budgets)</h4>
+                    <p>High quality but 3+ week timelines</p>
+                </div>
+                <div class="problem-card">
+                    <h4>DIY Content</h4>
+                    <p>Free but looks amateur, hurts brand perception</p>
+                </div>
+            </div>
+
+            <div class="quote">
+                "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Market Timing -->
+    <div class="slide">
+        <div class="slide-number">3 / 13</div>
+        <div class="slide-content">
+            <h2>Why Now: <span class="accent-text">AI Video Revolution Window</span></h2>
+            
+            <ul class="bullet-points" style="font-size: 1.1rem;">
+                <li><strong>87% of marketers</strong> using video in 2025 (up from 61% in 2023)</li>
+                <li><strong>Mobile-first consumption:</strong> 75% of video content consumed on mobile</li>
+                <li><strong>Quality gap:</strong> SMBs spend $2.5K-$12K monthly but get "generic slop" from current AI tools</li>
+                <li><strong>Competition window:</strong> 12-18 months before Big Tech solves input quality</li>
+            </ul>
+
+            <div class="quote">
+                "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Proven Execution -->
+    <div class="slide">
+        <div class="slide-number">4 / 13</div>
+        <div class="slide-content">
+            <h2>Proven Execution: <span class="accent-text">CF Studio Success Story</span></h2>
+            <div class="subtitle">Enterprise-Grade AI Platform Built Solo in 6 Months</div>
+            
+            <p style="color: #4a5568; margin-bottom: 2rem;">Multi-API orchestration (Runway, VEO, CLAID, ElevenLabs), custom UI/UX, Stripe payments, real-time video processing. Result: 13 users, $89/mo international customer, 100% organic growth.</p>
+
+            <div class="four-column-grid">
+                <div class="stat-card">
+                    <div class="stat-number">$89/mo</div>
+                    <div class="stat-label">Premium International Customer Paying</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Organic Growth & Customer Acquisition</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">6 Months</div>
+                    <div class="stat-label">Solo Development Enterprise Platform</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">AWS</div>
+                    <div class="stat-label">Partner Enterprise Infrastructure Validation</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>AWS Partnership Details</h3>
+                <p style="color: #4a5568;">160 hours funded development, 4-person Solutions Architect team, complete serverless migration. AWS doesn't invest this level of resources without seeing significant commercial potential.</p>
+            </div>
+
+            <div class="quote">
+                "CF Studio proved we can compete with agencies on quality while delivering 10x faster. Flickra solves the final piece: ensuring perfect input quality through real-time guidance."
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: The Solution -->
+    <div class="slide">
+        <div class="slide-number">5 / 13</div>
+        <div class="slide-content">
+            <h2>The Flickra Breakthrough</h2>
+            <div class="subtitle">Real-Time Production Intelligence</div>
+            
+            <p style="color: #4a5568; margin-bottom: 2rem;">Current AI tools fail because of poor inputs. Flickra creates a new category: Guided AI Production</p>
+
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Brand Intelligence Training</h3>
+                    <p>(30-minute setup) Train your Personal AI Director to recognize your exact products, brand colors, logo placement, and visual identity. Unlike generic object detection, this AI learns your specific brand across different lighting conditions and environments - creating your personalized commercial expert.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Real-Time Mobile Guidance System</h3>
+                    <p>• Brand-Specific Detection: Instantly recognizes YOUR product<br>
+                    • Live Coaching: "Move closer to window... tilt phone 15° left... perfect!"<br>
+                    • Magic Score (0-100): Gamified system requires 85+ before capture<br>
+                    • Live Background Preview: See your product in studio environments live<br>
+                    • Multi-Scene Commercial Generation: One perfect shot creates 5 complete commercial narratives</p>
+                </div>
+            </div>
+
+            <div class="four-column-grid" style="margin-top: 3rem;">
+                <div class="stat-card">
+                    <div class="stat-number">85+</div>
+                    <div class="stat-label">Score Required Before Processing</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Commercials Full Narrative Stories From One Shot</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">15 Sec</div>
+                    <div class="stat-label">Capture to Final Commercial</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12-18</div>
+                    <div class="stat-label">Months Technical Moat Before Competition</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Competitive Advantage -->
+    <div class="slide">
+        <div class="slide-number">6 / 13</div>
+        <div class="slide-content">
+            <h2>Category Creation: <span class="accent-text">Guided AI</span> vs. "Hope and Pray" AI</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Input Quality</th>
+                        <th>User Experience</th>
+                        <th>Output Consistency</th>
+                        <th>Price Point</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AI Platforms<br><small>(Pencil, AdCreative)</small></td>
+                        <td>None</td>
+                        <td>Upload → Hope</td>
+                        <td>Inconsistent</td>
+                        <td>$99-299/mo</td>
+                    </tr>
+                    <tr>
+                        <td>Advanced AI<br><small>(Synthesia, Runway)</small></td>
+                        <td>Text prompts</td>
+                        <td>Prompt → Wait → Refine</td>
+                        <td>High quality, slow</td>
+                        <td>$200-500/mo</td>
+                    </tr>
+                    <tr>
+                        <td>Production Agencies</td>
+                        <td>Professional crew</td>
+                        <td>Weeks + $50K</td>
+                        <td>Perfect but expensive</td>
+                        <td>$50K+ budgets</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>Flickra (Guided AI)</strong></td>
+                        <td><strong>Real-time coaching</strong></td>
+                        <td><strong>Guided → Perfect input</strong></td>
+                        <td><strong>Agency quality, 15 sec</strong></td>
+                        <td><strong>$89-149/mo</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 2rem;">
+                <h3>Defensive Moat</h3>
+                <p style="color: #4a5568;">Personal AI Director training + Magic Score gamification creates 12-18 month technical lead. Big Tech can't easily replicate real-time mobile guidance systems combining brand intelligence with production coaching.</p>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>First Mover Advantage Window</h3>
+                <p style="color: #4a5568;">Mobile-first AI video is exploding. We have 12-18 months before Google/Meta solve guided production. Moving fast with $500K accelerates to market leadership before competition arrives.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Go-to-Market -->
+    <div class="slide">
+        <div class="slide-number">7 / 13</div>
+        <div class="slide-content">
+            <h2>Validated Go-to-Market: <span class="accent-text">Enterprise + SMB</span></h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Phase 1: Beta</div>
+                    <p>Local SMB validation<br>Product-market fit<br>Customer success stories</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Phase 2: Scale</div>
+                    <p>Enterprise sales<br>$89-149/mo pricing<br>Channel partnerships</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Phase 3: Leadership</div>
+                    <p>Category dominance<br>Series A readiness<br>Competitive defense</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 3rem;">Strategic Partnership Acceleration</h3>
+            <p style="color: #4a5568; margin-bottom: 2rem;">Flickra has secured a strategic partnership with AWS, featuring 160 hours of funded enterprise development and dedicated support from a four-person Solutions Architect team. This collaboration accelerates our enterprise infrastructure and provides "Powered by AWS" branding with official logo usage rights at launch.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">160 Hours</div>
+                    <div class="stat-label">Funded Development Enterprise Ready</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4-Person</div>
+                    <div class="stat-label">Team Solutions Architects Dedicated Support</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">"Powered by AWS"</div>
+                    <div class="stat-label">Official Branding Logo Usage Rights</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Market Size -->
+    <div class="slide">
+        <div class="slide-number">8 / 13</div>
+        <div class="slide-content">
+            <h2>Target Market</h2>
+            <div class="subtitle">Marketing teams spending $2.5K-$12K monthly on digital marketing, frustrated with current AI quality or agency timelines</div>
+            
+            <div class="four-column-grid">
+                <div class="stat-card">
+                    <div class="stat-number">34.8M</div>
+                    <div class="stat-label">US Small Businesses Target Market</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">49%</div>
+                    <div class="stat-label">Increasing Marketing Budgets in 2025</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$2.5K-$12K</div>
+                    <div class="stat-label">Monthly Marketing Spend Range</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">93%</div>
+                    <div class="stat-label">Plan to Maintain/Increase Video Marketing Spend</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Financial Projections -->
+    <div class="slide">
+        <div class="slide-number">9 / 13</div>
+        <div class="slide-content">
+            <h2>18-Month Path to <span class="accent-text">$2.5M ARR</span> (Series A Ready)</h2>
+            <div class="subtitle">Conservative projections based on CF Studio traction + AWS partnership acceleration</div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-quarter">Q4 2025</div>
+                    <div style="color: #2d3748; font-weight: 600;">Beta Launch</div>
+                    <div class="stat-label">$10K MRR • 100 customers</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-quarter">Q2 2026</div>
+                    <div style="color: #2d3748; font-weight: 600;">Market Entry</div>
+                    <div class="stat-label">$50K MRR • 500 customers</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-quarter">Q4 2026</div>
+                    <div style="color: #2d3748; font-weight: 600;">Growth Phase</div>
+                    <div class="stat-label">$120K MRR • 1,200 customers</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-quarter">Q2 2027</div>
+                    <div style="color: #2d3748; font-weight: 600;">Series A Ready</div>
+                    <div class="stat-label">$210K MRR • 2,000 customers</div>
+                </div>
+            </div>
+
+            <div class="four-column-grid">
+                <div class="stat-card">
+                    <div class="stat-number">$2.5M</div>
+                    <div class="stat-label">ARR Series A Target 18 Months</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$105</div>
+                    <div class="stat-label">ARPU Average Revenue Per User</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Projected Gross Margin</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">15x</div>
+                    <div class="stat-label">Revenue Multiple Series A Valuation</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem; color: #4a5568;">
+                Unit Economics: $105 ARPU, 85% gross margin, <$50 CAC through AWS co-marketing and organic growth. Path to $37.5M Series A valuation at 15x revenue multiple.
+            </p>
+        </div>
+    </div>
+
+    <!-- Slide 10: Team -->
+    <div class="slide">
+        <div class="slide-number">10 / 13</div>
+        <div class="slide-content">
+            <h2>Technical Leadership: <span class="accent-text">Maria Sheikh, 23</span></h2>
+            
+            <h3>Proven Solo Execution Record:</h3>
+            <p style="color: #4a5568; margin-bottom: 2rem;">Built CF Studio end-to-end in 6 months: multi-API orchestration, payment processing, enterprise UI/UX. Achieved paying customers and AWS enterprise partnership validation.</p>
+
+            <div class="four-column-grid">
+                <div class="stat-card">
+                    <div class="stat-number">Solo Built</div>
+                    <div class="stat-label">CF Studio Platform</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">6 Months</div>
+                    <div class="stat-label">Enterprise AWS Architecture Partnership</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$89/mo</div>
+                    <div class="stat-label">Premium Customer Validated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Technical</div>
+                    <div class="stat-label">Full-Stack Expertise Proven</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Team Scaling -->
+    <div class="slide">
+        <div class="slide-number">11 / 13</div>
+        <div class="slide-content">
+            <h2><span class="accent-text">$500K</span> Team Scaling Strategy</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Technical Team (60%)</div>
+                    <p>2 senior mobile developers, 1 computer vision specialist</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Product Team (25%)</div>
+                    <p>UI/UX designer, product manager</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Growth Team (15%)</div>
+                    <p>Marketing specialist, customer success</p>
+                </div>
+            </div>
+
+            <div class="quote">
+                "CF Studio proved technical execution. $500K enables the team to scale Flickra's real-time guidance vision to market leadership."
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Investment -->
+    <div class="slide">
+        <div class="slide-number">12 / 13</div>
+        <div class="slide-content">
+            <h2>Strategic Investment Opportunity: <span class="accent-text">$500K Seed</span></h2>
+            
+            <h3>Investment Timing & Strategic Value:</h3>
+            <p style="color: #4a5568; margin-bottom: 2rem;">AWS enterprise validation + paying customer traction + 12-18 month competitive window = optimal funding moment for category leadership.</p>
+
+            <h3>Funding Allocation:</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Technical Development (60% - $300K)</div>
+                    <p>Senior mobile developers, computer vision specialist, real-time guidance system, Magic Score UI/UX</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Product Development (25% - $125K)</div>
+                    <p>Brand training pipeline, multi-scene generation, enterprise features, AWS infrastructure scaling</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Market Acceleration (15% - $75K)</div>
+                    <p>Customer acquisition, AWS co-marketing, beta user onboarding, Series A preparation</p>
+                </div>
+            </div>
+
+            <p style="color: #4a5568; margin: 2rem 0;">Milestones: Q4 2025 Beta → Q4 2026 $1.4M ARR → Q2 2027 $2.5M ARR Series A</p>
+
+            <div class="four-column-grid">
+                <div class="stat-card">
+                    <div class="stat-number">12-18</div>
+                    <div class="stat-label">Months Series A Timeline</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$2.5M</div>
+                    <div class="stat-label">ARR 15x Multiple</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$37.5M</div>
+                    <div class="stat-label">Series A Valuation Target</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">75x</div>
+                    <div class="stat-label">Return Potential Investor ROI</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Contact -->
+    <div class="slide">
+        <div class="slide-number">13 / 13</div>
+        <div class="slide-content center-content">
+            <h1>Ready to Transform Professional Video Production</h1>
+            
+            <div class="contact-info">
+                <h3>Maria Sheikh, Founder</h3>
+                <p style="color: #3182ce; font-size: 1.3rem;">maria@contentfactory.ai</p>
+                <p style="margin-top: 2rem; color: #718096;">View CF Studio Platform</p>
+            </div>
+
+            <div class="quote" style="margin-top: 3rem;">
+                "We're putting professional AI directors in every business owner's pocket. Join us in transforming quality video production."
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">AWS</div>
+                    <div class="stat-label">Partnered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Paying</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Market-Ready</div>
+                    <div class="stat-label">Technology</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 
