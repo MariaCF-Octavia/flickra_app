@@ -16,7 +16,8 @@ dependencies:
   permission_handler: ^11.3.1
   path_provider: ^2.1.2
   image: ^4.1.7
-  flutter_vision: 1.1.4
+  # Removed flutter_vision - replaced with tflite_flutter
+  http: ^1.1.0  # Added for Roboflow API calls
 
 dev_dependencies:
   flutter_test:
@@ -25,6 +26,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  # Will add assets here when we have trained models
+  # assets:
+  #   - assets/models/
+  #   - assets/labels.txt
 
   # We'll add assets here later for YOLOv8 models
   # assets:
