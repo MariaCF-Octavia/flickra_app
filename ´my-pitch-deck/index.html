@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,25 +13,19 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.5;
+            line-height: 1.6;
             background: #f8fafc;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
+            color: #1a202c;
         }
 
         .slide {
             min-height: 100vh;
             padding: 40px 20px;
             background: #ffffff;
-            color: #1a202c;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border-bottom: 2px solid #e2e8f0;
-        }
-
-        .slide:last-child {
-            border-bottom: none;
         }
 
         @media (min-width: 768px) {
@@ -46,52 +40,49 @@
             width: 100%;
         }
 
-        .slide h1 {
+        .slide-number {
+            background: rgba(49, 130, 206, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            width: fit-content;
+            margin-bottom: 20px;
+            margin-left: auto;
+        }
+
+        h1 {
             font-size: 2.5rem;
             font-weight: 800;
             margin-bottom: 1rem;
             color: #1a202c;
-            letter-spacing: -0.02em;
         }
 
-        .slide h2 {
+        h2 {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: #2d3748;
-            letter-spacing: -0.01em;
         }
 
-        .slide h3 {
+        h3 {
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: #4a5568;
         }
 
+        @media (min-width: 768px) {
+            h1 { font-size: 3.5rem; }
+            h2 { font-size: 2.8rem; }
+            h3 { font-size: 1.5rem; }
+        }
+
         .subtitle {
             font-size: 1.1rem;
             color: #718096;
-            font-weight: 400;
             margin-bottom: 2rem;
-        }
-
-        @media (min-width: 768px) {
-            .slide h1 {
-                font-size: 3.5rem;
-            }
-
-            .slide h2 {
-                font-size: 2.8rem;
-            }
-
-            .slide h3 {
-                font-size: 1.5rem;
-            }
-
-            .subtitle {
-                font-size: 1.3rem;
-            }
         }
 
         .accent-text {
@@ -101,22 +92,9 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin: 2.5rem 0;
-        }
-
-        @media (min-width: 480px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 2rem;
-            }
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
         }
 
         .stat-card {
@@ -142,15 +120,9 @@
 
         .feature-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
-        }
-
-        @media (min-width: 768px) {
-            .feature-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            }
         }
 
         .feature-card {
@@ -168,21 +140,18 @@
             margin-bottom: 0.5rem;
         }
 
-        .feature-card p {
-            color: #4a5568;
-            font-size: 0.95rem;
+        .problem-card {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
         }
 
-        .quote {
-            font-size: 1.2rem;
-            color: #2d3748;
-            text-align: center;
-            margin: 2.5rem 0;
-            padding: 2rem;
-            background: #edf2f7;
-            border-radius: 8px;
-            border-left: 4px solid #3182ce;
-            font-style: italic;
+        .problem-card h4 {
+            color: #c53030;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
 
         .comparison-table {
@@ -193,13 +162,6 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             overflow: hidden;
-            font-size: 0.8rem;
-        }
-
-        @media (min-width: 768px) {
-            .comparison-table {
-                font-size: 0.9rem;
-            }
         }
 
         .comparison-table th,
@@ -215,93 +177,22 @@
             color: #2d3748;
         }
 
-        .comparison-table td {
-            color: #4a5568;
-        }
-
         .highlight {
             background: #ebf8ff !important;
             font-weight: 600;
-            color: #2b6cb0 !important;
-        }
-
-        .process-steps {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        @media (min-width: 480px) {
-            .process-steps {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 768px) {
-            .process-steps {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            }
-        }
-
-        .step {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            position: relative;
-        }
-
-        .step-number {
-            background: #3182ce;
-            color: #ffffff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin: 0 auto 1rem;
-            font-size: 1.1rem;
-        }
-
-        .step h3 {
-            font-size: 1.1rem;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-        }
-
-        .step p {
-            font-size: 0.9rem;
-            color: #4a5568;
         }
 
         .timeline {
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            margin: 3rem 0;
-            position: relative;
+            margin: 2rem 0;
         }
 
         @media (min-width: 768px) {
             .timeline {
                 flex-direction: row;
                 justify-content: space-between;
-                align-items: center;
-            }
-            
-            .timeline::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: #e2e8f0;
-                z-index: 0;
             }
         }
 
@@ -311,35 +202,40 @@
             border-radius: 8px;
             padding: 1.5rem;
             text-align: center;
-            position: relative;
-            z-index: 1;
-            min-width: 180px;
+            flex: 1;
         }
 
         .timeline-quarter {
-            font-size: 1rem;
             font-weight: 600;
             color: #3182ce;
             margin-bottom: 0.5rem;
         }
 
-        .timeline-item .stat-number {
-            font-size: 1.5rem;
+        .tech-detail {
+            background: #f7fafc;
+            border-left: 4px solid #3182ce;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
         }
 
-        .bullet-points {
+        .center-content {
+            text-align: center;
+        }
+
+        ul {
             list-style: none;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
         }
 
-        .bullet-points li {
-            margin: 1rem 0;
+        ul li {
             padding-left: 2rem;
             position: relative;
+            margin: 1rem 0;
             color: #4a5568;
         }
 
-        .bullet-points li::before {
+        ul li::before {
             content: '•';
             position: absolute;
             left: 0;
@@ -348,7 +244,7 @@
             font-size: 1.2rem;
         }
 
-        .bullet-points strong {
+        strong {
             color: #2d3748;
         }
 
@@ -356,581 +252,721 @@
             text-align: center;
             margin-top: 3rem;
         }
-
-        .contact-info h3 {
-            color: #2d3748;
-            margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-
-        .contact-info p {
-            font-size: 1.1rem;
-            margin: 0.5rem 0;
-            color: #4a5568;
-        }
-
-        .large-number {
-            font-size: 4rem;
-            font-weight: 800;
-            color: #3182ce;
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        .center-content {
-            text-align: center;
-        }
-
-        .problem-options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin: 3rem 0;
-        }
-
-        @media (min-width: 768px) {
-            .problem-options {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-            }
-        }
-
-        .problem-card {
-            background: #fff5f5;
-            border: 1px solid #fed7d7;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .problem-card h4 {
-            color: #c53030;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .problem-card p {
-            color: #4a5568;
-            font-size: 0.9rem;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        @media (min-width: 768px) {
-            .two-column {
-                grid-template-columns: 1fr 1fr;
-                gap: 3rem;
-                align-items: center;
-            }
-        }
-
-        .slide-number {
-            position: sticky;
-            top: 20px;
-            right: 20px;
-            background: rgba(49, 130, 206, 0.9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            z-index: 100;
-            margin-left: auto;
-            width: fit-content;
-            margin-bottom: 20px;
-        }
-
-        .four-column-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        @media (min-width: 768px) {
-            .four-column-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 2rem;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Slide 1: Title -->
-    <div class="slide">
-        <div class="slide-number">1 / 13</div>
-        <div class="slide-content center-content">
-            <h1>Flickra</h1>
-            <div class="subtitle">Real-Time AI Commercial Director</div>
-            <div style="font-size: 1.1rem; color: #4a5568; margin: 2rem 0;">Professional Video Production Through Mobile AI</div>
-            <div style="font-size: 1rem; color: #718096; margin-bottom: 4rem;">Built by the team behind CF Studio - proven AI platform with paying customers</div>
-            
-            <div class="quote">
-                "Professional video production requires expensive equipment and expertise. Flickra puts a real-time AI director in every business owner's pocket, delivering studio-quality results through intelligent mobile guidance."
-            </div>
-        </div>
-    </div>
 
-    <!-- Slide 2: Problem -->
-    <div class="slide">
-        <div class="slide-number">2 / 13</div>
-        <div class="slide-content">
-            <h2>The <span class="accent-text">$50B Problem</span></h2>
-            <div class="subtitle">Quality vs. Speed in Video Marketing</div>
-            
-            <h3 style="margin-top: 3rem;">Current Reality: Small businesses have three bad choices:</h3>
-            <div class="problem-options">
-                <div class="problem-card">
-                    <h4>AI Platforms ($99-299/mo)</h4>
-                    <p>Fast but inconsistent quality - "garbage in, garbage out"</p>
-                </div>
-                <div class="problem-card">
-                    <h4>Agencies ($50K+ budgets)</h4>
-                    <p>High quality but 3+ week timelines</p>
-                </div>
-                <div class="problem-card">
-                    <h4>DIY Content</h4>
-                    <p>Free but looks amateur, hurts brand perception</p>
-                </div>
-            </div>
-
-            <div class="quote">
-                "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 3: Market Timing -->
-    <div class="slide">
-        <div class="slide-number">3 / 13</div>
-        <div class="slide-content">
-            <h2>Why Now: <span class="accent-text">AI Video Revolution Window</span></h2>
-            
-            <ul class="bullet-points" style="font-size: 1.1rem;">
-                <li><strong>87% of marketers</strong> using video in 2025 (up from 61% in 2023)</li>
-                <li><strong>Mobile-first consumption:</strong> 75% of video content consumed on mobile</li>
-                <li><strong>Quality gap:</strong> SMBs spend $2.5K-$12K monthly but get "generic slop" from current AI tools</li>
-                <li><strong>Competition window:</strong> 12-18 months before Big Tech solves input quality</li>
-            </ul>
-
-            <div class="quote">
-                "Every small business owner's product deserves the same commercial quality as Fortune 500 brands. Our mission is to let SMBs compete on quality, not just budget."
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 4: Proven Execution -->
-    <div class="slide">
-        <div class="slide-number">4 / 13</div>
-        <div class="slide-content">
-            <h2>Proven Execution: <span class="accent-text">CF Studio Success Story</span></h2>
-            <div class="subtitle">Enterprise-Grade AI Platform Built Solo in 6 Months</div>
-            
-            <p style="color: #4a5568; margin-bottom: 2rem;">Multi-API orchestration (Runway, VEO, CLAID, ElevenLabs), custom UI/UX, Stripe payments, real-time video processing. Result: 13 users, $89/mo international customer, 100% organic growth.</p>
-
-            <div class="four-column-grid">
-                <div class="stat-card">
-                    <div class="stat-number">$89/mo</div>
-                    <div class="stat-label">Premium International Customer Paying</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-label">Organic Growth & Customer Acquisition</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">6 Months</div>
-                    <div class="stat-label">Solo Development Enterprise Platform</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">AWS</div>
-                    <div class="stat-label">Partner Enterprise Infrastructure Validation</div>
-                </div>
-            </div>
-
-            <div style="margin-top: 2rem;">
-                <h3>AWS Partnership Details</h3>
-                <p style="color: #4a5568;">160 hours funded development, 4-person Solutions Architect team, complete serverless migration. AWS doesn't invest this level of resources without seeing significant commercial potential.</p>
-            </div>
-
-            <div class="quote">
-                "CF Studio proved we can compete with agencies on quality while delivering 10x faster. Flickra solves the final piece: ensuring perfect input quality through real-time guidance."
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 5: The Solution -->
-    <div class="slide">
-        <div class="slide-number">5 / 13</div>
-        <div class="slide-content">
-            <h2>The Flickra Breakthrough</h2>
-            <div class="subtitle">Real-Time Production Intelligence</div>
-            
-            <p style="color: #4a5568; margin-bottom: 2rem;">Current AI tools fail because of poor inputs. Flickra creates a new category: Guided AI Production</p>
-
-            <div class="process-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Brand Intelligence Training</h3>
-                    <p>(30-minute setup) Train your Personal AI Director to recognize your exact products, brand colors, logo placement, and visual identity. Unlike generic object detection, this AI learns your specific brand across different lighting conditions and environments - creating your personalized commercial expert.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Real-Time Mobile Guidance System</h3>
-                    <p>• Brand-Specific Detection: Instantly recognizes YOUR product<br>
-                    • Live Coaching: "Move closer to window... tilt phone 15° left... perfect!"<br>
-                    • Magic Score (0-100): Gamified system requires 85+ before capture<br>
-                    • Live Background Preview: See your product in studio environments live<br>
-                    • Multi-Scene Commercial Generation: One perfect shot creates 5 complete commercial narratives</p>
-                </div>
-            </div>
-
-            <div class="four-column-grid" style="margin-top: 3rem;">
-                <div class="stat-card">
-                    <div class="stat-number">85+</div>
-                    <div class="stat-label">Score Required Before Processing</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">Commercials Full Narrative Stories From One Shot</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">15 Sec</div>
-                    <div class="stat-label">Capture to Final Commercial</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">12-18</div>
-                    <div class="stat-label">Months Technical Moat Before Competition</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 6: Competitive Advantage -->
-    <div class="slide">
-        <div class="slide-number">6 / 13</div>
-        <div class="slide-content">
-            <h2>Category Creation: <span class="accent-text">Guided AI</span> vs. "Hope and Pray" AI</h2>
-            
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Approach</th>
-                        <th>Input Quality</th>
-                        <th>User Experience</th>
-                        <th>Output Consistency</th>
-                        <th>Price Point</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>AI Platforms<br><small>(Pencil, AdCreative)</small></td>
-                        <td>None</td>
-                        <td>Upload → Hope</td>
-                        <td>Inconsistent</td>
-                        <td>$99-299/mo</td>
-                    </tr>
-                    <tr>
-                        <td>Advanced AI<br><small>(Synthesia, Runway)</small></td>
-                        <td>Text prompts</td>
-                        <td>Prompt → Wait → Refine</td>
-                        <td>High quality, slow</td>
-                        <td>$200-500/mo</td>
-                    </tr>
-                    <tr>
-                        <td>Production Agencies</td>
-                        <td>Professional crew</td>
-                        <td>Weeks + $50K</td>
-                        <td>Perfect but expensive</td>
-                        <td>$50K+ budgets</td>
-                    </tr>
-                    <tr class="highlight">
-                        <td><strong>Flickra (Guided AI)</strong></td>
-                        <td><strong>Real-time coaching</strong></td>
-                        <td><strong>Guided → Perfect input</strong></td>
-                        <td><strong>Agency quality, 15 sec</strong></td>
-                        <td><strong>$89-149/mo</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div style="margin-top: 2rem;">
-                <h3>Defensive Moat</h3>
-                <p style="color: #4a5568;">Personal AI Director training + Magic Score gamification creates 12-18 month technical lead. Big Tech can't easily replicate real-time mobile guidance systems combining brand intelligence with production coaching.</p>
-            </div>
-
-            <div style="margin-top: 2rem;">
-                <h3>First Mover Advantage Window</h3>
-                <p style="color: #4a5568;">Mobile-first AI video is exploding. We have 12-18 months before Google/Meta solve guided production. Moving fast with $500K accelerates to market leadership before competition arrives.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 7: Go-to-Market -->
-    <div class="slide">
-        <div class="slide-number">7 / 13</div>
-        <div class="slide-content">
-            <h2>Validated Go-to-Market: <span class="accent-text">Enterprise + SMB</span></h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-title">Phase 1: Beta</div>
-                    <p>Local SMB validation<br>Product-market fit<br>Customer success stories</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Phase 2: Scale</div>
-                    <p>Enterprise sales<br>$89-149/mo pricing<br>Channel partnerships</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Phase 3: Leadership</div>
-                    <p>Category dominance<br>Series A readiness<br>Competitive defense</p>
-                </div>
-            </div>
-
-            <h3 style="margin-top: 3rem;">Strategic Partnership Acceleration</h3>
-            <p style="color: #4a5568; margin-bottom: 2rem;">Flickra has secured a strategic partnership with AWS, featuring 160 hours of funded enterprise development and dedicated support from a four-person Solutions Architect team. This collaboration accelerates our enterprise infrastructure and provides "Powered by AWS" branding with official logo usage rights at launch.</p>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">160 Hours</div>
-                    <div class="stat-label">Funded Development Enterprise Ready</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">4-Person</div>
-                    <div class="stat-label">Team Solutions Architects Dedicated Support</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">"Powered by AWS"</div>
-                    <div class="stat-label">Official Branding Logo Usage Rights</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 8: Market Size -->
-    <div class="slide">
-        <div class="slide-number">8 / 13</div>
-        <div class="slide-content">
-            <h2>Target Market</h2>
-            <div class="subtitle">Marketing teams spending $2.5K-$12K monthly on digital marketing, frustrated with current AI quality or agency timelines</div>
-            
-            <div class="four-column-grid">
-                <div class="stat-card">
-                    <div class="stat-number">34.8M</div>
-                    <div class="stat-label">US Small Businesses Target Market</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">49%</div>
-                    <div class="stat-label">Increasing Marketing Budgets in 2025</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$2.5K-$12K</div>
-                    <div class="stat-label">Monthly Marketing Spend Range</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">93%</div>
-                    <div class="stat-label">Plan to Maintain/Increase Video Marketing Spend</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 9: Financial Projections -->
-    <div class="slide">
-        <div class="slide-number">9 / 13</div>
-        <div class="slide-content">
-            <h2>18-Month Path to <span class="accent-text">$2.5M ARR</span> (Series A Ready)</h2>
-            <div class="subtitle">Conservative projections based on CF Studio traction + AWS partnership acceleration</div>
-            
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-quarter">Q4 2025</div>
-                    <div style="color: #2d3748; font-weight: 600;">Beta Launch</div>
-                    <div class="stat-label">$10K MRR • 100 customers</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-quarter">Q2 2026</div>
-                    <div style="color: #2d3748; font-weight: 600;">Market Entry</div>
-                    <div class="stat-label">$50K MRR • 500 customers</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-quarter">Q4 2026</div>
-                    <div style="color: #2d3748; font-weight: 600;">Growth Phase</div>
-                    <div class="stat-label">$120K MRR • 1,200 customers</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-quarter">Q2 2027</div>
-                    <div style="color: #2d3748; font-weight: 600;">Series A Ready</div>
-                    <div class="stat-label">$210K MRR • 2,000 customers</div>
-                </div>
-            </div>
-
-            <div class="four-column-grid">
-                <div class="stat-card">
-                    <div class="stat-number">$2.5M</div>
-                    <div class="stat-label">ARR Series A Target 18 Months</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$105</div>
-                    <div class="stat-label">ARPU Average Revenue Per User</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">85%</div>
-                    <div class="stat-label">Projected Gross Margin</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">15x</div>
-                    <div class="stat-label">Revenue Multiple Series A Valuation</div>
-                </div>
-            </div>
-
-            <p style="text-align: center; margin-top: 2rem; color: #4a5568;">
-                Unit Economics: $105 ARPU, 85% gross margin, <$50 CAC through AWS co-marketing and organic growth. Path to $37.5M Series A valuation at 15x revenue multiple.
+<!-- Slide 1: Title -->
+<div class="slide">
+    <div class="slide-number">1 / 14</div>
+    <div class="slide-content center-content">
+        <h1>Flickra</h1>
+        <div class="subtitle">AI Production Director That Learns Your Brand</div>
+        <p style="font-size: 1.1rem; color: #4a5568; margin: 2rem 0;">Professional video through personalized mobile guidance</p>
+        <p style="font-size: 1rem; color: #718096;">Maria Sheikh, Founder<br>maria@contentfactory.ai</p>
+        
+        <div style="background: #edf2f7; padding: 2rem; border-radius: 8px; border-left: 4px solid #3182ce; margin-top: 3rem; text-align: left;">
+            <p style="color: #2d3748; font-size: 1rem;">
+                <strong>Track record:</strong> Built CF Studio—paying international customers, AWS enterprise partnership with 160 hours funded development.<br><br>
+                <strong>Opportunity:</strong> Mobile AI that guides SMBs to capture professional footage, eliminating the input quality problem limiting current AI video tools.<br><br>
+                <strong>Ask:</strong> $500K seed to scale from proven foundation to 2,000 customers in 18 months.
             </p>
         </div>
     </div>
+</div>
 
-    <!-- Slide 10: Team -->
-    <div class="slide">
-        <div class="slide-number">10 / 13</div>
-        <div class="slide-content">
-            <h2>Technical Leadership: <span class="accent-text">Maria Sheikh, 23</span></h2>
-            
-            <h3>Proven Solo Execution Record:</h3>
-            <p style="color: #4a5568; margin-bottom: 2rem;">Built CF Studio end-to-end in 6 months: multi-API orchestration, payment processing, enterprise UI/UX. Achieved paying customers and AWS enterprise partnership validation.</p>
+<!-- Slide 2: The Problem -->
+<div class="slide">
+    <div class="slide-number">2 / 14</div>
+    <div class="slide-content">
+        <h2>The Problem: Input Quality, Not AI Quality</h2>
+        <div class="subtitle">SMB marketing teams spend hours editing AI-generated videos because the AI receives poor inputs</div>
+        
+        <div class="feature-grid">
+            <div class="problem-card">
+                <h4>AI Platforms ($12-299/mo)</h4>
+                <p>Runway, Synthesia, AdCreative.ai produce inconsistent results. Teams upload whatever footage available, receive variable outputs, then spend hours manually editing.</p>
+            </div>
+            <div class="problem-card">
+                <h4>Production Agencies ($1,500-7,000/video)</h4>
+                <p>Professional quality but 3+ week timelines. Only viable for major campaigns, not ongoing content needs.</p>
+            </div>
+            <div class="problem-card">
+                <h4>DIY with Phone</h4>
+                <p>Free but produces amateur content. SMBs lack production expertise to capture quality footage consistently.</p>
+            </div>
+        </div>
 
-            <div class="four-column-grid">
-                <div class="stat-card">
-                    <div class="stat-number">Solo Built</div>
-                    <div class="stat-label">CF Studio Platform</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">6 Months</div>
-                    <div class="stat-label">Enterprise AWS Architecture Partnership</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$89/mo</div>
-                    <div class="stat-label">Premium Customer Validated</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">Technical</div>
-                    <div class="stat-label">Full-Stack Expertise Proven</div>
-                </div>
+        <div style="margin-top: 2rem;">
+            <h3>The Core Issue</h3>
+            <p style="color: #4a5568;">Current AI tools focus on improving generation models. The bottleneck isn't AI quality—it's input quality. SMBs are already spending time editing; they lack production guidance before capture.</p>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 2rem;">
+            <div class="stat-card">
+                <div class="stat-number">$180B</div>
+                <div class="stat-label">Annual SMB Video Marketing Spend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">87%</div>
+                <div class="stat-label">SMBs Using Video Marketing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">49%</div>
+                <div class="stat-label">Increasing Video Budgets 2025</div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Slide 11: Team Scaling -->
-    <div class="slide">
-        <div class="slide-number">11 / 13</div>
-        <div class="slide-content">
-            <h2><span class="accent-text">$500K</span> Team Scaling Strategy</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-title">Technical Team (60%)</div>
-                    <p>2 senior mobile developers, 1 computer vision specialist</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Product Team (25%)</div>
-                    <p>UI/UX designer, product manager</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Growth Team (15%)</div>
-                    <p>Marketing specialist, customer success</p>
-                </div>
+<!-- Slide 3: The Technical Solution -->
+<div class="slide">
+    <div class="slide-number">3 / 14</div>
+    <div class="slide-content">
+        <h2>The Technical Solution</h2>
+        <div class="subtitle">Personalized brand training + real-time mobile guidance</div>
+        
+        <h3>How The System Works</h3>
+        
+        <div class="tech-detail">
+            <h3 style="margin-top: 0;">1. Brand Training (30-minute setup)</h3>
+            <p style="color: #4a5568;">Businesses upload 50-100 product images from multiple angles and lighting conditions. YOLOv8 training on AWS (ml.g5.2xlarge, ~$3 per customer) creates a personalized model that learns:</p>
+            <ul style="margin-top: 1rem;">
+                <li>Optimal angles and lighting for their specific product</li>
+                <li>Brand-specific quality standards</li>
+                <li>Logo placement and composition requirements</li>
+            </ul>
+            <p style="color: #718096; font-size: 0.9rem; margin-top: 1rem;">Not generic object detection—personalized quality standards per business.</p>
+        </div>
+
+        <div class="tech-detail">
+            <h3 style="margin-top: 0;">2. Real-Time Mobile Guidance (Flutter app, 30+ FPS)</h3>
+            <p style="color: #4a5568;">Camera interface with live feedback powered by the trained model:</p>
+            <ul style="margin-top: 1rem;">
+                <li><strong>Quality score (0-100):</strong> Capture disabled until achieving 85+ score</li>
+                <li><strong>Real-time coaching:</strong> "Move left," "Increase lighting," "Adjust angle"</li>
+                <li><strong>Background preview:</strong> View final commercial environment before shooting</li>
+            </ul>
+        </div>
+
+        <div class="tech-detail">
+            <h3 style="margin-top: 0;">3. Multi-API Orchestration</h3>
+            <p style="color: #4a5568;">Once optimal shot captured:</p>
+            <ul style="margin-top: 1rem;">
+                <li>Runway → Background replacement (brand-trained)</li>
+                <li>VEO3 → Video generation</li>
+                <li>CLAID → Multi-scene creation + enhancement</li>
+                <li>RealESRGAN → Upscaling</li>
+                <li>Output: 5 complete commercials from one optimized shot</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #ebf8ff; border-radius: 8px;">
+            <p style="color: #2d3748;"><strong>Competitive moat:</strong> Every customer training session improves the guidance system through automated retraining. Network effects from usage, not just scale.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Why This Approach Works -->
+<div class="slide">
+    <div class="slide-number">4 / 14</div>
+    <div class="slide-content">
+        <h2>Why Competitors Aren't Solving This</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">Technical Complexity</div>
+                <p>Real-time mobile computer vision with 30+ FPS performance requires expertise across Flutter, YOLOv8, AWS infrastructure, and mobile optimization.</p>
             </div>
+            <div class="feature-card">
+                <div class="feature-title">Different Business Model</div>
+                <p>Major platforms (Runway, Synthesia) focus on generation model improvements. Business model optimized for API credit sales, not production guidance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">12-18 Month Window</div>
+                <p>Major platforms will eventually add input quality features. Current investment focused on post-processing, not pre-capture guidance.</p>
+            </div>
+        </div>
 
-            <div class="quote">
-                "CF Studio proved technical execution. $500K enables the team to scale Flickra's real-time guidance vision to market leadership."
+        <h3 style="margin-top: 3rem;">Target Customer: SMB Marketing Teams (2-3 People)</h3>
+        
+        <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+            <p style="color: #4a5568;"><strong>Current behavior:</strong></p>
+            <ul>
+                <li>Already spending hours on video content creation</li>
+                <li>Using AI tools but extensively editing outputs</li>
+                <li>Cannot afford agency rates ($1,500-7,000 per video)</li>
+                <li>Prioritize brand consistency</li>
+            </ul>
+            
+            <p style="color: #4a5568; margin-top: 1.5rem;"><strong>Value proposition:</strong> Guidance to capture quality footage independently, AI trained on specific brand assets, 5 commercial variations per shoot, 75% cost reduction versus agencies.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Proof of Execution -->
+<div class="slide">
+    <div class="slide-number">5 / 14</div>
+    <div class="slide-content">
+        <h2>Execution Track Record: <span class="accent-text">CF Studio</span></h2>
+        <div class="subtitle">Proven technical foundation</div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">6 Months</div>
+                <div class="stat-label">Solo Development to Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$89/mo</div>
+                <div class="stat-label">International Paying Customer</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">13 Users</div>
+                <div class="stat-label">100% Organic Acquisition</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">AWS Partnership</div>
+                <div class="stat-label">160 Hours Funded + 4 SAs</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Proven Technical Capabilities:</h3>
+        <ul>
+            <li><strong>Multi-API orchestration:</strong> Runway, VEO, CLAID, ElevenLabs integrated reliably</li>
+            <li><strong>Payment processing:</strong> Stripe integration with subscription management</li>
+            <li><strong>Real-time video processing:</strong> Large file handling, queueing systems, status updates</li>
+            <li><strong>Enterprise infrastructure:</strong> Production-grade deployment on AWS</li>
+        </ul>
+
+        <div class="tech-detail" style="margin-top: 2rem;">
+            <h3 style="margin-top: 0;">AWS Enterprise Partnership</h3>
+            <p style="color: #4a5568;">AWS partnership indicates commercial validation:</p>
+            <ul>
+                <li>160 hours funded development support</li>
+                <li>Dedicated 4-person Solutions Architect team assigned</li>
+                <li>Code review and migration to AWS infrastructure</li>
+                <li>"Powered by AWS" branding rights granted</li>
+                <li>Co-marketing opportunities for customer acquisition</li>
+            </ul>
+            <p style="color: #4a5568; margin-top: 1rem;">This level of resource allocation signals AWS assessment of significant commercial potential.</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Key Learning from CF Studio</h3>
+        <p style="color: #4a5568;">CF Studio faces the same challenge as other AI platforms: inconsistent outputs from poor inputs. Organic growth limited to 13 users in 6 months validates the severity of this problem. Flickra addresses the fundamental input quality issue identified through CF Studio user feedback.</p>
+    </div>
+</div>
+
+<!-- Slide 6: Competitive Landscape -->
+<div class="slide">
+    <div class="slide-number">6 / 14</div>
+    <div class="slide-content">
+        <h2>Competitive Positioning</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Solution</th>
+                    <th>Input Control</th>
+                    <th>Pricing</th>
+                    <th>Output Quality</th>
+                    <th>Target User</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Runway</strong></td>
+                    <td>None</td>
+                    <td>$12-95/mo</td>
+                    <td>Good but inconsistent</td>
+                    <td>Creators, filmmakers</td>
+                </tr>
+                <tr>
+                    <td><strong>Synthesia</strong></td>
+                    <td>Text prompts only</td>
+                    <td>$18-89/mo</td>
+                    <td>Polished avatars</td>
+                    <td>Enterprise training videos</td>
+                </tr>
+                <tr>
+                    <td><strong>AdCreative.ai</strong></td>
+                    <td>Upload without guidance</td>
+                    <td>$39+/mo</td>
+                    <td>Variable</td>
+                    <td>Agencies, marketers</td>
+                </tr>
+                <tr>
+                    <td><strong>Agencies</strong></td>
+                    <td>Professional crew</td>
+                    <td>$1,500-7,000/video</td>
+                    <td>Excellent</td>
+                    <td>Major campaigns only</td>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>Flickra</strong></td>
+                    <td><strong>Real-time brand-trained guidance</strong></td>
+                    <td><strong>$149-599/mo</strong></td>
+                    <td><strong>Consistent via guided capture</strong></td>
+                    <td><strong>SMB marketing teams</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top: 2rem;">Pricing Strategy</h3>
+        <p style="color: #4a5568;">SMBs allocate $2,500-$12,000 monthly to marketing. Video production costs $1,500-7,000 per video. At $149-599/month for unlimited guided production, Flickra offers 70-80% cost reduction versus agencies while solving AI tool consistency issues.</p>
+
+        <div class="stats-grid" style="margin-top: 2rem;">
+            <div class="stat-card">
+                <div class="stat-number">$149/mo</div>
+                <div class="stat-label">Starter: 10 videos/month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$299/mo</div>
+                <div class="stat-label">Pro: 30 videos/month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$599/mo</div>
+                <div class="stat-label">Agency: Unlimited + API</div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Slide 12: Investment -->
-    <div class="slide">
-        <div class="slide-number">12 / 13</div>
-        <div class="slide-content">
-            <h2>Strategic Investment Opportunity: <span class="accent-text">$500K Seed</span></h2>
-            
-            <h3>Investment Timing & Strategic Value:</h3>
-            <p style="color: #4a5568; margin-bottom: 2rem;">AWS enterprise validation + paying customer traction + 12-18 month competitive window = optimal funding moment for category leadership.</p>
+<!-- Slide 7: Market Opportunity -->
+<div class="slide">
+    <div class="slide-number">7 / 14</div>
+    <div class="slide-content">
+        <h2>Market Opportunity</h2>
+        <div class="subtitle">Validated SMB marketing spend with demonstrated growth</div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">34.8M</div>
+                <div class="stat-label">US Small Businesses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$2.5K-12K</div>
+                <div class="stat-label">Monthly Marketing Spend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">49%</div>
+                <div class="stat-label">Increasing Budgets 2025</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">93%</div>
+                <div class="stat-label">Maintaining Video Investment</div>
+            </div>
+        </div>
 
-            <h3>Funding Allocation:</h3>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-title">Technical Development (60% - $300K)</div>
-                    <p>Senior mobile developers, computer vision specialist, real-time guidance system, Magic Score UI/UX</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Product Development (25% - $125K)</div>
-                    <p>Brand training pipeline, multi-scene generation, enterprise features, AWS infrastructure scaling</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">Market Acceleration (15% - $75K)</div>
-                    <p>Customer acquisition, AWS co-marketing, beta user onboarding, Series A preparation</p>
+        <h3 style="margin-top: 3rem;">Serviceable Market Calculation</h3>
+        <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px;">
+            <p style="color: #4a5568;"><strong>Conservative estimate:</strong> 100,000 SMBs adopting at $200/month average (mix across tiers)</p>
+            <p style="color: #3182ce; font-size: 1.3rem; font-weight: 600; margin-top: 1rem;">= $240M addressable market</p>
+            <p style="color: #4a5568; margin-top: 1rem; font-size: 0.95rem;">Target: Marketing teams currently spending on video tools/agencies or producing in-house content with unsatisfactory results</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Market Timing</h3>
+        <ul>
+            <li><strong>Acute customer pain:</strong> Teams report frustration with AI tools despite monthly subscriptions and hours of editing</li>
+            <li><strong>Technical window:</strong> 12-18 months before major platforms add input guidance features</li>
+            <li><strong>Mobile-first adoption:</strong> 75% of video consumed on mobile devices</li>
+            <li><strong>Proven infrastructure:</strong> CF Studio demonstrates capability to build production-grade platforms</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 8: Go-to-Market Strategy -->
+<div class="slide">
+    <div class="slide-number">8 / 14</div>
+    <div class="slide-content">
+        <h2>Go-to-Market: Path to 2,000 Customers</h2>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q4 2025</div>
+                <div style="font-weight: 600; margin: 0.5rem 0;">Beta Launch</div>
+                <div class="stat-number" style="font-size: 1.8rem;">50</div>
+                <div class="stat-label">customers @ $149/mo avg</div>
+                <div class="stat-label" style="margin-top: 0.5rem;">$7.5K MRR</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q2 2026</div>
+                <div style="font-weight: 600; margin: 0.5rem 0;">Scaling</div>
+                <div class="stat-number" style="font-size: 1.8rem;">500</div>
+                <div class="stat-label">customers @ $180/mo avg</div>
+                <div class="stat-label" style="margin-top: 0.5rem;">$90K MRR</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q4 2026</div>
+                <div style="font-weight: 600; margin: 0.5rem 0;">Growth</div>
+                <div class="stat-number" style="font-size: 1.8rem;">1,200</div>
+                <div class="stat-label">customers @ $190/mo avg</div>
+                <div class="stat-label" style="margin-top: 0.5rem;">$228K MRR</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q2 2027</div>
+                <div style="font-weight: 600; margin: 0.5rem 0;">Series A Ready</div>
+                <div class="stat-number" style="font-size: 1.8rem;">2,000</div>
+                <div class="stat-label">customers @ $200/mo avg</div>
+                <div class="stat-label" style="margin-top: 0.5rem;">$400K MRR</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; padding: 1.5rem; background: #ebf8ff; border-radius: 8px;">
+            <h3 style="margin-top: 0;">Target: $4.8M ARR in 18 Months</h3>
+            <p style="color: #4a5568;">150x growth acceleration from CF Studio's current organic base. Execution approach:</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Phase 1: Beta (Q4 2025) - 50 Customers</h3>
+        <ul>
+            <li><strong>Target segment:</strong> Local SMB marketing teams frustrated with current AI tool inconsistency</li>
+            <li><strong>Acquisition:</strong> Direct outreach to businesses currently subscribing to Runway/Synthesia</li>
+            <li><strong>Success metrics:</strong> 80%+ satisfaction, 2+ videos per customer monthly</li>
+            <li><strong>Focus:</strong> Perfect mobile UX, validate quality consistency</li>
+        </ul>
+
+        <h3 style="margin-top: 2rem;">Phase 2: AWS-Accelerated Growth (2026) - 500 Customers</h3>
+        <ul>
+            <li><strong>Acquisition lever:</strong> AWS co-marketing (target $100-150 CAC)</li>
+            <li><strong>Channels:</strong> Paid advertising targeting "AI video tools" search queries, content marketing</li>
+            <li><strong>Product expansion:</strong> Launch $299 tier for agencies and multi-product businesses</li>
+        </ul>
+
+        <h3 style="margin-top: 2rem;">Phase 3: Scale (2027) - 2,000 Customers</h3>
+        <ul>
+            <li><strong>Customer distribution:</strong> Mix across all tiers, $200/month average</li>
+            <li><strong>Unit economics:</strong> Target 75% gross margin (AWS infrastructure + API costs)</li>
+            <li><strong>CAC payback:</strong> 3-4 months at $150 CAC target</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 9: Execution Assessment -->
+<div class="slide">
+    <div class="slide-number">9 / 14</div>
+    <div class="slide-content">
+        <h2>Execution Capabilities & Gaps</h2>
+        <div class="subtitle">Proven technical foundation, learning required on distribution</div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div>
+                <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1.5rem;">
+                    <h3 style="color: #166534; margin-top: 0;">✓ Proven Capabilities</h3>
+                    <ul style="margin-top: 1rem;">
+                        <li style="color: #15803d;"><strong>Production platform development:</strong> CF Studio demonstrates shipping capability</li>
+                        <li style="color: #15803d;"><strong>Multi-API orchestration:</strong> Proven integration of Runway, VEO, CLAID</li>
+                        <li style="color: #15803d;"><strong>Revenue generation:</strong> Paying customer validates approach</li>
+                        <li style="color: #15803d;"><strong>Technical architecture:</strong> YOLOv8, Flutter, AWS infrastructure design</li>
+                        <li style="color: #15803d;"><strong>Problem validation:</strong> Input quality identified as core bottleneck</li>
+                    </ul>
                 </div>
             </div>
-
-            <p style="color: #4a5568; margin: 2rem 0;">Milestones: Q4 2025 Beta → Q4 2026 $1.4M ARR → Q2 2027 $2.5M ARR Series A</p>
-
-            <div class="four-column-grid">
-                <div class="stat-card">
-                    <div class="stat-number">12-18</div>
-                    <div class="stat-label">Months Series A Timeline</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$2.5M</div>
-                    <div class="stat-label">ARR 15x Multiple</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$37.5M</div>
-                    <div class="stat-label">Series A Valuation Target</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">75x</div>
-                    <div class="stat-label">Return Potential Investor ROI</div>
+            
+            <div>
+                <div style="background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; padding: 1.5rem;">
+                    <h3 style="color: #9a3412; margin-top: 0;">? Learning Required</h3>
+                    <ul style="margin-top: 1rem;">
+                        <li style="color: #9a3412;"><strong>Scaled customer acquisition:</strong> CF Studio reached 13 users organically; need paid channel expertise</li>
+                        <li style="color: #9a3412;"><strong>Enterprise sales processes:</strong> No experience selling $149-599/mo
+                             subscriptions</li>
+                        <li style="color: #9a3412;"><strong>Churn management:</strong> Limited operational history with subscription business</li>
+                        <li style="color: #9a3412;"><strong>Team building:</strong> Solo development to date; hiring and management experience needed</li>
+                        <li style="color: #9a3412;"><strong>Growth trajectory validation:</strong> 2,000 customers in 18 months represents 150x acceleration</li>
+                    </ul>
                 </div>
             </div>
         </div>
+
+        <div style="margin-top: 3rem; padding: 2rem; background: #f7fafc; border-left: 4px solid #3182ce; border-radius: 4px;">
+            <h3 style="margin-top: 0;">Investment Thesis</h3>
+            <p style="color: #2d3748; font-size: 1.05rem;">
+                $500K seed capital enables building distribution capabilities while leveraging proven technical foundation. AWS partnership provides infrastructure support and co-marketing opportunities.
+            </p>
+            <p style="color: #2d3748; font-size: 1.05rem; margin-top: 1rem;">
+                <strong>Downside scenario:</strong> Solid $1M ARR business serving 200-300 SMBs with strong product-market fit<br>
+                <strong>Base case:</strong> $3-5M ARR demonstrating category viability and Series A readiness<br>
+                <strong>Upside scenario:</strong> $4.8M+ ARR achieving category leadership before major platform competition
+            </p>
+        </div>
     </div>
+</div>
 
-    <!-- Slide 13: Contact -->
-    <div class="slide">
-        <div class="slide-number">13 / 13</div>
-        <div class="slide-content center-content">
-            <h1>Ready to Transform Professional Video Production</h1>
-            
-            <div class="contact-info">
-                <h3>Maria Sheikh, Founder</h3>
-                <p style="color: #3182ce; font-size: 1.3rem;">maria@contentfactory.ai</p>
-                <p style="margin-top: 2rem; color: #718096;">View CF Studio Platform</p>
+<!-- Slide 10: Technical Architecture Deep Dive -->
+<div class="slide">
+    <div class="slide-number">10 / 14</div>
+    <div class="slide-content">
+        <h2>Technical Architecture Detail</h2>
+        <div class="subtitle">System components and integration approach</div>
+        
+        <h3>Brand Training Pipeline</h3>
+        <div class="tech-detail">
+            <p style="color: #4a5568;"><strong>Input:</strong> Customer uploads 50-100 product images</p>
+            <p style="color: #4a5568;"><strong>Processing:</strong></p>
+            <ul>
+                <li>YOLOv8 training on AWS ml.g5.2xlarge (~$3/customer, 1-2 hours)</li>
+                <li>Model storage on S3 (~$0.50/month per customer)</li>
+                <li>Automated retraining triggers improve model accuracy over time</li>
+            </ul>
+            <p style="color: #4a5568;"><strong>Output:</strong> Personalized quality scoring model understanding specific brand standards</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Mobile Real-Time Inference</h3>
+        <div class="tech-detail">
+            <p style="color: #4a5568;"><strong>Challenge:</strong> Dedicated endpoints cost $876/month per customer (not viable at $149-599 pricing)</p>
+            <p style="color: #4a5568; margin-top: 1rem;"><strong>Solution:</strong> Lambda-based serverless inference</p>
+            <ul>
+                <li>Model cached in Lambda container (~$0.003 per request)</li>
+                <li>Smart caching maintains "warm" state during active sessions</li>
+                <li>Flutter app optimized for 30+ FPS with intelligent frame sampling</li>
+            </ul>
+            <p style="color: #718096; font-size: 0.9rem; margin-top: 1rem;">Note: Achieves "near real-time" (2-3 second latency) rather than instant feedback. Acceptable for guided production workflow.</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Multi-Scene Video Generation</h3>
+        <div class="tech-detail">
+            <p style="color: #4a5568;"><strong>User defines commercial structure:</strong> "Product on table → Application in bathroom → Friends in car → Call-to-action"</p>
+            <p style="color: #4a5568; margin-top: 1rem;"><strong>Processing chain:</strong></p>
+            <ul>
+                <li>Runway: Background replacement for each scene (brand-trained model)</li>
+                <li>VEO3: Image-to-video conversion</li>
+                <li>CLAID: Multi-scene assembly + enhancement</li>
+                <li>RealESRGAN: Upscaling for quality optimization</li>
+            </ul>
+            <p style="color: #4a5568; margin-top: 1rem;"><strong>Per-generation cost:</strong> ~$2-4 depending on complexity and scene count</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Infrastructure Stack</h3>
+        <ul>
+            <li><strong>Mobile development:</strong> Flutter (iOS + Android from unified codebase)</li>
+            <li><strong>Computer vision:</strong> Ultralytics HUB + YOLOv8</li>
+            <li><strong>Compute:</strong> AWS Lambda (inference) + SageMaker (training)</li>
+            <li><strong>Storage & delivery:</strong> S3 (models + videos) + CloudFront (CDN)</li>
+            <li><strong>Monitoring:</strong> CloudWatch + custom analytics dashboard</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 11: Unit Economics -->
+<div class="slide">
+    <div class="slide-number">11 / 14</div>
+    <div class="slide-content">
+        <h2>Unit Economics</h2>
+        <div class="subtitle">Business model scalability at target pricing</div>
+        
+        <h3>Revenue Per Customer (Monthly)</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">$149</div>
+                <div class="stat-label">Starter Tier<br>10 videos/month</div>
             </div>
-
-            <div class="quote" style="margin-top: 3rem;">
-                "We're putting professional AI directors in every business owner's pocket. Join us in transforming quality video production."
+            <div class="stat-card">
+                <div class="stat-number">$299</div>
+                <div class="stat-label">Pro Tier<br>30 videos/month</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number">$599</div>
+                <div class="stat-label">Agency Tier<br>Unlimited + API</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$200</div>
+                <div class="stat-label">Blended Average<br>(Target Mix)</div>
+            </div>
+        </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">AWS</div>
-                    <div class="stat-label">Partnered</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">Paying</div>
-                    <div class="stat-label">Customers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">Market-Ready</div>
-                    <div class="stat-label">Technology</div>
-                </div>
+        <h3 style="margin-top: 3rem;">Cost Structure (Per Customer/Month)</h3>
+        <div class="tech-detail">
+            <p style="color: #4a5568;"><strong>Infrastructure costs:</strong></p>
+            <ul>
+                <li>Model storage: $0.50/month</li>
+                <li>Lambda inference (20 guided sessions avg): $3-5/month</li>
+                <li>Video generation (10-30 videos depending on tier): $20-120/month</li>
+                <li>Bandwidth & storage: $5-10/month</li>
+            </ul>
+            <p style="color: #3182ce; font-size: 1.2rem; font-weight: 600; margin-top: 1rem;">Estimated COGS: $30-140/month (usage-dependent)</p>
+            <p style="color: #2d3748; margin-top: 1rem;"><strong>Target gross margin: 75-80%</strong></p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Customer Acquisition Economics</h3>
+        <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px;">
+            <p style="color: #4a5568;">Target CAC with AWS co-marketing: <strong>$100-150</strong></p>
+            <p style="color: #4a5568; margin-top: 1rem;">Payback period at $200 ARPU: <strong>3-4 months</strong></p>
+            <p style="color: #4a5568; margin-top: 1rem;">LTV/CAC target: <strong>3:1</strong> (assuming 12-month average retention)</p>
+        </div>
+
+        <h3 style="margin-top: 2rem;">At Scale: 2,000 Customers ($400K MRR)</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">$4.8M</div>
+                <div class="stat-label">Annual Recurring Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">~$3.6M</div>
+                <div class="stat-label">Gross Profit (75% margin)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$1.5M</div>
+                <div class="stat-label">Estimated OpEx</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$2M+</div>
+                <div class="stat-label">Estimated EBITDA</div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Slide 12: Investment Ask -->
+<div class="slide">
+    <div class="slide-number">12 / 14</div>
+    <div class="slide-content">
+        <h2>Investment Ask: <span class="accent-text">$500K Seed Round</span></h2>
+        
+        <h3>Capital Allocation</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">Product Development (60% - $300K)</div>
+                <ul style="margin-top: 1rem;">
+                    <li>Senior mobile developers (iOS/Android expertise)</li>
+                    <li>Computer vision specialist (YOLOv8 optimization)</li>
+                    <li>Real-time guidance system refinement</li>
+                    <li>Quality scoring interface optimization</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Infrastructure & APIs (25% - $125K)</div>
+                <ul style="margin-top: 1rem;">
+                    <li>Brand training pipeline optimization</li>
+                    <li>AWS infrastructure with Solutions Architect support</li>
+                    <li>API costs for video generation at scale</li>
+                    <li>Multi-scene generation refinement</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Go-to-Market (15% - $75K)</div>
+                <ul style="margin-top: 1rem;">
+                    <li>Beta customer acquisition campaigns</li>
+                    <li>AWS co-marketing program execution</li>
+                    <li>Customer success specialist</li>
+                    <li>Content marketing for organic growth</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Key Milestones</h3>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q4 2025</div>
+                <div style="color: #2d3748; margin: 0.5rem 0;">Beta Launch</div>
+                <div class="stat-label">50 customers<br>$7.5K MRR<br>PMF validation</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q4 2026</div>
+                <div style="color: #2d3748; margin: 0.5rem 0;">Growth Phase</div>
+                <div class="stat-label">1,200 customers<br>$228K MRR<br>Proven economics</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-quarter">Q2 2027</div>
+                <div style="color: #2d3748; margin: 0.5rem 0;">Series A Ready</div>
+                <div class="stat-label">2,000 customers<br>$400K MRR<br>$4.8M ARR</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Series A Positioning</h3>
+        <div style="background: #ebf8ff; padding: 2rem; border-radius: 8px; margin-top: 1rem;">
+            <p style="color: #2d3748;">At $4.8M ARR with demonstrated growth trajectory, typical SaaS companies raise Series A at 10-15x revenue multiples.</p>
+            <p style="color: #3182ce; font-size: 1.4rem; font-weight: 700; margin: 1rem 0;">Estimated valuation range: $48M-72M</p>
+            <p style="color: #4a5568; font-size: 0.95rem;">Assumes execution on growth plan, maintained unit economics, and sustained differentiation during 12-18 month competitive window.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 13: Team & Hiring Plan -->
+<div class="slide">
+    <div class="slide-number">13 / 14</div>
+    <div class="slide-content">
+        <h2>Team: Maria Sheikh, Founder</h2>
+        
+        <h3>Demonstrated Capabilities</h3>
+        <ul>
+            <li><strong>Technical execution:</strong> Solo-built CF Studio from concept to paying customers in 6 months</li>
+            <li><strong>Multi-API orchestration:</strong> Proven integration capabilities across Runway, VEO, CLAID, ElevenLabs</li>
+            <li><strong>AWS relationship:</strong> Secured 160 hours funded development + 4 dedicated Solutions Architects</li>
+            <li><strong>Product insight:</strong> Identified input quality as fundamental problem through CF Studio user feedback</li>
+            <li><strong>Rapid iteration:</strong> Demonstrated ability to ship production-grade platforms quickly</li>
+        </ul>
+
+        <h3 style="margin-top: 2rem;">Development Areas</h3>
+        <ul>
+            <li>Scaled customer acquisition (organic growth to 13 users; need paid channel expertise)</li>
+            <li>Team building and management (solo development to date)</li>
+            <li>B2B sales processes (CF Studio was organic B2C)</li>
+            <li>Product-led growth optimization</li>
+        </ul>
+
+        <h3 style="margin-top: 3rem;">Initial Hiring Plan (Months 1-6)</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">Senior Mobile Developer</div>
+                <p>Flutter expertise for iOS/Android. 30+ FPS optimization, camera integration, real-time processing. Compensation: $120K-150K.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Computer Vision Engineer</div>
+                <p>YOLOv8 specialist for quality scoring system. Real-time inference optimization, model training pipeline. Compensation: $130K-160K.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">Customer Success Lead</div>
+                <p>Beta customer onboarding, feedback loops, retention optimization. Convert user insights to product improvements. Compensation: $80K-100K.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Founder Profile</h3>
+        <p style="color: #4a5568;">Technical founder with proven shipping capability and early customer validation. Limited operational experience scaling beyond early stage. Seeking investors who back technical founders learning distribution and operations while building.</p>
+    </div>
+</div>
+
+<!-- Slide 14: Contact -->
+<div class="slide">
+    <div class="slide-number">14 / 14</div>
+    <div class="slide-content center-content">
+        <h1>Investment Discussion</h1>
+        
+        <div class="contact-info">
+            <h3 style="color: #2d3748; font-size: 2rem;">Maria Sheikh, Founder</h3>
+            <p style="color: #3182ce; font-size: 1.4rem; margin: 1rem 0;">maria@contentfactory.ai</p>
+            <p style="color: #718096;">CF Studio Platform: contentfactory.ai</p>
+        </div>
+
+        <div style="margin-top: 3rem; padding: 2.5rem; background: #f7fafc; border-radius: 8px; border-left: 4px solid #3182ce; text-align: left; max-width: 700px; margin-left: auto; margin-right: auto;">
+            <h3 style="margin-top: 0; color: #2d3748;">Investment Opportunity Summary</h3>
+            <p style="color: #4a5568; line-height: 1.7;">
+                Flickra addresses the fundamental input quality problem limiting current AI video tools through personalized brand training and real-time mobile guidance. CF Studio demonstrates technical execution capability and initial customer validation. AWS partnership provides infrastructure support and co-marketing opportunities.
+            </p>
+            <p style="color: #4a5568; line-height: 1.7; margin-top: 1rem;">
+                Technical architecture validated. Market opportunity confirmed. Customer pain point acute. Execution requires building distribution capabilities while leveraging proven technical foundation. Growth trajectory targets 2,000 customers in 18 months—representing 150x acceleration requiring consistent execution across product development and customer acquisition.
+            </p>
+            <p style="color: #4a5568; line-height: 1.7; margin-top: 1rem;">
+                Seeking $500K seed to build team executing on distribution while maintaining product development velocity. Downside scenario delivers solid business serving specific customer segment. Upside scenario establishes category leadership before major platform competition.
+            </p>
+            <p style="color: #2d3748; font-weight: 600; margin-top: 1.5rem; font-size: 1.05rem;">
+                Opportunity for investors backing technical founders solving real problems with defensible approaches.
+            </p>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 3rem;">
+            <div class="stat-card">
+                <div class="stat-number">$500K</div>
+                <div class="stat-label">Seed Round</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">18 Months</div>
+                <div class="stat-label">To Series A Readiness</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$4.8M ARR</div>
+                <div class="stat-label">Target Revenue</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
