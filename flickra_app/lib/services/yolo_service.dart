@@ -1,12 +1,14 @@
-import 'dart:typed_data';
-import 'dart:io';
+ import 'dart:typed_data';
 import 'package:camera/camera.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
-import 'package:image/image.dart' as img;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/detection_result.dart';
 
+// Conditional imports - only load tflite on mobile
+import 'package:tflite_flutter/tflite_flutter.dart' if (dart.library.html) 'dart:core';
+import 'package:image/image.dart' as img;
+
 class YoloService {
-  Interpreter? _interpreter;
+  dynamic _interpreter; // Use dynamic to avoid type issues on web
   List<String> _labels = [];
   bool _isModelLoaded = false;
   
@@ -18,12 +20,18 @@ class YoloService {
   bool get isModelLoaded => _isModelLoaded;
 
   Future<bool> loadModel({String? modelPath}) async {
+    // Web doesn't support TFLite - use simulation mode
+    if (kIsWeb) {
+      print('Running in web simulation mode - TFLite not supported');
+      _isModelLoaded = false;
+      return false; // Indicates simulation mode
+    }
+
     try {
-      // For now, we'll use a placeholder path
-      // Later this will load the actual trained model from assets
+      // For mobile platforms, load the actual model
       String assetPath = modelPath ?? 'assets/models/yolov8_model.tflite';
       
-      // Load the TFLite model
+      // Load the TFLite model (only on mobile)
       _interpreter = await Interpreter.fromAsset(assetPath);
       
       // Load labels (this will come from training)
@@ -46,7 +54,7 @@ class YoloService {
   }
 
   Future<List<DetectionResult>> detectObjects(CameraImage cameraImage) async {
-    if (!_isModelLoaded) {
+    if (!_isModelLoaded || kIsWeb) {
       return _simulateDetection(); // Fallback to simulation
     }
 
@@ -166,8 +174,10 @@ class YoloService {
     
     var output = List.generate(1, (i) => List.generate(1000, (j) => List.filled(6, 0.0)));
     
-    // Run the actual inference
-    _interpreter?.run(input, output);
+    // Run the actual inference (only on mobile when model is loaded)
+    if (_interpreter != null && !kIsWeb) {
+      (_interpreter as Interpreter).run(input, output);
+    }
     
     return output[0]; // Return first batch
   }
@@ -246,7 +256,6 @@ class YoloService {
     double area1 = box1.width * box1.height;
     double area2 = box2.width * box2.height;
     double union = area1 + area2 - intersection;
-    
     return intersection / union;
   }
 
@@ -270,8 +279,10 @@ class YoloService {
   }
 
   void dispose() {
-    _interpreter?.close();
+    if (!kIsWeb && _interpreter != null) {
+      (_interpreter as Interpreter).close();
+    }
     _interpreter = null;
     _isModelLoaded = false;
   }
-} 
+}
