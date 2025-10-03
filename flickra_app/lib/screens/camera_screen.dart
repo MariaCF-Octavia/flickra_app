@@ -4,9 +4,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../services/yolo_service.dart';
 import '../models/detection_result.dart';
 
-// Get cameras from main.dart
-
-
 class CameraScreen extends StatefulWidget {
   @override
   _CameraScreenState createState() => _CameraScreenState();
@@ -37,6 +34,9 @@ class _CameraScreenState extends State<CameraScreen> {
       return;
     }
 
+    // Get available cameras
+    final cameras = await availableCameras();
+    
     if (cameras.isEmpty) {
       print('No cameras available');
       return;
@@ -420,4 +420,4 @@ class DetectionPainter extends CustomPainter {
   bool shouldRepaint(DetectionPainter oldDelegate) {
     return detectionResults != oldDelegate.detectionResults;
   }
-}
+} 
