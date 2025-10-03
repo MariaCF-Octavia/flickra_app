@@ -1,11 +1,11 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/yolo_service.dart';
 import '../models/detection_result.dart';
 
 // Get cameras from main.dart
-extern List<CameraDescription> cameras;
+
 
 class CameraScreen extends StatefulWidget {
   @override
