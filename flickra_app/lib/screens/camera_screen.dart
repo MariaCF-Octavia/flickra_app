@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/yolo_service.dart';
 import '../models/detection_result.dart';
+import '../screens/training_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   @override

@@ -1,10 +1,11 @@
- import 'dart:typed_data';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/detection_result.dart';
+import 'package:image/image.dart' as img;
 
-// Conditional imports - only load tflite on mobile
-import 'package:tflite_flutter/tflite_flutter.dart' if (dart.library.html) 'dart:core';
+// Only import tflite on mobile platforms
+import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 
 class YoloService {
